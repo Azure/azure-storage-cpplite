@@ -58,4 +58,4 @@ build
 .vs/
 
 # Test framework
-./test/catch2/
+test/catch2

@@ -4,7 +4,6 @@
 #include <sys/stat.h>
 #ifdef __linux__
 #include <unistd.h>
-#include <uuid/uuid.h>
 #else
 #include <Rpc.h>
 #endif //__linux__
@@ -67,7 +66,7 @@ namespace microsoft_azure {
         std::string to_base64(const char* base, size_t length)
         {
             std::string result;
-            for(int offset = 0; length - offset > 3; offset += 3)
+            for(int offset = 0; length - offset >= 3; offset += 3)
             {
                 const char* ptr = base + offset;
                 unsigned char idx0 = ptr[0] >> 2;
@@ -287,7 +286,6 @@ namespace microsoft_azure {
             try
             {
                 auto task = m_blobClient->list_containers(prefix, include_metadata);
-                task.wait();
                 auto result = task.get();
 
                 if(!result.success())
@@ -321,7 +319,6 @@ namespace microsoft_azure {
             try
             {
                 auto task = m_blobClient->list_blobs_hierarchical(container, delimiter, continuation_token, prefix, max_results);
-                task.wait();
                 auto result = task.get();
 
                 if(!result.success())
@@ -374,7 +371,6 @@ namespace microsoft_azure {
             try
             {
                 auto task = m_blobClient->upload_block_blob_from_stream(container, blob, ifs, metadata);
-                task.wait();
                 auto result = task.get();
                 if(!result.success())
                 {
@@ -419,7 +415,6 @@ namespace microsoft_azure {
             try
             {
                 auto task = m_blobClient->upload_block_blob_from_stream(container, blob, is, metadata);
-                task.wait();
                 auto result = task.get();
                 if(!result.success())
                 {
@@ -536,11 +531,10 @@ namespace microsoft_azure {
                     result = unknown_error;
                     break;
                 }
-                uuid_t uuid;
-                char uuid_cstr[37]; // 36 byte uuid plus null.
-                uuid_generate(uuid);
-                uuid_unparse(uuid, uuid_cstr);
-                const std::string block_id(to_base64(uuid_cstr, 36));
+                std::string raw_block_id = std::to_string(idx);
+                //pad the string to length of 6.
+                raw_block_id.insert(raw_block_id.begin(), 6 - raw_block_id.length(), '0');
+                const std::string block_id(to_base64(raw_block_id.c_str(), 6));
                 put_block_list_request_base::block_item block;
                 block.id = block_id;
                 block.type = put_block_list_request_base::block_type::uncommitted;

@@ -24,4 +24,12 @@ namespace as_test {
         }
         return results;
     }
+
+    std::string get_base64_block_id(unsigned id)
+    {
+        std::string raw_block_id = std::to_string(id);
+        //pad the string to length of 6.
+        raw_block_id.insert(raw_block_id.begin(), 6 - raw_block_id.length(), '0');
+        return to_base64(raw_block_id.c_str(), 6);
+    }
 }

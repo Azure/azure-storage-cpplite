@@ -125,12 +125,12 @@ endif()
 add_definitions(-std=c++11)
 set(WARNING "-Wall -Wextra -Werror -pedantic -pedantic-errors")
 set(CMAKE_CXX_FLAGS "${CMAKE_THREAD_LIBS_INIT} ${WARNING} ${CMAKE_CXX_FLAGS}")
-include_directories(${CMAKE_SOURCE_DIR}/include ${CURL_INCLUDE_DIRS} ${OPENSSL_INCLUDE_DIR} ${UUID_INCLUDE_DIR} ${EXTRA_INCLUDE})
+include_directories(${CMAKE_SOURCE_DIR}/include ${CURL_INCLUDE_DIRS} ${OPENSSL_INCLUDE_DIR} ${EXTRA_INCLUDE})
 
 set(CMAKE_MACOSX_RPATH ON)
 add_library(azure-storage SHARED ${AZURE_STORAGE_HEADER} ${AZURE_STORAGE_SOURCE})
 
-target_link_libraries(azure-storage ${CURL_LIBRARIES} ${OPENSSL_CRYPTO_LIBRARY} ${OPENSSL_SSL_LIBRARY} ${UUID_LIBRARIES} ${EXTRA_LIBRARIES})
+target_link_libraries(azure-storage ${CURL_LIBRARIES} ${OPENSSL_CRYPTO_LIBRARY} ${OPENSSL_SSL_LIBRARY} ${EXTRA_LIBRARIES})
 
 add_subdirectory(sample)
 add_subdirectory(test)

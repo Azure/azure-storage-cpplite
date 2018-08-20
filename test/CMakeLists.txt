@@ -14,7 +14,11 @@ set(AZURE_STORAGE_TEST_SOURCE
   test_base.cpp
   integration/blob_integration_base.cpp
 
-  integration/blob_client_integration_test.cpp
+  integration/blob_container_integration_test.cpp
+  integration/blob_general_integration_test.cpp
+  integration/block_blob_integration_test.cpp
+  integration/append_blob_integration_test.cpp
+  integration/page_blob_integration_test.cpp
 )
 
 

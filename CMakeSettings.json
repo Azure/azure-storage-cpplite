@@ -29,7 +29,7 @@
       "remoteCopySourcesOutputVerbosity": "Normal",
       "remoteCopySourcesConcurrentCopies": "10",
       "cmakeCommandArgs": "",
-      "ctestCommandArgs": "Delete containers",
+      "ctestCommandArgs": "",
       "buildCommandArgs": "-m",
       "inheritEnvironments": [ "linux-x64" ]
     }

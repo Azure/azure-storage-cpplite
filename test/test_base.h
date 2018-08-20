@@ -6,14 +6,16 @@
 
 namespace as_test {
 
-	std::string get_random_string(size_t size);
+    std::string get_random_string(size_t size);
+    std::istringstream get_istringstream_with_random_buffer(size_t size);
+    std::string to_base64(const char* base, size_t length);
 
 	class base {
     public:
 		static microsoft_azure::storage::blob_client& test_blob_client(int size = 1);
 
 		static const std::string& standard_storage_connection_string() {
-			static std::string sscs = "DefaultEndpointsProtocol=http;EndpointSuffix=core.windows.net";
+			static std::string sscs = "DefaultEndpointsProtocol=http;";
 			return sscs;
 		}
 
