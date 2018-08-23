@@ -1,5 +1,10 @@
 cmake_minimum_required(VERSION 2.8)
 
+project(azurestoragelite)
+
+option(BUILD_TESTS "Build test codes" OFF)
+option(BUILD_SAMPLES "Build sample codes" OFF)
+
 set(AZURE_STORAGE_HEADER
   include/storage_EXPORTS.h
 
@@ -112,7 +117,6 @@ option(USE_OPENSSL "Use OpenSSL instead of GnuTLS" OFF)
 
 find_package(Threads REQUIRED)
 find_package(OpenSSL REQUIRED)
-pkg_search_module(UUID REQUIRED uuid)
 
 if (NOT ${USE_OPENSSL})
   find_package(GnuTLS REQUIRED)
@@ -132,5 +136,46 @@ add_library(azure-storage SHARED ${AZURE_STORAGE_HEADER} ${AZURE_STORAGE_SOURCE}
 
 target_link_libraries(azure-storage ${CURL_LIBRARIES} ${OPENSSL_CRYPTO_LIBRARY} ${OPENSSL_SSL_LIBRARY} ${EXTRA_LIBRARIES})
 
-add_subdirectory(sample)
-add_subdirectory(test)
+if(BUILD_TESTS)
+  add_subdirectory(test)
+endif()
+
+if(BUILD_SAMPLES)
+  add_subdirectory(sample)
+endif()
+
+if (WIN32 OR UNIX)
+  file(GLOB BLOB_HEADERS includes/blob/*.h)
+  install(FILES ${BLOB_HEADERS} DESTINATION include/blob)
+
+  file(GLOB HTTP_HEADERS includes/http/*.h)
+  install(FILES ${HTTP_HEADERS} DESTINATION include/http)
+
+  file(GLOB TODO_HEADERS includes/todo/*.h)
+  install(FILES ${HTTP_HEADERS} DESTINATION todo/http)
+
+  file(GLOB GENERAL_HEADERS includes/*.h)
+  install(FILES ${GENERAL_HEADERS} DESTINATION include)
+
+  file(GLOB GENERAL_DATA includes/*.dat)
+  install(FILES ${GENERAL_DATA} DESTINATION include)
+endif()
+
+# Reconfigure final output directory
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/Binaries)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/Binaries)
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/Binaries)
+
+# Set version numbers centralized
+set (AZURESTORAGE_VERSION_MAJOR 0)
+set (AZURESTORAGE_VERSION_MINOR 1)
+set (AZURESTORAGE_VERSION_REVISION 0)
+
+# Set output directories.
+if(NOT DEFINED CMAKE_INSTALL_BINDIR)
+  set(CMAKE_INSTALL_BINDIR bin)
+endif()
+
+if(NOT DEFINED CMAKE_INSTALL_LIBDIR)
+  set(CMAKE_INSTALL_LIBDIR lib)
+endif()

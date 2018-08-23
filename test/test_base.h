@@ -15,7 +15,7 @@ namespace as_test {
 		static microsoft_azure::storage::blob_client& test_blob_client(int size = 1);
 
 		static const std::string& standard_storage_connection_string() {
-			static std::string sscs = "DefaultEndpointsProtocol=http;";
+			static std::string sscs = "DefaultEndpointsProtocol=https;";
 			return sscs;
 		}
 
