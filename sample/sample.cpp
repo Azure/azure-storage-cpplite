@@ -9,7 +9,7 @@
 #include "blob/blob_client.h"
 
 
-using namespace microsoft_azure::storage;
+using namespace azure::storage_lite;
 
 void checkstatus()
 {
@@ -68,7 +68,7 @@ int main()
     assert(errno == 0);
     std::cout <<"Size of BLob: " << blobProperty.size << std::endl;
 
-    auto blobs = bc.list_blobs_hierarchical(containerName, "/", "", "");
+    auto blobs = bc.list_blobs_segmented(containerName, "/", "", "");
     std::cout <<"Size of BLobs: " << blobs.blobs.size() << std::endl;
     std::cout <<"Error Size of BLobs: " << errno << std::endl;
     assert(errno == 0);

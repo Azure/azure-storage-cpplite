@@ -12,7 +12,7 @@ namespace as_test {
 
 	class base {
     public:
-		static microsoft_azure::storage::blob_client& test_blob_client(int size = 1);
+		static azure::storage_lite::blob_client& test_blob_client(int size = 1);
 
 		static const std::string& standard_storage_connection_string() {
 			static std::string sscs = "DefaultEndpointsProtocol=https;";
@@ -20,7 +20,7 @@ namespace as_test {
 		}
 
     private:
-        static const std::shared_ptr<microsoft_azure::storage::storage_account> init_account(const std::string& connection_string);
+        static const std::shared_ptr<azure::storage_lite::storage_account> init_account(const std::string& connection_string);
         static std::map<std::string, std::string> parse_string_into_settings(const std::string& connection_string);
 	};
 }

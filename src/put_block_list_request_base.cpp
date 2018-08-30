@@ -5,10 +5,10 @@
 #include "xml_writer.h"
 #include "storage_stream.h"
 
-namespace microsoft_azure {
-namespace storage {
+namespace azure {  namespace storage_lite {
 
-void put_block_list_request_base::build_request(const storage_account &a, http_base &h) const {
+void put_block_list_request_base::build_request(const storage_account &a, http_base &h) const
+{
     const auto &r = *this;
 
     h.set_absolute_timeout(30L);
@@ -57,5 +57,4 @@ void put_block_list_request_base::build_request(const storage_account &a, http_b
     a.credential()->sign_request(r, h, url, headers);
 }
 
-}
-}
+}}  // azure::storage_lite

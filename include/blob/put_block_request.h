@@ -2,45 +2,49 @@
 
 #include "put_block_request_base.h"
 
-namespace microsoft_azure {
-    namespace storage {
+namespace azure {  namespace storage_lite {
 
-        class put_block_request : public put_block_request_base {
-        public:
-            put_block_request(const std::string &container, const std::string &blob, const std::string &blockid)
-                : m_container(container),
-                m_blob(blob),
-                m_blockid(blockid),
-                m_content_length(0) {}
+    class put_block_request : public put_block_request_base
+    {
+    public:
+        put_block_request(const std::string &container, const std::string &blob, const std::string &blockid)
+            : m_container(container),
+            m_blob(blob),
+            m_blockid(blockid),
+            m_content_length(0) {}
 
-            std::string container() const override {
-                return m_container;
-            }
+        std::string container() const override
+        {
+            return m_container;
+        }
 
-            std::string blob() const override {
-                return m_blob;
-            }
+        std::string blob() const override
+        {
+            return m_blob;
+        }
 
-            std::string blockid() const override {
-                return m_blockid;
-            }
+        std::string blockid() const override
+        {
+            return m_blockid;
+        }
 
-            unsigned int content_length() const override {
-                return m_content_length;
-            }
+        unsigned int content_length() const override
+        {
+            return m_content_length;
+        }
 
-            put_block_request &set_content_length(unsigned int content_length) {
-                m_content_length = content_length;
-                return *this;
-            }
+        put_block_request &set_content_length(unsigned int content_length)
+        {
+            m_content_length = content_length;
+            return *this;
+        }
 
-        private:
-            std::string m_container;
-            std::string m_blob;
-            std::string m_blockid;
+    private:
+        std::string m_container;
+        std::string m_blob;
+        std::string m_blockid;
 
-            unsigned int m_content_length;
-        };
+        unsigned int m_content_length;
+    };
 
-    }
-}
+}}  // azure::storage_lite

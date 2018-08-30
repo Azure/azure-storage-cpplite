@@ -96,18 +96,18 @@ namespace as_test {
         return result;
     }
 
-	microsoft_azure::storage::blob_client& base::test_blob_client(int size) {
-		static std::unordered_map<int, std::shared_ptr<microsoft_azure::storage::blob_client>> bcs;
+	azure::storage_lite::blob_client& base::test_blob_client(int size) {
+		static std::unordered_map<int, std::shared_ptr<azure::storage_lite::blob_client>> bcs;
 		if (bcs[size] == NULL)
 		{
-            bcs[size] = std::make_shared<microsoft_azure::storage::blob_client>(microsoft_azure::storage::blob_client(init_account(standard_storage_connection_string()), size));
+            bcs[size] = std::make_shared<azure::storage_lite::blob_client>(azure::storage_lite::blob_client(init_account(standard_storage_connection_string()), size));
 		}
 		return *bcs[size];
 	}
 
-    const std::shared_ptr<microsoft_azure::storage::storage_account> base::init_account(const std::string& connection_string) {
+    const std::shared_ptr<azure::storage_lite::storage_account> base::init_account(const std::string& connection_string) {
 		auto settings = parse_string_into_settings(connection_string);
-		auto credential = std::make_shared<microsoft_azure::storage::shared_key_credential>(microsoft_azure::storage::shared_key_credential(settings["AccountName"], settings["AccountKey"]));
+		auto credential = std::make_shared<azure::storage_lite::shared_key_credential>(azure::storage_lite::shared_key_credential(settings["AccountName"], settings["AccountKey"]));
 		bool use_https = true;
 		if (settings["DefaultEndpointsProtocol"] == "http")
 		{
@@ -119,7 +119,7 @@ namespace as_test {
 			blob_endpoint = settings["BlobEndpoint"];
 		}
 
-		return std::make_shared<microsoft_azure::storage::storage_account>(microsoft_azure::storage::storage_account(settings["AccountName"], credential, use_https, blob_endpoint));
+		return std::make_shared<azure::storage_lite::storage_account>(azure::storage_lite::storage_account(settings["AccountName"], credential, use_https, blob_endpoint));
 	}
 
 	std::map<std::string, std::string> base::parse_string_into_settings(const std::string& connection_string)

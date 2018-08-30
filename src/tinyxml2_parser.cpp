@@ -2,10 +2,10 @@
 
 #include "utility.h"
 
-namespace microsoft_azure {
-namespace storage {
+namespace azure {  namespace storage_lite {
 
-std::string tinyxml2_parser::parse_text(tinyxml2::XMLElement *ele, const std::string &name) const {
+std::string tinyxml2_parser::parse_text(tinyxml2::XMLElement *ele, const std::string &name) const
+{
     std::string text;
     ele = ele->FirstChildElement(name.data());
     if (ele && ele->FirstChild()) {
@@ -15,7 +15,8 @@ std::string tinyxml2_parser::parse_text(tinyxml2::XMLElement *ele, const std::st
     return text;
 }
 
-unsigned long long tinyxml2_parser::parse_long(tinyxml2::XMLElement *ele, const std::string &name) const {
+unsigned long long tinyxml2_parser::parse_long(tinyxml2::XMLElement *ele, const std::string &name) const
+{
     unsigned long long result = 0;
 
     std::string text = parse_text(ele, name);
@@ -27,11 +28,13 @@ unsigned long long tinyxml2_parser::parse_long(tinyxml2::XMLElement *ele, const 
     return result;
 }
 
-storage_error tinyxml2_parser::parse_storage_error(const std::string &xml) const {
+storage_error tinyxml2_parser::parse_storage_error(const std::string &xml) const
+{
     storage_error error;
 
     tinyxml2::XMLDocument xdoc;
-    if (xdoc.Parse(xml.data(), xml.size()) == tinyxml2::XMLError::XML_SUCCESS) {
+    if (xdoc.Parse(xml.data(), xml.size()) == tinyxml2::XMLError::XML_SUCCESS)
+    {
         auto xerror = xdoc.FirstChildElement("Error");
         error.code_name = parse_text(xerror, "Code");
         error.message = parse_text(xerror, "Message");
@@ -40,7 +43,8 @@ storage_error tinyxml2_parser::parse_storage_error(const std::string &xml) const
     return error;
 }
 
-list_containers_item tinyxml2_parser::parse_list_containers_item(tinyxml2::XMLElement *ele) const {
+list_containers_item tinyxml2_parser::parse_list_containers_item(tinyxml2::XMLElement *ele) const
+{
     list_containers_item item;
 
     item.name = parse_text(ele, "Name");
@@ -52,34 +56,18 @@ list_containers_item tinyxml2_parser::parse_list_containers_item(tinyxml2::XMLEl
     item.state = parse_lease_state(parse_text(xproperty, "LeaseState"));
     item.duration = parse_lease_duration(parse_text(xproperty, "LeaseDuration"));
 
-    //parse_metadata
+    //TODO: parse_metadata
 
     return item;
 }
 
-/*list_containers_response tinyxml2_parser::parse_list_containers_response(const std::string &xml, std::vector<list_containers_item> &items) const {
+list_containers_response tinyxml2_parser::parse_list_containers_response(const std::string &xml) const
+{
     list_containers_response response;
 
     tinyxml2::XMLDocument xdoc;
-    if (xdoc.Parse(xml.data(), xml.size()) == tinyxml2::XML_SUCCESS) {
-        auto xresults = xdoc.FirstChildElement("EnumerationResults");
-        response.next_marker = parse_text(xresults, "NextMarker");
-        auto xcontainers = xresults->FirstChildElement("Containers");
-        auto xcontainer = xcontainers->FirstChildElement("Container");
-        while (xcontainer) {
-            items.push_back(parse_list_containers_item(xcontainer));
-            xcontainer = xcontainer->NextSiblingElement("Container");
-        }
-    }
-
-    return response;
-}*/
-
-list_containers_response tinyxml2_parser::parse_list_containers_response(const std::string &xml) const {
-    list_containers_response response;
-
-    tinyxml2::XMLDocument xdoc;
-    if (xdoc.Parse(xml.data(), xml.size()) == tinyxml2::XML_SUCCESS) {
+    if (xdoc.Parse(xml.data(), xml.size()) == tinyxml2::XML_SUCCESS)
+    {
         auto xresults = xdoc.FirstChildElement("EnumerationResults");
         response.next_marker = parse_text(xresults, "NextMarker");
         auto xitems = xresults->FirstChildElement("Containers");
@@ -93,7 +81,8 @@ list_containers_response tinyxml2_parser::parse_list_containers_response(const s
     return response;
 }
 
-list_blobs_item tinyxml2_parser::parse_list_blobs_item(tinyxml2::XMLElement *ele) const {
+list_blobs_item tinyxml2_parser::parse_list_blobs_item(tinyxml2::XMLElement *ele) const
+{
     list_blobs_item item;
 
     item.name = parse_text(ele, "Name");
@@ -116,7 +105,8 @@ list_blobs_item tinyxml2_parser::parse_list_blobs_item(tinyxml2::XMLElement *ele
     return item;
 }
 
-list_blobs_response tinyxml2_parser::parse_list_blobs_response(const std::string &xml) const {
+list_blobs_response tinyxml2_parser::parse_list_blobs_response(const std::string &xml) const
+{
     list_blobs_response response;
 
     tinyxml2::XMLDocument xdoc;
@@ -134,7 +124,8 @@ list_blobs_response tinyxml2_parser::parse_list_blobs_response(const std::string
     return response;
 }
 
-std::vector<std::pair<std::string, std::string>> tinyxml2_parser::parse_blob_metadata(tinyxml2::XMLElement *ele) const {
+std::vector<std::pair<std::string, std::string>> tinyxml2_parser::parse_blob_metadata(tinyxml2::XMLElement *ele) const
+{
     std::vector<std::pair<std::string, std::string>> metadata;
     tinyxml2::XMLElement *current = ele->FirstChildElement();
     while (current)
@@ -147,8 +138,9 @@ std::vector<std::pair<std::string, std::string>> tinyxml2_parser::parse_blob_met
     return metadata;
 }
 
-list_blobs_hierarchical_item tinyxml2_parser::parse_list_blobs_hierarchical_item(tinyxml2::XMLElement *ele, bool is_directory) const {
-    list_blobs_hierarchical_item item;
+list_blobs_segmented_item tinyxml2_parser::parse_list_blobs_segmented_item(tinyxml2::XMLElement *ele, bool is_directory) const
+{
+    list_blobs_segmented_item item;
 
     item.name = parse_text(ele, "Name");
     item.is_directory = is_directory;
@@ -177,23 +169,27 @@ list_blobs_hierarchical_item tinyxml2_parser::parse_list_blobs_hierarchical_item
     return item;
 }
 
-list_blobs_hierarchical_response tinyxml2_parser::parse_list_blobs_hierarchical_response(const std::string &xml) const {
-    list_blobs_hierarchical_response response;
+list_blobs_segmented_response tinyxml2_parser::parse_list_blobs_segmented_response(const std::string &xml) const
+{
+    list_blobs_segmented_response response;
 
     tinyxml2::XMLDocument xdoc;
-    if (xdoc.Parse(xml.data(), xml.size()) == tinyxml2::XML_SUCCESS) {
+    if (xdoc.Parse(xml.data(), xml.size()) == tinyxml2::XML_SUCCESS)
+    {
         auto xresults = xdoc.FirstChildElement("EnumerationResults");
         response.next_marker = parse_text(xresults, "NextMarker");
         auto xitems = xresults->FirstChildElement("Blobs");
         auto xitem = xitems->FirstChildElement("Blob");
-        while (xitem) {
-            response.blobs.push_back(parse_list_blobs_hierarchical_item(xitem, false));
+        while (xitem)
+        {
+            response.blobs.push_back(parse_list_blobs_segmented_item(xitem, false));
             xitem = xitem->NextSiblingElement("Blob");
         }
 
         auto xdir = xitems->FirstChildElement("BlobPrefix");
-        while (xdir) {
-            response.blobs.push_back(parse_list_blobs_hierarchical_item(xdir, true));
+        while (xdir)
+        {
+            response.blobs.push_back(parse_list_blobs_segmented_item(xdir, true));
             xdir = xdir->NextSiblingElement("BlobPrefix");
         }
     }
@@ -202,7 +198,8 @@ list_blobs_hierarchical_response tinyxml2_parser::parse_list_blobs_hierarchical_
 }
 
 
-get_block_list_item tinyxml2_parser::parse_get_block_list_item(tinyxml2::XMLElement *ele) const {
+get_block_list_item tinyxml2_parser::parse_get_block_list_item(tinyxml2::XMLElement *ele) const
+{
     get_block_list_item item;
 
     item.name = parse_text(ele, "Name");
@@ -211,11 +208,13 @@ get_block_list_item tinyxml2_parser::parse_get_block_list_item(tinyxml2::XMLElem
     return item;
 }
 
-get_block_list_response tinyxml2_parser::parse_get_block_list_response(const std::string &xml) const {
+get_block_list_response tinyxml2_parser::parse_get_block_list_response(const std::string &xml) const
+{
     get_block_list_response response;
 
     tinyxml2::XMLDocument xdoc;
-    if (xdoc.Parse(xml.data(), xml.size()) == tinyxml2::XML_SUCCESS) {
+    if (xdoc.Parse(xml.data(), xml.size()) == tinyxml2::XML_SUCCESS)
+    {
         auto xresults = xdoc.FirstChildElement("BlockList");
         auto xitems = xresults->FirstChildElement("CommittedBlocks");
         auto xitem = xitems->FirstChildElement("Block");
@@ -235,7 +234,8 @@ get_block_list_response tinyxml2_parser::parse_get_block_list_response(const std
     return response;
 }
 
-get_page_ranges_item tinyxml2_parser::parse_get_page_ranges_item(tinyxml2::XMLElement *ele) const {
+get_page_ranges_item tinyxml2_parser::parse_get_page_ranges_item(tinyxml2::XMLElement *ele) const
+{
     get_page_ranges_item item;
 
     item.start = parse_long(ele, "Start");
@@ -244,11 +244,13 @@ get_page_ranges_item tinyxml2_parser::parse_get_page_ranges_item(tinyxml2::XMLEl
     return item;
 }
 
-get_page_ranges_response tinyxml2_parser::parse_get_page_ranges_response(const std::string &xml) const {
+get_page_ranges_response tinyxml2_parser::parse_get_page_ranges_response(const std::string &xml) const
+{
     get_page_ranges_response response;
 
     tinyxml2::XMLDocument xdoc;
-    if (xdoc.Parse(xml.data(), xml.size()) == tinyxml2::XML_SUCCESS) {
+    if (xdoc.Parse(xml.data(), xml.size()) == tinyxml2::XML_SUCCESS)
+    {
         auto xresults = xdoc.FirstChildElement("PageList");
         auto xitem = xresults->FirstChildElement("PageRange");
         while (xitem) {
@@ -260,5 +262,4 @@ get_page_ranges_response tinyxml2_parser::parse_get_page_ranges_response(const s
     return response;
 }
 
-}
-}
+}}  // azure::storage_lite

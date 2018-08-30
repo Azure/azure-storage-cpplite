@@ -11,8 +11,8 @@
 #include "utility.h"
 #include "constants.h"
 
-namespace microsoft_azure {
-    namespace storage {
+namespace azure {
+    namespace storage_lite {
         namespace experimental {
 
             struct query_entities_request_base : table_request_base {

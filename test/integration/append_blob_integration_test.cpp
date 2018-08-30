@@ -4,7 +4,7 @@
 
 TEST_CASE("Create append blob", "[append blob],[blob_service]")
 {
-    microsoft_azure::storage::blob_client client = as_test::base::test_blob_client();
+    azure::storage_lite::blob_client client = as_test::base::test_blob_client();
     std::string container_name = as_test::create_random_container("", client);
     std::string blob_name = as_test::get_random_string(20);
 
@@ -25,7 +25,7 @@ TEST_CASE("Create append blob", "[append blob],[blob_service]")
 
 TEST_CASE("Append block from stream", "[append blob],[blob_service]")
 {
-    microsoft_azure::storage::blob_client client = as_test::base::test_blob_client();
+    azure::storage_lite::blob_client client = as_test::base::test_blob_client();
     std::string container_name = as_test::create_random_container("", client);
     std::string blob_name = as_test::get_random_string(20);
     auto create_append_blob_outcome = client.create_append_blob(container_name, blob_name).get();

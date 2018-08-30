@@ -19,21 +19,23 @@
 #include "get_container_property_request_base.h"
 #include "list_blobs_request_base.h"
 
-namespace microsoft_azure { namespace storage {
+namespace azure { namespace storage_lite {
 
     /// <summary>
     /// Provides a client-side logical representation of blob storage service on Windows Azure. This client is used to configure and execute requests against the service.
     /// </summary>
     /// <remarks>The service client encapsulates the base URI for the service. If the service client will be used for authenticated access, it also encapsulates the credentials for accessing the storage account.</remarks>
-    class blob_client {
+    class blob_client
+    {
     public:
         /// <summary>
-        /// Initializes a new instance of the <see cref="microsoft_azure::storage::blob_client" /> class.
+        /// Initializes a new instance of the <see cref="azure::storage_lite::blob_client" /> class.
         /// </summary>
-        /// <param name="account">An existing <see cref="microsoft_azure::storage::storage_account" /> object.</param>
+        /// <param name="account">An existing <see cref="azure::storage_lite::storage_account" /> object.</param>
         /// <param name="size">An int value indicates the maximum concurrency expected during execute requests against the service.</param>
         blob_client(std::shared_ptr<storage_account> account, int size)
-            : m_account(account) {
+            : m_account(account)
+        {
             m_context = std::make_shared<executor_context>(std::make_shared<tinyxml2_parser>(), std::make_shared<retry_policy>());
             m_client = std::make_shared<CurlEasyClient>(size);
         }
@@ -41,22 +43,25 @@ namespace microsoft_azure { namespace storage {
         /// <summary>
         /// Gets the curl client used to execute requests.
         /// </summary>
-        /// <returns>The <see cref="microsoft_azure::storage::CurlEasyClient"> object</returns>
-        std::shared_ptr<CurlEasyClient> client() const {
+        /// <returns>The <see cref="azure::storage_lite::CurlEasyClient"> object</returns>
+        std::shared_ptr<CurlEasyClient> client() const
+        {
             return m_client;
         }
 
         /// <summary>
         /// Gets the storage account used to store the base uri and credentails.
         /// </summary>
-        std::shared_ptr<storage_account> account() const {
+        std::shared_ptr<storage_account> account() const
+        {
             return m_account;
         }
 
         /// <summary>
         /// Gets the max parallelism used.
         /// </summary>
-        unsigned int concurrency() const {
+        unsigned int concurrency() const
+        {
             return m_client->size();
         }
 
@@ -128,15 +133,7 @@ namespace microsoft_azure { namespace storage {
         /// <param name="prefix">The container name prefix.</param>
         /// <param name="include_metadata">A bool value, return metadatas if it is true.</param>
         /// <returns>A <see cref="std::future" /> object that represents the current operation.</returns>
-        AZURE_STORAGE_API std::future<storage_outcome<list_containers_response>> list_containers(const std::string &prefix, bool include_metadata = false);
-
-        /// <summary>
-        /// Intitiates an asynchronous operation  to list all blobs.
-        /// </summary>
-        /// <param name="container">The container name.</param>
-        /// <param name="prefix">The blob name prefix.</param>
-        /// <returns>A <see cref="std::future" /> object that represents the current operation.</returns>
-        AZURE_STORAGE_API std::future<storage_outcome<list_blobs_response>> list_blobs(const std::string &container, const std::string &prefix);
+        AZURE_STORAGE_API std::future<storage_outcome<list_containers_response>> list_containers_segmented(const std::string &prefix, const std::string& continuation_token, const int max_result = 5, bool include_metadata = false);
 
         /// <summary>
         /// Intitiates an asynchronous operation  to list blobs in segments.
@@ -146,7 +143,7 @@ namespace microsoft_azure { namespace storage {
         /// <param name="continuation_token">A continuation token returned by a previous listing operation.</param>
         /// <param name="prefix">The blob name prefix.</param>
         /// <returns>A <see cref="std::future" /> object that represents the current operation.</returns>
-        AZURE_STORAGE_API std::future<storage_outcome<list_blobs_hierarchical_response>> list_blobs_hierarchical(const std::string &container, const std::string &delimiter, const std::string &continuation_token, const std::string &prefix, int max_results = 10000);
+        AZURE_STORAGE_API std::future<storage_outcome<list_blobs_segmented_response>> list_blobs_segmented(const std::string &container, const std::string &delimiter, const std::string &continuation_token, const std::string &prefix, int max_results = 10000);
 
         /// <summary>
         /// Intitiates an asynchronous operation  to get the property of a blob.
@@ -267,7 +264,7 @@ namespace microsoft_azure { namespace storage {
         /// <summary>
         /// Constructs a blob client wrapper from a blob client instance.
         /// </summary>
-        /// <param name="blobClient">A <see cref="microsoft_azure::storage::blob_client"> object stored in shared_ptr.</param>
+        /// <param name="blobClient">A <see cref="azure::storage_lite::blob_client"> object stored in shared_ptr.</param>
         explicit blob_client_wrapper(std::shared_ptr<blob_client> blobClient)
             : m_blobClient(blobClient),
             m_valid(true)
@@ -290,7 +287,7 @@ namespace microsoft_azure { namespace storage {
         /// <summary>
         /// Constructs a blob client wrapper from another blob client wrapper instance.
         /// </summary>
-        /// <param name="other">A <see cref="microsoft_azure::storage::blob_client_wrapper"> object.</param>
+        /// <param name="other">A <see cref="azure::storage_lite::blob_client_wrapper"> object.</param>
         blob_client_wrapper(blob_client_wrapper &&other)
         {
             m_blobClient = other.m_blobClient;
@@ -318,7 +315,7 @@ namespace microsoft_azure { namespace storage {
         /// <param name="account_key">The storage account key.</param>
 	/// <param name="sas_token">A sas token for the container.</param>
         /// <param name="concurrency">The maximum number requests could be executed in the same time.</param>
-        /// <returns>Return a <see cref="microsoft_azure::storage::blob_client_wrapper"> object.</returns>
+        /// <returns>Return a <see cref="azure::storage_lite::blob_client_wrapper"> object.</returns>
         static blob_client_wrapper blob_client_wrapper_init(const std::string &account_name, const std::string &account_key, const std::string &sas_token, const unsigned int concurrency);
 
         /// <summary>
@@ -330,7 +327,7 @@ namespace microsoft_azure { namespace storage {
         /// <param name="concurrency">The maximum number requests could be executed in the same time.</param>
         /// <param name="use_https">True if https should be used (instead of HTTP).  Note that this may cause a sizable perf loss, due to issues in libcurl.</param>
         /// <param name="blob_endpoint">Blob endpoint URI to allow non-public clouds as well as custom domains.</param>
-        /// <returns>Return a <see cref="microsoft_azure::storage::blob_client_wrapper"> object.</returns>
+        /// <returns>Return a <see cref="azure::storage_lite::blob_client_wrapper"> object.</returns>
         static blob_client_wrapper blob_client_wrapper_init(const std::string &account_name, const std::string &account_key, const std::string &sas_token, const unsigned int concurrency, bool use_https, 
 							    const std::string &blob_endpoint);
         /* C++ wrappers without exception but error codes instead */
@@ -361,7 +358,7 @@ namespace microsoft_azure { namespace storage {
         /// </summary>
         /// <param name="prefix">The container name prefix.</param>
         /// <param name="include_metadata">A bool value, return metadatas if it is true.</param>
-        std::vector<list_containers_item> list_containers(const std::string &prefix, bool include_metadata = false);
+        std::vector<list_containers_item> list_containers_segmented(const std::string &prefix, const std::string& continuation_token, const int max_result = 5, bool include_metadata = false);
 
         /* blob level */
 
@@ -372,7 +369,7 @@ namespace microsoft_azure { namespace storage {
         /// <param name="delimiter">The delimiter used to designate the virtual directories.</param>
         /// <param name="continuation_token">A continuation token returned by a previous listing operation.</param>
         /// <param name="prefix">The blob name prefix.</param>
-        list_blobs_hierarchical_response list_blobs_hierarchical(const std::string &container, const std::string &delimiter, const std::string &continuation_token, const std::string &prefix, int maxresults = 10000);
+        list_blobs_segmented_response list_blobs_segmented(const std::string &container, const std::string &delimiter, const std::string &continuation_token, const std::string &prefix, int maxresults = 10000);
 
         /// <summary>
         /// Uploads the contents of a blob from a local file, file size need to be equal or smaller than 64MB.
@@ -463,4 +460,4 @@ namespace microsoft_azure { namespace storage {
         bool m_valid;
     };
 
-} } // microsoft_azure::storage
+} } // azure::storage_lite

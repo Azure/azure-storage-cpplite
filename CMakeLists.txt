@@ -5,7 +5,7 @@ project(azurestoragelite)
 option(BUILD_TESTS "Build test codes" OFF)
 option(BUILD_SAMPLES "Build sample codes" OFF)
 
-set(AZURE_STORAGE_HEADER
+set(AZURE_STORAGE_LITE_HEADER
   include/storage_EXPORTS.h
 
   include/base64.h
@@ -75,7 +75,7 @@ set(AZURE_STORAGE_HEADER
   include/todo/set_blob_metadata_request.h
 )
 
-set(AZURE_STORAGE_SOURCE
+set(AZURE_STORAGE_LITE_SOURCE
   src/base64.cpp
   src/constants.cpp
   src/hash.cpp
@@ -117,6 +117,7 @@ option(USE_OPENSSL "Use OpenSSL instead of GnuTLS" OFF)
 
 find_package(Threads REQUIRED)
 find_package(OpenSSL REQUIRED)
+pkg_search_module(UUID REQUIRED uuid)
 
 if (NOT ${USE_OPENSSL})
   find_package(GnuTLS REQUIRED)
@@ -129,12 +130,12 @@ endif()
 add_definitions(-std=c++11)
 set(WARNING "-Wall -Wextra -Werror -pedantic -pedantic-errors")
 set(CMAKE_CXX_FLAGS "${CMAKE_THREAD_LIBS_INIT} ${WARNING} ${CMAKE_CXX_FLAGS}")
-include_directories(${CMAKE_SOURCE_DIR}/include ${CURL_INCLUDE_DIRS} ${OPENSSL_INCLUDE_DIR} ${EXTRA_INCLUDE})
+include_directories(${CMAKE_SOURCE_DIR}/include ${CURL_INCLUDE_DIRS} ${OPENSSL_INCLUDE_DIR} ${UUID_INCLUDE_DIR} ${EXTRA_INCLUDE})
 
 set(CMAKE_MACOSX_RPATH ON)
-add_library(azure-storage SHARED ${AZURE_STORAGE_HEADER} ${AZURE_STORAGE_SOURCE})
+add_library(azure-storage-lite SHARED ${AZURE_STORAGE_LITE_HEADER} ${AZURE_STORAGE_LITE_SOURCE})
 
-target_link_libraries(azure-storage ${CURL_LIBRARIES} ${OPENSSL_CRYPTO_LIBRARY} ${OPENSSL_SSL_LIBRARY} ${EXTRA_LIBRARIES})
+target_link_libraries(azure-storage-lite ${CURL_LIBRARIES} ${OPENSSL_CRYPTO_LIBRARY} ${OPENSSL_SSL_LIBRARY} ${UUID_LIBRARIES} ${EXTRA_LIBRARIES})
 
 if(BUILD_TESTS)
   add_subdirectory(test)
@@ -167,9 +168,9 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/Binaries)
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/Binaries)
 
 # Set version numbers centralized
-set (AZURESTORAGE_VERSION_MAJOR 0)
-set (AZURESTORAGE_VERSION_MINOR 1)
-set (AZURESTORAGE_VERSION_REVISION 0)
+set (AZURE_STORAGE_LITE_VERSION_MAJOR 0)
+set (AZURE_STORAGE_LITE_VERSION_MINOR 1)
+set (AZURE_STORAGE_LITE_VERSION_REVISION 0)
 
 # Set output directories.
 if(NOT DEFINED CMAKE_INSTALL_BINDIR)

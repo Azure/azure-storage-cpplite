@@ -4,9 +4,10 @@
 
 TEST_CASE("Create containers", "[container],[blob_service]")
 {
-    microsoft_azure::storage::blob_client client = as_test::base::test_blob_client();
+    azure::storage_lite::blob_client client = as_test::base::test_blob_client();
     std::string prefix = as_test::get_random_string(10);
-    SECTION("Create container with number and character name successfully") {
+    SECTION("Create container with number and character name successfully")
+    {
         auto container_name = prefix + as_test::get_random_string(10);
         auto first_outcome = client.create_container(container_name).get();
         REQUIRE(first_outcome.success());
@@ -16,7 +17,8 @@ TEST_CASE("Create containers", "[container],[blob_service]")
         client.delete_container(container_name).wait();
     }
 
-    SECTION("Create container with uppercase name unsuccessfully") {
+    SECTION("Create container with uppercase name unsuccessfully")
+    {
         auto container_name = "ABD" + prefix + as_test::get_random_string(10);
         auto first_outcome = client.create_container(container_name).get();
         REQUIRE_FALSE(first_outcome.success());
@@ -27,7 +29,8 @@ TEST_CASE("Create containers", "[container],[blob_service]")
         REQUIRE(second_outcome.response().etag.empty());
     }
 
-    SECTION("Create container with dash in name successfully") {
+    SECTION("Create container with dash in name successfully")
+    {
         auto container_name = prefix + "-" + as_test::get_random_string(10);
         auto first_outcome = client.create_container(container_name).get();
         REQUIRE(first_outcome.success());
@@ -40,9 +43,10 @@ TEST_CASE("Create containers", "[container],[blob_service]")
 
 TEST_CASE("Delete containers", "[container],[blob_service]")
 {
-    microsoft_azure::storage::blob_client client = as_test::base::test_blob_client();
+    azure::storage_lite::blob_client client = as_test::base::test_blob_client();
     std::string prefix = as_test::get_random_string(10);
-    SECTION("Delete existing container successfully") {
+    SECTION("Delete existing container successfully")
+    {
         auto container_name = prefix + as_test::get_random_string(10);
         auto first_outcome = client.create_container(container_name).get();
         REQUIRE(first_outcome.success());
@@ -53,7 +57,8 @@ TEST_CASE("Delete containers", "[container],[blob_service]")
         REQUIRE(third_outcome.success());
     }
 
-    SECTION("Delete in-existing container successfully") {
+    SECTION("Delete in-existing container successfully")
+    {
         auto container_name = prefix + as_test::get_random_string(10);
         auto first_outcome = client.delete_container(container_name).get();
         REQUIRE_FALSE(first_outcome.success());
@@ -62,9 +67,10 @@ TEST_CASE("Delete containers", "[container],[blob_service]")
 
 TEST_CASE("Get Container Property", "[container], [blob_service]")
 {
-    microsoft_azure::storage::blob_client client = as_test::base::test_blob_client();
+    azure::storage_lite::blob_client client = as_test::base::test_blob_client();
     std::string prefix = as_test::get_random_string(10);
-    SECTION("Get container property from existing container") {
+    SECTION("Get container property from existing container")
+    {
         auto container_name = prefix + as_test::get_random_string(10);
         auto first_outcome = client.create_container(container_name).get();
         REQUIRE(first_outcome.success());
@@ -74,16 +80,17 @@ TEST_CASE("Get Container Property", "[container], [blob_service]")
         client.delete_container(container_name).wait();
     }
 
-    SECTION("Get container property from non-existing container") {
+    SECTION("Get container property from non-existing container")
+    {
         auto container_name = prefix + as_test::get_random_string(10);
         auto first_outcome = client.get_container_property(container_name);
         REQUIRE(first_outcome.success());
     }
 }
 
-TEST_CASE("List containers", "[container],[blob_service]")
+TEST_CASE("List containers segmented", "[container],[blob_service]")
 {
-    microsoft_azure::storage::blob_client client = as_test::base::test_blob_client();
+    azure::storage_lite::blob_client client = as_test::base::test_blob_client();
     std::string prefix_1 = as_test::get_random_string(10);
     std::string prefix_2 = as_test::get_random_string(10);
     unsigned container_size = 5;
@@ -99,18 +106,20 @@ TEST_CASE("List containers", "[container],[blob_service]")
     }
 
     SECTION("List containers successfully") {
-        auto list_containers_outcome = client.list_containers("").get();
+        auto list_containers_outcome = client.list_containers_segmented("", "", 10).get();
         REQUIRE(list_containers_outcome.success());
         auto result_containers = list_containers_outcome.response().containers;
-        REQUIRE(result_containers.size() == 2); // Current max result is hard-coded to 2
+        REQUIRE(result_containers.size() == 10);
     }
 
-    SECTION("List containers with prefix successfully") {
+    SECTION("List containers with prefix successfully")
+    {
         {
-            auto list_containers_outcome = client.list_containers(prefix_1).get();
+            auto list_containers_outcome = client.list_containers_segmented(prefix_1, "", 5).get();
             REQUIRE(list_containers_outcome.success());
+            REQUIRE(list_containers_outcome.response().next_marker.empty());
             auto result_containers = list_containers_outcome.response().containers;
-            REQUIRE(result_containers.size() == 2); // Current max result is hard-coded to 2
+            REQUIRE(result_containers.size() == 5);
             for (auto container : result_containers)
             {
                 REQUIRE(std::find(containers.begin(), containers.end(), container.name) != containers.end());
@@ -119,10 +128,11 @@ TEST_CASE("List containers", "[container],[blob_service]")
         }
 
         {
-            auto list_containers_outcome = client.list_containers(prefix_2).get();
+            auto list_containers_outcome = client.list_containers_segmented(prefix_2, "", 5).get();
             REQUIRE(list_containers_outcome.success());
+            REQUIRE(list_containers_outcome.response().next_marker.empty());
             auto result_containers = list_containers_outcome.response().containers;
-            REQUIRE(result_containers.size() == 2); // Current max result is hard-coded to 2
+            REQUIRE(result_containers.size() == 5);
             for (auto container : result_containers)
             {
                 REQUIRE(std::find(containers.begin(), containers.end(), container.name) != containers.end());
@@ -131,16 +141,74 @@ TEST_CASE("List containers", "[container],[blob_service]")
         }
 
         {
-            auto list_containers_outcome = client.list_containers(as_test::get_random_string(20)).get();
+            auto list_containers_outcome = client.list_containers_segmented(as_test::get_random_string(20), "").get();
             REQUIRE(list_containers_outcome.success());
             REQUIRE(list_containers_outcome.response().containers.size() == 0);
         }
     }
 
-    SECTION("List containers with invalid prefix successfully") {
-        auto list_containers_outcome = client.list_containers("1~invalid~~%d_prefix").get();
+    SECTION("List containers with next marker successfully")
+    {
+        {
+            auto list_containers_outcome = client.list_containers_segmented(prefix_1, "", 3).get();
+            REQUIRE(list_containers_outcome.success());
+            REQUIRE(!list_containers_outcome.response().next_marker.empty());
+            auto result_containers = list_containers_outcome.response().containers;
+            REQUIRE(result_containers.size() == 3);
+            for (auto container : result_containers)
+            {
+                REQUIRE(std::find(containers.begin(), containers.end(), container.name) != containers.end());
+                REQUIRE(container.name.substr(0, prefix_1.size()) == prefix_1);
+            }
+
+            auto second_list_containers_outcome = client.list_containers_segmented(prefix_1, list_containers_outcome.response().next_marker, 2).get();
+            REQUIRE(second_list_containers_outcome.response().next_marker.empty());
+            auto second_result_containers = second_list_containers_outcome.response().containers;
+            REQUIRE(second_result_containers.size() == 2);
+            for (auto container : second_result_containers)
+            {
+                REQUIRE(std::find(containers.begin(), containers.end(), container.name) != containers.end());
+                REQUIRE(container.name.substr(0, prefix_1.size()) == prefix_1);
+            }
+        }
+
+        {
+            auto list_containers_outcome = client.list_containers_segmented(prefix_2, "", 3).get();
+            REQUIRE(list_containers_outcome.success());
+            REQUIRE(!list_containers_outcome.response().next_marker.empty());
+            auto result_containers = list_containers_outcome.response().containers;
+            REQUIRE(result_containers.size() == 3);
+            for (auto container : result_containers)
+            {
+                REQUIRE(std::find(containers.begin(), containers.end(), container.name) != containers.end());
+                REQUIRE(container.name.substr(0, prefix_1.size()) == prefix_2);
+            }
+
+            auto second_list_containers_outcome = client.list_containers_segmented(prefix_2, list_containers_outcome.response().next_marker, 2).get();
+            REQUIRE(second_list_containers_outcome.response().next_marker.empty());
+            auto second_result_containers = second_list_containers_outcome.response().containers;
+            REQUIRE(second_result_containers.size() == 2);
+            for (auto container : second_result_containers)
+            {
+                REQUIRE(std::find(containers.begin(), containers.end(), container.name) != containers.end());
+                REQUIRE(container.name.substr(0, prefix_1.size()) == prefix_2);
+            }
+        }
+    }
+
+    SECTION("List containers with invalid prefix successfully")
+    {
+        auto list_containers_outcome = client.list_containers_segmented("1~invalid~~%d_prefix", "").get();
         REQUIRE(list_containers_outcome.success());
         REQUIRE(list_containers_outcome.response().containers.empty());
+    }
+
+    SECTION("List containers with invalid next marker unsuccessfully")
+    {
+        auto list_containers_outcome = client.list_containers_segmented("", "1~invalid~~%d_continuation_token").get();
+        REQUIRE(!list_containers_outcome.success());
+        REQUIRE(list_containers_outcome.error().code == "400");
+        REQUIRE(list_containers_outcome.error().code_name == "OutOfRangeInput");
     }
 
     for (auto container : containers)

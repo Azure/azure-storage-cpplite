@@ -4,19 +4,20 @@
 
 #include "constants.h"
 
-namespace microsoft_azure {
-    namespace storage {
+namespace azure {  namespace storage_lite {
 
         CurlEasyRequest::CurlEasyRequest(std::shared_ptr<CurlEasyClient> client, CURL *h)
         : m_client(client),
             m_curl(h),
-            m_slist(NULL) {
+            m_slist(NULL)
+        {
             //check_code(curl_easy_setopt(m_curl, CURLOPT_VERBOSE, 1));
             check_code(curl_easy_setopt(m_curl, CURLOPT_HEADERFUNCTION, header_callback));
             check_code(curl_easy_setopt(m_curl, CURLOPT_HEADERDATA, this));
         }
 
-        CurlEasyRequest::~CurlEasyRequest() {
+        CurlEasyRequest::~CurlEasyRequest()
+        {
             curl_easy_reset(m_curl);
             m_client->release_handle(m_curl);
             if (m_slist) {
@@ -24,13 +25,16 @@ namespace microsoft_azure {
             }
         }
 
-        CURLcode CurlEasyRequest::perform() {
-            if (m_output_stream.valid()) {
+        CURLcode CurlEasyRequest::perform()
+        {
+            if (m_output_stream.valid())
+            {
                 check_code(curl_easy_setopt(m_curl, CURLOPT_WRITEFUNCTION, write));
                 check_code(curl_easy_setopt(m_curl, CURLOPT_WRITEDATA, this));
             }
             check_code(curl_easy_setopt(m_curl, CURLOPT_CUSTOMREQUEST, NULL));
-            switch (m_method) {
+            switch (m_method)
+            {
             case http_method::get:
                 check_code(curl_easy_setopt(m_curl, CURLOPT_HTTPGET, 1));
                 break;
@@ -60,7 +64,8 @@ namespace microsoft_azure {
             return result;
         }
 
-        size_t CurlEasyRequest::header_callback(char *buffer, size_t size, size_t nitems, void *userdata) {
+        size_t CurlEasyRequest::header_callback(char *buffer, size_t size, size_t nitems, void *userdata)
+        {
             CurlEasyRequest::MY_TYPE *p = static_cast<CurlEasyRequest::MY_TYPE *>(userdata);
             std::string header(buffer, size * nitems);
             auto colon = header.find(':');
@@ -81,5 +86,4 @@ namespace microsoft_azure {
             return size * nitems;
         }
 
-    }
-}
+}} // azure::storage_lite

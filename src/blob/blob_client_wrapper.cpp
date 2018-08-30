@@ -15,8 +15,8 @@
 #include "blob/blob_client.h"
 #include "storage_errno.h"
 
-namespace microsoft_azure {
-    namespace storage {
+namespace azure {  namespace storage_lite {
+
         const unsigned long long DOWNLOAD_CHUNK_SIZE = 16 * 1024 * 1024;
         const long long MIN_UPLOAD_CHUNK_SIZE = 16 * 1024 * 1024;
         const long long MAX_BLOB_SIZE = 5242880000000; // 4.77TB 
@@ -146,7 +146,7 @@ namespace microsoft_azure {
                     cred = std::make_shared<shared_access_signature_credential>(sas_token);
                 }
                 std::shared_ptr<storage_account> account = std::make_shared<storage_account>(accountName, cred, use_https, blob_endpoint);
-                std::shared_ptr<blob_client> blobClient= std::make_shared<microsoft_azure::storage::blob_client>(account, concurrency_limit);
+                std::shared_ptr<blob_client> blobClient= std::make_shared<azure::storage_lite::blob_client>(account, concurrency_limit);
                 errno = 0;
                 return blob_client_wrapper(blobClient);
             }
@@ -174,7 +174,6 @@ namespace microsoft_azure {
             try
             {
                 auto task = m_blobClient->create_container(container);
-                task.wait();
                 auto result = task.get();
 
                 if(!result.success())
@@ -213,7 +212,6 @@ namespace microsoft_azure {
             try
             {
                 auto task = m_blobClient->delete_container(container);
-                task.wait();
                 auto result = task.get();
 
                 if(!result.success())
@@ -270,7 +268,7 @@ namespace microsoft_azure {
             }
         }
 
-        std::vector<list_containers_item> blob_client_wrapper::list_containers(const std::string &prefix, bool include_metadata)
+        std::vector<list_containers_item> blob_client_wrapper::list_containers_segmented(const std::string &prefix, const std::string& continuation_token, const int max_result, bool include_metadata)
         {
             if(!is_valid())
             {
@@ -285,7 +283,7 @@ namespace microsoft_azure {
 
             try
             {
-                auto task = m_blobClient->list_containers(prefix, include_metadata);
+                auto task = m_blobClient->list_containers_segmented(prefix, continuation_token, max_result, include_metadata);
                 auto result = task.get();
 
                 if(!result.success())
@@ -303,22 +301,22 @@ namespace microsoft_azure {
             }
         }
 
-        list_blobs_hierarchical_response blob_client_wrapper::list_blobs_hierarchical(const std::string &container, const std::string &delimiter, const std::string &continuation_token, const std::string &prefix, int max_results)
+        list_blobs_segmented_response blob_client_wrapper::list_blobs_segmented(const std::string &container, const std::string &delimiter, const std::string &continuation_token, const std::string &prefix, int max_results)
         {
             if(!is_valid())
             {
                 errno = client_not_init;
-                return list_blobs_hierarchical_response();
+                return list_blobs_segmented_response();
             }
             if(container.empty())
             {
                 errno = invalid_parameters;
-                return list_blobs_hierarchical_response();
+                return list_blobs_segmented_response();
             }
 
             try
             {
-                auto task = m_blobClient->list_blobs_hierarchical(container, delimiter, continuation_token, prefix, max_results);
+                auto task = m_blobClient->list_blobs_segmented(container, delimiter, continuation_token, prefix, max_results);
                 auto result = task.get();
 
                 if(!result.success())
@@ -326,7 +324,7 @@ namespace microsoft_azure {
                     errno = std::stoi(result.error().code);
                     //std::cout<< "error: " << result.error().code <<std::endl;
                     //std::cout<< "error: " << result.error().message <<std::endl;
-                    return list_blobs_hierarchical_response();
+                    return list_blobs_segmented_response();
                 }
                 else
                 {
@@ -338,7 +336,7 @@ namespace microsoft_azure {
             {
                 syslog(LOG_ERR, "Unknown failure in list_blobs_hierarchial.  ex.what() = %s, container = %s, prefix = %s.", ex.what(), container.c_str(), prefix.c_str());
                 errno = unknown_error;
-                return list_blobs_hierarchical_response();
+                return list_blobs_segmented_response();
             }
         }
 
@@ -533,8 +531,8 @@ namespace microsoft_azure {
                 }
                 std::string raw_block_id = std::to_string(idx);
                 //pad the string to length of 6.
-                raw_block_id.insert(raw_block_id.begin(), 6 - raw_block_id.length(), '0');
-                const std::string block_id(to_base64(raw_block_id.c_str(), 6));
+                raw_block_id.insert(raw_block_id.begin(), 12 - raw_block_id.length(), '0');
+                const std::string block_id(to_base64((raw_block_id + get_uuid()).c_str(), 64));
                 put_block_list_request_base::block_item block;
                 block.id = block_id;
                 block.type = put_block_list_request_base::block_type::uncommitted;
@@ -889,5 +887,4 @@ namespace microsoft_azure {
             }
         }
 
-    }
-} // microsoft_azure::storage
+}} // azure::storage_lite

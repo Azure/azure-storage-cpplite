@@ -13,7 +13,17 @@
       "remoteCopySources": true,
       "cmakeCommandArgs": "",
       "buildCommandArgs": "-m",
-      "inheritEnvironments": [ "linux-x64" ]
+      "inheritEnvironments": [ "linux-x64" ],
+      "variables": [
+        {
+          "name": "BUILD_TESTS",
+          "value": "true"
+        },
+        {
+          "name": "BUILD_SAMPLES",
+          "value": "true"
+        }
+      ]
     },
     {
       "name": "Linux-Debug",
@@ -31,7 +41,17 @@
       "cmakeCommandArgs": "",
       "ctestCommandArgs": "",
       "buildCommandArgs": "-m",
-      "inheritEnvironments": [ "linux-x64" ]
+      "inheritEnvironments": [ "linux-x64" ],
+      "variables": [
+        {
+          "name": "BUILD_TESTS",
+          "value": "true"
+        },
+        {
+          "name": "BUILD_SAMPLES",
+          "value": "true"
+        }
+      ]
     }
   ]
 }

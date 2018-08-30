@@ -16,20 +16,22 @@
 #include "retry.h"
 #include "utility.h"
 
-namespace microsoft_azure {
-    namespace storage {
+namespace azure {  namespace storage_lite {
 
-        class executor_context {
+        class executor_context
+        {
         public:
             executor_context(std::shared_ptr<xml_parser_base> xml_parser, std::shared_ptr<retry_policy_base> retry)
                 : m_xml_parser(xml_parser),
                 m_retry_policy(retry) {}
 
-            std::shared_ptr<xml_parser_base> xml_parser() const {
+            std::shared_ptr<xml_parser_base> xml_parser() const
+            {
                 return m_xml_parser;
             }
 
-            std::shared_ptr<retry_policy_base> retry_policy() const {
+            std::shared_ptr<retry_policy_base> retry_policy() const
+            {
                 return m_retry_policy;
             }
 
@@ -39,9 +41,11 @@ namespace microsoft_azure {
         };
 
         template<typename RESPONSE_TYPE>
-        class async_executor {
+        class async_executor
+        {
         public:
-            static void submit_request(std::promise<storage_outcome<RESPONSE_TYPE>> &promise, const storage_account &a, const storage_request_base &r, http_base &h, const executor_context &context, retry_context &retry) {
+            static void submit_request(std::promise<storage_outcome<RESPONSE_TYPE>> &promise, const storage_account &a, const storage_request_base &r, http_base &h, const executor_context &context, retry_context &retry)
+            {
                 h.set_error_stream([](http_base::http_code) { return true; }, storage_iostream::create_storage_stream());
                 r.build_request(a, h);
 
@@ -122,7 +126,8 @@ namespace microsoft_azure {
         template<>
         class async_executor<void> {
         public:
-            static void submit_request(std::promise<storage_outcome<void>> &promise, const storage_account &a, const storage_request_base &r, http_base &h, const executor_context &context, retry_context &retry) {
+            static void submit_request(std::promise<storage_outcome<void>> &promise, const storage_account &a, const storage_request_base &r, http_base &h, const executor_context &context, retry_context &retry)
+            {
                 h.set_error_stream(unsuccessful, storage_iostream::create_storage_stream());
                 r.build_request(a, h);
 

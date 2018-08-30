@@ -3,10 +3,10 @@
 #include "constants.h"
 #include "utility.h"
 
-namespace microsoft_azure {
-    namespace storage {
+namespace azure {  namespace storage_lite {
 
-        void get_block_list_request_base::build_request(const storage_account &a, http_base &h) const {
+        void get_block_list_request_base::build_request(const storage_account &a, http_base &h) const
+        {
             const auto &r = *this;
 
             h.set_absolute_timeout(30L);
@@ -45,5 +45,4 @@ namespace microsoft_azure {
             a.credential()->sign_request(r, h, url, headers);
         }
 
-    }
-}
+}}

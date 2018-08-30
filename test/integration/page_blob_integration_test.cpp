@@ -4,7 +4,7 @@
 
 TEST_CASE("Create page blob", "[page blob],[blob_service]")
 {
-    microsoft_azure::storage::blob_client client = as_test::base::test_blob_client();
+    azure::storage_lite::blob_client client = as_test::base::test_blob_client();
     std::string container_name = as_test::create_random_container("", client);
     std::string blob_name = as_test::get_random_string(20);
 
@@ -39,7 +39,7 @@ TEST_CASE("Create page blob", "[page blob],[blob_service]")
 
 TEST_CASE("Put page from stream", "[page blob],[blob_service]")
 {
-    microsoft_azure::storage::blob_client client = as_test::base::test_blob_client();
+    azure::storage_lite::blob_client client = as_test::base::test_blob_client();
     std::string container_name = as_test::create_random_container("", client);
     std::string blob_name = as_test::get_random_string(20);
     auto create_page_blob_outcome = client.create_page_blob(container_name, blob_name, 64 * 1024 * 1024).get();
@@ -126,7 +126,7 @@ TEST_CASE("Put page from stream", "[page blob],[blob_service]")
 
 TEST_CASE("Clear page", "[page blob],[blob_service]")
 {
-    microsoft_azure::storage::blob_client client = as_test::base::test_blob_client();
+    azure::storage_lite::blob_client client = as_test::base::test_blob_client();
     std::string container_name = as_test::create_random_container("", client);
     std::string blob_name = as_test::get_random_string(20);
     auto create_page_blob_outcome = client.create_page_blob(container_name, blob_name, 4 * 1024 * 1024).get();
@@ -192,7 +192,7 @@ TEST_CASE("Clear page", "[page blob],[blob_service]")
 
 TEST_CASE("Get page ranges", "[page blob],[blob_service]")
 {
-    microsoft_azure::storage::blob_client client = as_test::base::test_blob_client();
+    azure::storage_lite::blob_client client = as_test::base::test_blob_client();
     std::string container_name = as_test::create_random_container("", client);
     std::string blob_name = as_test::get_random_string(20);
     auto create_page_blob_outcome = client.create_page_blob(container_name, blob_name, 1024 * 20).get();

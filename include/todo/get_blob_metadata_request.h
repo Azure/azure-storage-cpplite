@@ -12,8 +12,8 @@
 #include "constants.h"
 #include "common.h"
 
-namespace microsoft_azure {
-    namespace storage {
+namespace azure {
+    namespace storage_lite {
         namespace experimental {
 
             struct get_blob_metadata_request_base : blob_request_base {

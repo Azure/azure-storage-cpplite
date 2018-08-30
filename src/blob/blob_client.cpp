@@ -24,13 +24,13 @@
 #include "tinyxml2_parser.h"
 #include <curl/curl.h>
 
-namespace microsoft_azure {
-namespace storage {
+namespace azure {  namespace storage_lite {
 
 namespace {
 
 // Return content size from content-range header or -1 if cannot be obtained.
-ssize_t get_length_from_content_range(const std::string &header) {
+ssize_t get_length_from_content_range(const std::string &header)
+{
    const auto pos = header.rfind('/');
    if (std::string::npos == pos) {
       return -1;
@@ -45,7 +45,8 @@ ssize_t get_length_from_content_range(const std::string &header) {
 
 } // noname namespace
 
-storage_outcome<chunk_property> blob_client::get_chunk_to_stream_sync(const std::string &container, const std::string &blob, unsigned long long offset, unsigned long long size, std::ostream &os) {
+storage_outcome<chunk_property> blob_client::get_chunk_to_stream_sync(const std::string &container, const std::string &blob, unsigned long long offset, unsigned long long size, std::ostream &os)
+{
     auto http = m_client->get_handle();
     auto request = std::make_shared<download_blob_request>(container, blob);
     if (size > 0) {
@@ -71,7 +72,8 @@ storage_outcome<chunk_property> blob_client::get_chunk_to_stream_sync(const std:
     return storage_outcome<chunk_property>(storage_error(response.error()));
 }
 
-std::future<storage_outcome<void>> blob_client::download_blob_to_stream(const std::string &container, const std::string &blob, unsigned long long offset, unsigned long long size, std::ostream &os) {
+std::future<storage_outcome<void>> blob_client::download_blob_to_stream(const std::string &container, const std::string &blob, unsigned long long offset, unsigned long long size, std::ostream &os)
+{
     auto http = m_client->get_handle();
 
     auto request = std::make_shared<download_blob_request>(container, blob);
@@ -89,7 +91,8 @@ std::future<storage_outcome<void>> blob_client::download_blob_to_stream(const st
     return async_executor<void>::submit(m_account, request, http, m_context);
 }
 
-std::future<storage_outcome<void>> blob_client::upload_block_blob_from_stream(const std::string &container, const std::string &blob, std::istream &is, const std::vector<std::pair<std::string, std::string>> &metadata) {
+std::future<storage_outcome<void>> blob_client::upload_block_blob_from_stream(const std::string &container, const std::string &blob, std::istream &is, const std::vector<std::pair<std::string, std::string>> &metadata)
+{
     auto http = m_client->get_handle();
 
     auto request = std::make_shared<create_block_blob_request>(container, blob);
@@ -110,7 +113,8 @@ std::future<storage_outcome<void>> blob_client::upload_block_blob_from_stream(co
     return async_executor<void>::submit(m_account, request, http, m_context);
 }
 
-std::future<storage_outcome<void>> blob_client::delete_blob(const std::string &container, const std::string &blob, bool delete_snapshots) {
+std::future<storage_outcome<void>> blob_client::delete_blob(const std::string &container, const std::string &blob, bool delete_snapshots)
+{
     auto http = m_client->get_handle();
 
     auto request = std::make_shared<delete_blob_request>(container, blob, delete_snapshots);
@@ -118,7 +122,8 @@ std::future<storage_outcome<void>> blob_client::delete_blob(const std::string &c
     return async_executor<void>::submit(m_account, request, http, m_context);
 }
 
-std::future<storage_outcome<void>> blob_client::create_container(const std::string &container) {
+std::future<storage_outcome<void>> blob_client::create_container(const std::string &container)
+{
     auto http = m_client->get_handle();
 
     auto request = std::make_shared<create_container_request>(container);
@@ -126,7 +131,8 @@ std::future<storage_outcome<void>> blob_client::create_container(const std::stri
     return async_executor<void>::submit(m_account, request, http, m_context);
 }
 
-std::future<storage_outcome<void>> blob_client::delete_container(const std::string &container) {
+std::future<storage_outcome<void>> blob_client::delete_container(const std::string &container)
+{
     auto http = m_client->get_handle();
 
     auto request = std::make_shared<delete_container_request>(container);
@@ -134,7 +140,8 @@ std::future<storage_outcome<void>> blob_client::delete_container(const std::stri
     return async_executor<void>::submit(m_account, request, http, m_context);
 }
 
-storage_outcome<container_property> blob_client::get_container_property(const std::string &container) {
+storage_outcome<container_property> blob_client::get_container_property(const std::string &container)
+{
     auto http = m_client->get_handle();
 
     auto request = std::make_shared<get_container_property_request>(container);
@@ -161,56 +168,30 @@ storage_outcome<container_property> blob_client::get_container_property(const st
     return storage_outcome<container_property>(containerProperty);
 }
 
-/*AZURE_STORAGE_API std::vector<list_containers_item> blob_client::list_containers(const std::string &prefix, bool include_metadata) {
-    std::vector<list_containers_item> results;
-    retry_policy policy;
-    list_containers_request request(prefix, include_metadata);
-    request.set_maxresults(2);
-
-    std::string marker;
-    do {
-        request.set_marker(marker);
-        auto outcome = executor<list_containers_response>::make_requests(*m_account, request, *m_client, **m_context.xml_parser(), policy);
-        if (outcome.success()) {
-            const auto &response = outcome.response();
-            marker = response.next_marker;
-            const auto &containers = response.containers;
-            results.insert(results.end(), containers.begin(), containers.end());
-        }
-    } while (!marker.empty());
-
-    return results;
-}*/
-
-std::future<storage_outcome<list_containers_response>> blob_client::list_containers(const std::string &prefix, bool include_metadata) {
+std::future<storage_outcome<list_containers_response>> blob_client::list_containers_segmented(const std::string &prefix, const std::string& continuation_token, const int max_result, bool include_metadata)
+{
     auto http = m_client->get_handle();
 
     auto request = std::make_shared<list_containers_request>(prefix, include_metadata);
-    request->set_maxresults(2);
+    request->set_maxresults(max_result);
+    request->set_marker(continuation_token);
 
     return async_executor<list_containers_response>::submit(m_account, request, http, m_context);
 }
 
-std::future<storage_outcome<list_blobs_response>> blob_client::list_blobs(const std::string &container, const std::string &prefix) {
+std::future<storage_outcome<list_blobs_segmented_response>> blob_client::list_blobs_segmented(const std::string &container, const std::string &delimiter, const std::string &continuation_token, const std::string &prefix, int max_results)
+{
     auto http = m_client->get_handle();
 
-    auto request = std::make_shared<list_blobs_request>(container, prefix);
-    request->set_maxresults(2);
-
-    return async_executor<list_blobs_response>::submit(m_account, request, http, m_context);
-}
-
-std::future<storage_outcome<list_blobs_hierarchical_response>> blob_client::list_blobs_hierarchical(const std::string &container, const std::string &delimiter, const std::string &continuation_token, const std::string &prefix, int max_results) {
-    auto http = m_client->get_handle();
-
-    auto request = std::make_shared<list_blobs_hierarchical_request>(container, delimiter, continuation_token, prefix);
+    auto request = std::make_shared<list_blobs_segmented_request>(container, delimiter, continuation_token, prefix);
     request->set_maxresults(max_results);
     request->set_includes(list_blobs_request_base::include::metadata);
 
-    return async_executor<list_blobs_hierarchical_response>::submit(m_account, request, http, m_context);
+    return async_executor<list_blobs_segmented_response>::submit(m_account, request, http, m_context);
 }
 
-std::future<storage_outcome<get_block_list_response>> blob_client::get_block_list(const std::string &container, const std::string &blob) {
+std::future<storage_outcome<get_block_list_response>> blob_client::get_block_list(const std::string &container, const std::string &blob)
+{
     auto http = m_client->get_handle();
 
     auto request = std::make_shared<get_block_list_request>(container, blob);
@@ -218,7 +199,8 @@ std::future<storage_outcome<get_block_list_response>> blob_client::get_block_lis
     return async_executor<get_block_list_response>::submit(m_account, request, http, m_context);
 }
 
-storage_outcome<blob_property> blob_client::get_blob_property(const std::string &container, const std::string &blob) {
+storage_outcome<blob_property> blob_client::get_blob_property(const std::string &container, const std::string &blob)
+{
     auto http = m_client->get_handle();
 
     auto request = std::make_shared<get_blob_property_request>(container, blob);
@@ -260,7 +242,8 @@ storage_outcome<blob_property> blob_client::get_blob_property(const std::string 
     return storage_outcome<blob_property>(blobProperty);
 }
 
-std::future<storage_outcome<void>> blob_client::upload_block_from_stream(const std::string &container, const std::string &blob, const std::string &blockid, std::istream &is) {
+std::future<storage_outcome<void>> blob_client::upload_block_from_stream(const std::string &container, const std::string &blob, const std::string &blockid, std::istream &is)
+{
     auto http = m_client->get_handle();
 
     auto request = std::make_shared<put_block_request>(container, blob, blockid);
@@ -269,8 +252,6 @@ std::future<storage_outcome<void>> blob_client::upload_block_from_stream(const s
     is.seekg(0, std::ios_base::end);
     auto end = is.tellg();
     is.seekg(cur);
-    //check < 2^32
-    //std::cout<<"content length: " << end-cur<<std::endl;
     request->set_content_length(static_cast<unsigned int>(end - cur));
 
     http->set_input_stream(storage_istream(is));
@@ -278,7 +259,8 @@ std::future<storage_outcome<void>> blob_client::upload_block_from_stream(const s
     return async_executor<void>::submit(m_account, request, http, m_context);
 }
 
-std::future<storage_outcome<void>> blob_client::put_block_list(const std::string &container, const std::string &blob, const std::vector<put_block_list_request_base::block_item> &block_list, const std::vector<std::pair<std::string, std::string>> &metadata) {
+std::future<storage_outcome<void>> blob_client::put_block_list(const std::string &container, const std::string &blob, const std::vector<put_block_list_request_base::block_item> &block_list, const std::vector<std::pair<std::string, std::string>> &metadata)
+{
     auto http = m_client->get_handle();
 
     auto request = std::make_shared<put_block_list_request>(container, blob);
@@ -291,7 +273,8 @@ std::future<storage_outcome<void>> blob_client::put_block_list(const std::string
     return async_executor<void>::submit(m_account, request, http, m_context);
 }
 
-std::future<storage_outcome<void>> blob_client::create_append_blob(const std::string &container, const std::string &blob) {
+std::future<storage_outcome<void>> blob_client::create_append_blob(const std::string &container, const std::string &blob)
+{
     auto http = m_client->get_handle();
 
     auto request = std::make_shared<create_append_blob_request>(container, blob);
@@ -299,7 +282,8 @@ std::future<storage_outcome<void>> blob_client::create_append_blob(const std::st
     return async_executor<void>::submit(m_account, request, http, m_context);
 }
 
-std::future<storage_outcome<void>> blob_client::append_block_from_stream(const std::string &container, const std::string &blob, std::istream &is) {
+std::future<storage_outcome<void>> blob_client::append_block_from_stream(const std::string &container, const std::string &blob, std::istream &is)
+{
     auto http = m_client->get_handle();
 
     auto request = std::make_shared<append_block_request>(container, blob);
@@ -316,7 +300,8 @@ std::future<storage_outcome<void>> blob_client::append_block_from_stream(const s
     return async_executor<void>::submit(m_account, request, http, m_context);
 }
 
-std::future<storage_outcome<void>> blob_client::create_page_blob(const std::string &container, const std::string &blob, unsigned long long size) {
+std::future<storage_outcome<void>> blob_client::create_page_blob(const std::string &container, const std::string &blob, unsigned long long size)
+{
     auto http = m_client->get_handle();
 
     //check (size % 512 == 0)
@@ -325,15 +310,18 @@ std::future<storage_outcome<void>> blob_client::create_page_blob(const std::stri
     return async_executor<void>::submit(m_account, request, http, m_context);
 }
 
-std::future<storage_outcome<void>> blob_client::put_page_from_stream(const std::string &container, const std::string &blob, unsigned long long offset, unsigned long long size, std::istream &is) {
+std::future<storage_outcome<void>> blob_client::put_page_from_stream(const std::string &container, const std::string &blob, unsigned long long offset, unsigned long long size, std::istream &is)
+{
     auto http = m_client->get_handle();
 
     auto request = std::make_shared<put_page_request>(container, blob);
-    if (size > 0) {
+    if (size > 0)
+    {
         request->set_start_byte(offset);
         request->set_end_byte(offset + size - 1);
     }
-    else {
+    else
+    {
         request->set_start_byte(offset);
     }
 
@@ -350,30 +338,36 @@ std::future<storage_outcome<void>> blob_client::put_page_from_stream(const std::
     return async_executor<void>::submit(m_account, request, http, m_context);
 }
 
-std::future<storage_outcome<void>> blob_client::clear_page(const std::string &container, const std::string &blob, unsigned long long offset, unsigned long long size) {
+std::future<storage_outcome<void>> blob_client::clear_page(const std::string &container, const std::string &blob, unsigned long long offset, unsigned long long size)
+{
     auto http = m_client->get_handle();
 
     auto request = std::make_shared<put_page_request>(container, blob, true);
-    if (size > 0) {
+    if (size > 0)
+    {
         request->set_start_byte(offset);
         request->set_end_byte(offset + size - 1);
     }
-    else {
+    else
+    {
         request->set_start_byte(offset);
     }
 
     return async_executor<void>::submit(m_account, request, http, m_context);
 }
 
-std::future<storage_outcome<get_page_ranges_response>> blob_client::get_page_ranges(const std::string &container, const std::string &blob, unsigned long long offset, unsigned long long size) {
+std::future<storage_outcome<get_page_ranges_response>> blob_client::get_page_ranges(const std::string &container, const std::string &blob, unsigned long long offset, unsigned long long size)
+{
     auto http = m_client->get_handle();
 
     auto request = std::make_shared<get_page_ranges_request>(container, blob);
-    if (size > 0) {
+    if (size > 0)
+    {
         request->set_start_byte(offset);
         request->set_end_byte(offset + size - 1);
     }
-    else {
+    else
+    {
         request->set_start_byte(offset);
     }
 
@@ -389,5 +383,4 @@ std::future<storage_outcome<void>> blob_client::start_copy(const std::string &so
     return async_executor<void>::submit(m_account, request, http, m_context);
 }
 
-}
-}
+}}

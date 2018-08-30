@@ -4,7 +4,7 @@
 
 TEST_CASE("Upload block blob from stream", "[block blob],[blob_service]")
 {
-    microsoft_azure::storage::blob_client client = as_test::base::test_blob_client();
+    azure::storage_lite::blob_client client = as_test::base::test_blob_client();
     std::string container_name = as_test::create_random_container("", client);
     std::string blob_name = as_test::get_random_string(20);
 
@@ -69,7 +69,7 @@ TEST_CASE("Upload block blob from stream", "[block blob],[blob_service]")
 
 TEST_CASE("Upload blob block from stream", "[block blob],[blob_service]")
 {
-    microsoft_azure::storage::blob_client client = as_test::base::test_blob_client();
+    azure::storage_lite::blob_client client = as_test::base::test_blob_client();
     std::string container_name = as_test::create_random_container("", client);
     std::string blob_name = as_test::get_random_string(20);
 
@@ -97,21 +97,21 @@ TEST_CASE("Upload blob block from stream", "[block blob],[blob_service]")
 
 TEST_CASE("Put block list", "[block blob],[blob_service]")
 {
-    microsoft_azure::storage::blob_client client = as_test::base::test_blob_client();
+    azure::storage_lite::blob_client client = as_test::base::test_blob_client();
     std::string container_name = as_test::create_random_container("", client);
     std::string blob_name = as_test::get_random_string(20);
 
     SECTION("Put block list with all blocks uncommitted successfully")
     {
-        std::vector<microsoft_azure::storage::put_block_list_request_base::block_item> block_list;
+        std::vector<azure::storage_lite::put_block_list_request_base::block_item> block_list;
         for (unsigned i = 0; i < 10; ++i)
         {
-            microsoft_azure::storage::put_block_list_request_base::block_item item;
+            azure::storage_lite::put_block_list_request_base::block_item item;
             auto iss = as_test::get_istringstream_with_random_buffer(4 * 1024 * 1024);
             item.id = as_test::get_base64_block_id(i);
             auto upload_block_outcome = client.upload_block_from_stream(container_name, blob_name, item.id, iss).get();
             REQUIRE(upload_block_outcome.success());
-            item.type = microsoft_azure::storage::put_block_list_request_base::block_type::uncommitted;
+            item.type = azure::storage_lite::put_block_list_request_base::block_type::uncommitted;
             block_list.push_back(item);
         }
         
@@ -130,15 +130,15 @@ TEST_CASE("Put block list", "[block blob],[blob_service]")
 
     SECTION("Put block list with all blocks committed successfully")
     {
-        std::vector<microsoft_azure::storage::put_block_list_request_base::block_item> block_list;
+        std::vector<azure::storage_lite::put_block_list_request_base::block_item> block_list;
         for (unsigned i = 0; i < 10; ++i)
         {
-            microsoft_azure::storage::put_block_list_request_base::block_item item;
+            azure::storage_lite::put_block_list_request_base::block_item item;
             auto iss = as_test::get_istringstream_with_random_buffer(4 * 1024 * 1024);
             item.id = as_test::get_base64_block_id(i);
             auto upload_block_outcome = client.upload_block_from_stream(container_name, blob_name, item.id, iss).get();
             REQUIRE(upload_block_outcome.success());
-            item.type = microsoft_azure::storage::put_block_list_request_base::block_type::uncommitted;
+            item.type = azure::storage_lite::put_block_list_request_base::block_type::uncommitted;
             block_list.push_back(item);
         }
         {
@@ -156,7 +156,7 @@ TEST_CASE("Put block list", "[block blob],[blob_service]")
         }
         for (unsigned i = 0; i < 10; ++i)
         {
-            block_list[i].type = microsoft_azure::storage::put_block_list_request_base::block_type::committed;
+            block_list[i].type = azure::storage_lite::put_block_list_request_base::block_type::committed;
         }
         {
             block_list.pop_back();
@@ -177,15 +177,15 @@ TEST_CASE("Put block list", "[block blob],[blob_service]")
 
     SECTION("Put block list with both committed and uncommitted blocks successfully")
     {
-        std::vector<microsoft_azure::storage::put_block_list_request_base::block_item> block_list;
+        std::vector<azure::storage_lite::put_block_list_request_base::block_item> block_list;
         for (unsigned i = 0; i < 5; ++i)
         {
-            microsoft_azure::storage::put_block_list_request_base::block_item item;
+            azure::storage_lite::put_block_list_request_base::block_item item;
             auto iss = as_test::get_istringstream_with_random_buffer(4 * 1024 * 1024);
             item.id = as_test::get_base64_block_id(i);
             auto upload_block_outcome = client.upload_block_from_stream(container_name, blob_name, item.id, iss).get();
             REQUIRE(upload_block_outcome.success());
-            item.type = microsoft_azure::storage::put_block_list_request_base::block_type::uncommitted;
+            item.type = azure::storage_lite::put_block_list_request_base::block_type::uncommitted;
             block_list.push_back(item);
         }
         {
@@ -203,17 +203,17 @@ TEST_CASE("Put block list", "[block blob],[blob_service]")
         }
         for (unsigned i = 0; i < 5; ++i)
         {
-            block_list[i].type = microsoft_azure::storage::put_block_list_request_base::block_type::committed;
+            block_list[i].type = azure::storage_lite::put_block_list_request_base::block_type::committed;
         }
         block_list.pop_back();
         for (unsigned i = 5; i < 10; ++i)
         {
-            microsoft_azure::storage::put_block_list_request_base::block_item item;
+            azure::storage_lite::put_block_list_request_base::block_item item;
             auto iss = as_test::get_istringstream_with_random_buffer(4 * 1024 * 1024);
             item.id = as_test::get_base64_block_id(i);
             auto upload_block_outcome = client.upload_block_from_stream(container_name, blob_name, item.id, iss).get();
             REQUIRE(upload_block_outcome.success());
-            item.type = microsoft_azure::storage::put_block_list_request_base::block_type::uncommitted;
+            item.type = azure::storage_lite::put_block_list_request_base::block_type::uncommitted;
             block_list.push_back(item);
         }
         {
@@ -234,15 +234,15 @@ TEST_CASE("Put block list", "[block blob],[blob_service]")
 
     SECTION("Put block list with invalid block list unsuccessfully")
     {
-        std::vector<microsoft_azure::storage::put_block_list_request_base::block_item> block_list;
+        std::vector<azure::storage_lite::put_block_list_request_base::block_item> block_list;
         for (unsigned i = 0; i < 10; ++i)
         {
-            microsoft_azure::storage::put_block_list_request_base::block_item item;
+            azure::storage_lite::put_block_list_request_base::block_item item;
             auto iss = as_test::get_istringstream_with_random_buffer(4 * 1024 * 1024);
             item.id = as_test::get_base64_block_id(i);
             auto upload_block_outcome = client.upload_block_from_stream(container_name, blob_name, item.id, iss).get();
             REQUIRE(upload_block_outcome.success());
-            item.type = microsoft_azure::storage::put_block_list_request_base::block_type::committed;
+            item.type = azure::storage_lite::put_block_list_request_base::block_type::committed;
             block_list.push_back(item);
         }
 
@@ -255,21 +255,21 @@ TEST_CASE("Put block list", "[block blob],[blob_service]")
 
 TEST_CASE("Get block list", "[block blob],[blob_service]")
 {
-    microsoft_azure::storage::blob_client client = as_test::base::test_blob_client();
+    azure::storage_lite::blob_client client = as_test::base::test_blob_client();
     std::string container_name = as_test::create_random_container("", client);
     std::string blob_name = as_test::get_random_string(20);
 
     SECTION("Get committed block list successfully")
     {
-        std::vector<microsoft_azure::storage::put_block_list_request_base::block_item> block_list;
+        std::vector<azure::storage_lite::put_block_list_request_base::block_item> block_list;
         for (unsigned i = 0; i < 10; ++i)
         {
-            microsoft_azure::storage::put_block_list_request_base::block_item item;
+            azure::storage_lite::put_block_list_request_base::block_item item;
             auto iss = as_test::get_istringstream_with_random_buffer(4 * 1024 * 1024);
             item.id = as_test::get_base64_block_id(i);
             auto upload_block_outcome = client.upload_block_from_stream(container_name, blob_name, item.id, iss).get();
             REQUIRE(upload_block_outcome.success());
-            item.type = microsoft_azure::storage::put_block_list_request_base::block_type::uncommitted;
+            item.type = azure::storage_lite::put_block_list_request_base::block_type::uncommitted;
             block_list.push_back(item);
         }
 
@@ -304,15 +304,15 @@ TEST_CASE("Get block list", "[block blob],[blob_service]")
 
     SECTION("Get both committed and uncommitted block list successfully")
     {
-        std::vector<microsoft_azure::storage::put_block_list_request_base::block_item> block_list;
+        std::vector<azure::storage_lite::put_block_list_request_base::block_item> block_list;
         for (unsigned i = 0; i < 10; ++i)
         {
-            microsoft_azure::storage::put_block_list_request_base::block_item item;
+            azure::storage_lite::put_block_list_request_base::block_item item;
             auto iss = as_test::get_istringstream_with_random_buffer(4 * 1024 * 1024);
             item.id = as_test::get_base64_block_id(i);
             auto upload_block_outcome = client.upload_block_from_stream(container_name, blob_name, item.id, iss).get();
             REQUIRE(upload_block_outcome.success());
-            item.type = microsoft_azure::storage::put_block_list_request_base::block_type::uncommitted;
+            item.type = azure::storage_lite::put_block_list_request_base::block_type::uncommitted;
             block_list.push_back(item);
         }
 

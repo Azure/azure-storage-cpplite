@@ -3,10 +3,10 @@
 #include "constants.h"
 #include "utility.h"
 
-namespace microsoft_azure {
-namespace storage {
+namespace azure {  namespace storage_lite {
 
-void put_blob_request_base::build_request(const storage_account &a, http_base &h) const {
+void put_blob_request_base::build_request(const storage_account &a, http_base &h) const
+{
     const auto &r = *this;
 
     h.set_data_rate_timeout();
@@ -37,13 +37,15 @@ void put_blob_request_base::build_request(const storage_account &a, http_base &h
     add_ms_header(h, headers, constants::header_ms_blob_content_disposition, r.ms_blob_content_disposition(), true);
     add_ms_header(h, headers, constants::header_ms_blob_content_encoding, r.ms_blob_content_encoding(), true);
     add_ms_header(h, headers, constants::header_ms_blob_content_language, r.ms_blob_content_language(), true);
-    if (r.ms_blob_type() == put_blob_request_base::blob_type::page_blob) {
+    if (r.ms_blob_type() == put_blob_request_base::blob_type::page_blob)
+    {
         // check % 512
         add_ms_header(h, headers, constants::header_ms_blob_content_length, std::to_string(r.ms_blob_content_length()));
     }
     add_ms_header(h, headers, constants::header_ms_blob_content_md5, r.ms_blob_content_md5(), true);
     add_ms_header(h, headers, constants::header_ms_blob_content_type, r.ms_blob_content_type(), true);
-    if (r.ms_blob_type() == put_blob_request_base::blob_type::page_blob) {
+    if (r.ms_blob_type() == put_blob_request_base::blob_type::page_blob)
+    {
         add_ms_header(h, headers, constants::header_ms_blob_sequence_number, std::to_string(r.ms_blob_sequence_number()), true);
     }
 
@@ -75,5 +77,4 @@ void put_blob_request_base::build_request(const storage_account &a, http_base &h
     a.credential()->sign_request(r, h, url, headers);
 }
 
-}
-}
+}}  // azure::storage_lite

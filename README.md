@@ -65,9 +65,9 @@ std::string blob_endpoint = "CUSTOMIZED_BLOB_ENDPOINT";
 int connection_count = 2;
 
 // Setup the client
-microsoft_azure::storage::shared_key_credential credential(account_name, account_key);
-microsoft_azure::storage::storage_account(account_name, credential, use_https, blob_endpoint);
-microsoft_azure::storage::blob_client client(storage_account, connection_count);
+azure::storage_lite::shared_key_credential credential(account_name, account_key);
+azure::storage_lite::storage_account(account_name, credential, use_https, blob_endpoint);
+azure::storage_lite::blob_client client(storage_account, connection_count);
 
 // Start using
 auto outcome = client.create_container("YOUR_CONTAINER_NAME");

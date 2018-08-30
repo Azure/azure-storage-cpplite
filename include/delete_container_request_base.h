@@ -9,15 +9,14 @@
 #include "storage_account.h"
 #include "storage_request_base.h"
 
-namespace microsoft_azure {
-    namespace storage {
+namespace azure {  namespace storage_lite {
 
-        class delete_container_request_base : public blob_request_base {
-        public:
-            virtual std::string container() const = 0;
+    class delete_container_request_base : public blob_request_base
+    {
+    public:
+        virtual std::string container() const = 0;
 
-            AZURE_STORAGE_API void build_request(const storage_account &a, http_base &h) const override;
-        };
+        AZURE_STORAGE_API void build_request(const storage_account &a, http_base &h) const override;
+    };
 
-    }
-}
+}}  // azure::storage_lite
