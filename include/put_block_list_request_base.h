@@ -32,7 +32,6 @@ namespace azure {  namespace storage_lite {
         virtual std::vector<block_item> block_list() const = 0;
         virtual std::vector<std::pair<std::string, std::string>> metadata() const = 0;
 
-        //virtual unsigned int content_length() const = 0;
         virtual std::string content_md5() const { return std::string(); }
 
         virtual std::string ms_blob_cache_control() const { return std::string(); }
@@ -41,8 +40,6 @@ namespace azure {  namespace storage_lite {
         virtual std::string ms_blob_content_language() const { return std::string(); }
         virtual std::string ms_blob_content_md5() const { return std::string(); }
         virtual std::string ms_blob_content_type() const { return std::string(); }
-
-        //virtual std::map<std::string, std::string> ms_meta() const {};
 
         AZURE_STORAGE_API void build_request(const storage_account &a, http_base &h) const override;
     };

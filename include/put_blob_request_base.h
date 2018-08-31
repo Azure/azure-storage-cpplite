@@ -44,8 +44,6 @@ namespace azure {  namespace storage_lite {
         virtual unsigned long long ms_blob_sequence_number() const { return 0; }
         virtual blob_type ms_blob_type() const = 0;
 
-        //virtual std::map<std::string, std::string> ms_meta() const {};
-
         AZURE_STORAGE_API void build_request(const storage_account &a, http_base &h) const override;
     };
 

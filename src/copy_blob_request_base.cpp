@@ -25,6 +25,7 @@ namespace azure {  namespace storage_lite {
         h.set_url(url.to_string());
 
         storage_headers headers;
+        // TODO: support access condition.
         //add_access_condition_headers(h, headers, r);
         add_content_length(h, headers, 0);
 

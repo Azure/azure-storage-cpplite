@@ -22,8 +22,6 @@ namespace azure {  namespace storage_lite {
         AZURE_STORAGE_API void build_request(const storage_account &a, http_base &h) const override;
     };
 
-    //AZURE_STORAGE_API void build_request(const storage_account &a, const get_blob_request_base &r, http_base &h);
-
     class blob_property
     {
     public:
@@ -54,6 +52,7 @@ namespace azure {  namespace storage_lite {
         std::vector<std::pair<std::string, std::string>> metadata;
         std::string copy_status;
         time_t last_modified;
+        // TODO: support lease and blob_type
         // blob_type m_type;
         // azure::storage::lease_status m_lease_status;
         // azure::storage::lease_state m_lease_state;

@@ -19,8 +19,6 @@ namespace azure {  namespace storage_lite {
         template<typename RESPONSE_TYPE>
         RESPONSE_TYPE parse_response(const std::string &) const {}
 
-        //virtual list_containers_response parse_list_containers_response(const std::string &xml, std::vector<list_containers_item> &items) const = 0;
-
         virtual list_containers_response parse_list_containers_response(const std::string &xml) const = 0;
 
         virtual list_blobs_response parse_list_blobs_response(const std::string &xml) const = 0;

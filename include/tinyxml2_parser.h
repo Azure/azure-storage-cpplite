@@ -14,8 +14,6 @@ namespace azure {  namespace storage_lite {
     public:
         AZURE_STORAGE_API storage_error parse_storage_error(const std::string &xml) const override;
 
-        //AZURE_STORAGE_API list_containers_response parse_list_containers_response(const std::string &xml, std::vector<list_containers_item> &items) const override;
-
         AZURE_STORAGE_API list_containers_response parse_list_containers_response(const std::string &xml) const override;
 
         AZURE_STORAGE_API list_blobs_response parse_list_blobs_response(const std::string &xml) const override;
