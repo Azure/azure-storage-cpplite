@@ -89,6 +89,12 @@ This project has adopted the [Microsoft Open Source Code of Conduct](https://ope
 For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or
 contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
 
+When contributing to this client library, there are following ground rules:
+1. All source code change should be clearly addressing issues or adding new features, and should be covered with test.
+2. Coding style should match with the existing code.
+3. Any contribution should not degrade performance or complex functionality.
+4. Introducing new dependency should be done with much great caution. Any new dependency should introduce significant performance improvement or unblock critical user scenario.
+
 ### Build Test
 Download [Catch2 single header version](https://raw.githubusercontent.com/catchorg/Catch2/master/single_include/catch2/catch.hpp) and put it in the folder `.\test\catch2\`.
 Add `-DBUILD_TESTS=true` when building the repository.

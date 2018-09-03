@@ -14,7 +14,8 @@ namespace azure {  namespace storage_lite {
     class create_container_request_base : public blob_request_base
     {
     public:
-        enum class blob_public_access {
+        enum class blob_public_access
+        {
             unspecified,
             container,
             blob
@@ -22,7 +23,8 @@ namespace azure {  namespace storage_lite {
 
         virtual std::string container() const = 0;
 
-        virtual blob_public_access ms_blob_public_access() const {
+        virtual blob_public_access ms_blob_public_access() const
+        {
             return blob_public_access::unspecified;
         }
 
