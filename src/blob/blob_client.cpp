@@ -59,6 +59,7 @@ storage_outcome<chunk_property> blob_client::get_chunk_to_stream_sync(const std:
 
     http->set_output_stream(storage_ostream(os));
 
+    // TODO: async submit transfered to sync operation. This can be utilized.
     const auto response = async_executor<void>::submit(m_account, request, http, m_context).get();
     if (response.success())
     {
@@ -146,6 +147,7 @@ storage_outcome<container_property> blob_client::get_container_property(const st
 
     auto request = std::make_shared<get_container_property_request>(container);
 
+    // TODO: async submit transfered to sync operation. This can be utilized.
     auto response = async_executor<void>::submit(m_account, request, http, m_context).get();
     container_property containerProperty(true);
     if (response.success())
@@ -168,7 +170,7 @@ storage_outcome<container_property> blob_client::get_container_property(const st
     return storage_outcome<container_property>(containerProperty);
 }
 
-std::future<storage_outcome<list_containers_response>> blob_client::list_containers_segmented(const std::string &prefix, const std::string& continuation_token, const int max_result, bool include_metadata)
+std::future<storage_outcome<list_constainers_segmented_response>> blob_client::list_containers_segmented(const std::string &prefix, const std::string& continuation_token, const int max_result, bool include_metadata)
 {
     auto http = m_client->get_handle();
 
@@ -176,7 +178,7 @@ std::future<storage_outcome<list_containers_response>> blob_client::list_contain
     request->set_maxresults(max_result);
     request->set_marker(continuation_token);
 
-    return async_executor<list_containers_response>::submit(m_account, request, http, m_context);
+    return async_executor<list_constainers_segmented_response>::submit(m_account, request, http, m_context);
 }
 
 std::future<storage_outcome<list_blobs_segmented_response>> blob_client::list_blobs_segmented(const std::string &container, const std::string &delimiter, const std::string &continuation_token, const std::string &prefix, int max_results)

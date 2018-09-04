@@ -61,9 +61,9 @@ list_containers_item tinyxml2_parser::parse_list_containers_item(tinyxml2::XMLEl
     return item;
 }
 
-list_containers_response tinyxml2_parser::parse_list_containers_response(const std::string &xml) const
+list_constainers_segmented_response tinyxml2_parser::parse_list_constainers_segmented_response(const std::string &xml) const
 {
-    list_containers_response response;
+    list_constainers_segmented_response response;
 
     tinyxml2::XMLDocument xdoc;
     if (xdoc.Parse(xml.data(), xml.size()) == tinyxml2::XML_SUCCESS)

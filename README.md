@@ -1,8 +1,9 @@
-# Azure Storage Storage C++ Client Library (Lite)
+# Azure Storage C++ Client Library (Lite)
 
 ## About
 
-The Azure Storage Client Library for C++ allows you to build applications against Microsoft Azure Storage's blob service. This is a minimum dependency version that provide basic object storage. For an overview of Azure Storage, see [Introduction to Microsoft Azure Storage](http://azure.microsoft.com/en-us/documentation/articles/storage-introduction/).
+The Azure Storage Client Library (Lite) for C++ allows you to build applications against Microsoft Azure Storage's blob service. This is a minimum dependency version that provide basic object storage. For an overview of Azure Storage, see [Introduction to Microsoft Azure Storage](http://azure.microsoft.com/en-us/documentation/articles/storage-introduction/).
+If you want to use other services of Azure Storage, or a more comprehensive functionality of Blob service, please see [Azure Storage C++ Client Library](https://github.com/azure/azure-storage-cpp).
 
 ## Features
 The full supported Azure Storage API can be found in the following list, please be aware that only part of the functionality of some APIs are supported:
@@ -70,7 +71,7 @@ azure::storage_lite::storage_account(account_name, credential, use_https, blob_e
 azure::storage_lite::blob_client client(storage_account, connection_count);
 
 // Start using
-auto outcome = client.create_container("YOUR_CONTAINER_NAME");
+auto outcome = client.create_container("YOUR_CONTAINER_NAME").get();
 ```
 ## License
 This project is licensed under MIT.

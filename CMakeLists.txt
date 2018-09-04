@@ -68,11 +68,6 @@ set(AZURE_STORAGE_LITE_HEADER
   include/blob/append_block_request.h
   include/blob/put_page_request.h
   include/blob/get_page_ranges_request.h
-
-  include/todo/get_blob_metadata_request.h
-  include/todo/get_blob_properties_request.h
-  include/todo/query_entities_request.h
-  include/todo/set_blob_metadata_request.h
 )
 
 set(AZURE_STORAGE_LITE_SOURCE

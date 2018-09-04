@@ -32,12 +32,12 @@ namespace azure { namespace storage_lite {
         /// Initializes a new instance of the <see cref="azure::storage_lite::blob_client" /> class.
         /// </summary>
         /// <param name="account">An existing <see cref="azure::storage_lite::storage_account" /> object.</param>
-        /// <param name="size">An int value indicates the maximum concurrency expected during execute requests against the service.</param>
-        blob_client(std::shared_ptr<storage_account> account, int size)
+        /// <param name="max_concurrency">An int value indicates the maximum concurrency expected during execute requests against the service.</param>
+        blob_client(std::shared_ptr<storage_account> account, int max_concurrency)
             : m_account(account)
         {
             m_context = std::make_shared<executor_context>(std::make_shared<tinyxml2_parser>(), std::make_shared<retry_policy>());
-            m_client = std::make_shared<CurlEasyClient>(size);
+            m_client = std::make_shared<CurlEasyClient>(max_concurrency);
         }
 
         /// <summary>
@@ -133,7 +133,7 @@ namespace azure { namespace storage_lite {
         /// <param name="prefix">The container name prefix.</param>
         /// <param name="include_metadata">A bool value, return metadatas if it is true.</param>
         /// <returns>A <see cref="std::future" /> object that represents the current operation.</returns>
-        AZURE_STORAGE_API std::future<storage_outcome<list_containers_response>> list_containers_segmented(const std::string &prefix, const std::string& continuation_token, const int max_result = 5, bool include_metadata = false);
+        AZURE_STORAGE_API std::future<storage_outcome<list_constainers_segmented_response>> list_containers_segmented(const std::string &prefix, const std::string& continuation_token, const int max_result = 5, bool include_metadata = false);
 
         /// <summary>
         /// Intitiates an asynchronous operation  to list blobs in segments.

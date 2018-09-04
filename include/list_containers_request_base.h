@@ -35,7 +35,7 @@ namespace azure {  namespace storage_lite {
         lease_duration duration;
     };
 
-    class list_containers_response
+    class list_constainers_segmented_response
     {
     public:
         std::string ms_request_id;

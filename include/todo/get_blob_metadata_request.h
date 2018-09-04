@@ -47,17 +47,18 @@ namespace azure {
                     url.add_optional_query(constant::query_timeout, (r.timeout() != std::numeric_limits<unsigned long long>::max() ? std::to_string(r.timeout()) : std::string()));
                     h.set_url(url.to_string());
 
-                    details::add_optional_header(h, constant::header_content_encoding, r.content_encoding());
-                    details::add_optional_header(h, constant::header_content_language, r.content_language());
-                    details::add_optional_header(h, constant::header_content_length, (r.content_length() != 0 ? std::to_string(r.content_length()) : std::string()));
-                    details::add_optional_header(h, constant::header_content_md5, r.content_md5());
-                    details::add_optional_header(h, constant::header_content_type, r.content_type());
-                    details::add_optional_header(h, constant::header_date, r.date());
-                    details::add_optional_header(h, constant::header_if_modified_since, r.if_modified_since());
-                    details::add_optional_header(h, constant::header_if_match, r.if_match());
-                    details::add_optional_header(h, constant::header_if_none_match, r.if_none_match());
-                    details::add_optional_header(h, constant::header_if_unmodified_since, r.if_unmodified_since());
-                    details::add_optional_header(h, constant::header_range, r.range());
+                    // TODO: move the lines below to set blob property request base when implementing it.
+                    // details::add_optional_header(h, constant::header_content_encoding, r.content_encoding());
+                    // details::add_optional_header(h, constant::header_content_language, r.content_language());
+                    // details::add_optional_header(h, constant::header_content_length, (r.content_length() != 0 ? std::to_string(r.content_length()) : std::string()));
+                    // details::add_optional_header(h, constant::header_content_md5, r.content_md5());
+                    // details::add_optional_header(h, constant::header_content_type, r.content_type());
+                    // details::add_optional_header(h, constant::header_date, r.date());
+                    // details::add_optional_header(h, constant::header_if_modified_since, r.if_modified_since());
+                    // details::add_optional_header(h, constant::header_if_match, r.if_match());
+                    // details::add_optional_header(h, constant::header_if_none_match, r.if_none_match());
+                    // details::add_optional_header(h, constant::header_if_unmodified_since, r.if_unmodified_since());
+                    // details::add_optional_header(h, constant::header_range, r.range());
 
                     std::map<std::string, std::string> ms_headers;
                     if (!r.lease_id().empty()) {
