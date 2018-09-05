@@ -90,7 +90,6 @@ namespace azure {  namespace storage_lite {
                             auto error = context->xml_parser()->parse_storage_error(str);
                             error.code = std::to_string(result);
                             *outcome = storage_outcome<RESPONSE_TYPE>(error);
-                            //*outcome = storage_outcome<RESPONSE_TYPE>(context->xml_parser()->parse_storage_error(str));
                             retry->add_result(code == CURLE_OK ? result: 503);
                             http->reset_input_stream();
                             http->reset_output_stream();
@@ -173,7 +172,6 @@ namespace azure {  namespace storage_lite {
                             auto error = context->xml_parser()->parse_storage_error(str);
                             error.code = std::to_string(result);
                             *outcome = storage_outcome<void>(error);
-                            //*outcome = storage_outcome<void>(context->xml_parser()->parse_storage_error(str));
                             retry->add_result(code == CURLE_OK ? result: 503);
                             http->reset_input_stream();
                             http->reset_output_stream();

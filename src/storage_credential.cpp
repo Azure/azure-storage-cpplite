@@ -25,6 +25,7 @@ namespace azure {  namespace storage_lite {
         string_to_sign.append(headers.content_length).append("\n");
         string_to_sign.append(headers.content_md5).append("\n");
         string_to_sign.append(headers.content_type).append("\n");
+        // TODO: add date to string_to_sign when date is supported.
         string_to_sign.append("\n"); // Date
         string_to_sign.append(headers.if_modified_since).append("\n");
         string_to_sign.append(headers.if_match).append("\n");
@@ -32,7 +33,7 @@ namespace azure {  namespace storage_lite {
         string_to_sign.append(headers.if_unmodified_since).append("\n");
         string_to_sign.append("\n"); // Range
 
-                                        // Canonicalized headers
+        // Canonicalized headers
         for (const auto &header : headers.ms_headers)
         {
             string_to_sign.append(header.first).append(":").append(header.second).append("\n");

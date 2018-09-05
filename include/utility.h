@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <limits>
 
 #include "storage_EXPORTS.h"
 
@@ -26,14 +27,16 @@ namespace azure {  namespace storage_lite {
 
     inline void add_optional_query(storage_url &url, const std::string &name, unsigned int value)
     {
-        if (value > 0) {
+        if (value > 0)
+        {
             url.add_query(name, std::to_string(value));
         }
     }
 
     inline void add_optional_query(storage_url &url, const std::string &name, const std::string &value)
     {
-        if (!value.empty()) {
+        if (!value.empty())
+        {
             url.add_query(name, value);
         }
     }
@@ -42,14 +45,16 @@ namespace azure {  namespace storage_lite {
 
     inline void add_optional_header(http_base &h, const std::string &name, const std::string &value)
     {
-        if (!value.empty()) {
+        if (!value.empty())
+        {
             h.add_header(name, value);
         }
     }
 
     inline void add_optional_content_encoding(http_base &h, storage_headers &headers, const std::string &value)
     {
-        if (!value.empty()) {
+        if (!value.empty())
+        {
             h.add_header(constants::header_content_encoding, value);
             headers.content_encoding = value;
         }
@@ -57,7 +62,8 @@ namespace azure {  namespace storage_lite {
 
     inline void add_optional_content_language(http_base &h, storage_headers &headers, const std::string &value)
     {
-        if (!value.empty()) {
+        if (!value.empty())
+        {
             h.add_header(constants::header_content_language, value);
             headers.content_language = value;
         }
@@ -67,14 +73,16 @@ namespace azure {  namespace storage_lite {
     {
         std::string value = std::to_string(length);
         h.add_header(constants::header_content_length, value);
-        if (length > 0) {
+        if (length > 0)
+        {
             headers.content_length = value;
         }
     }
 
     inline void add_optional_content_md5(http_base &h, storage_headers &headers, const std::string &value)
     {
-        if (!value.empty()) {
+        if (!value.empty())
+        {
             h.add_header(constants::header_content_md5, value);
             headers.content_md5 = value;
         }
@@ -82,7 +90,8 @@ namespace azure {  namespace storage_lite {
 
     inline void add_optional_content_type(http_base &h, storage_headers &headers, const std::string &value)
     {
-        if (!value.empty()) {
+        if (!value.empty())
+        {
             h.add_header(constants::header_content_type, value);
             headers.content_type = value;
         }
@@ -90,7 +99,8 @@ namespace azure {  namespace storage_lite {
 
     inline void add_ms_header(http_base &h, storage_headers &headers, const std::string &name, const std::string &value, bool optional = false)
     {
-        if (!optional || !value.empty()) {
+        if (!optional || !value.empty())
+        {
             h.add_header(name, value);
             headers.ms_headers[name] = value;
         }
@@ -98,7 +108,8 @@ namespace azure {  namespace storage_lite {
 
     inline void add_ms_header(http_base &h, storage_headers &headers, const std::string &name, unsigned long long value, bool optional = false)
     {
-        if (!optional || !value) {
+        if (!optional || (value != std::numeric_limits<unsigned long long>::max()))
+        {
             h.add_header(name, std::to_string(value));
             headers.ms_headers[name] = std::to_string(value);
         }
@@ -121,10 +132,12 @@ namespace azure {  namespace storage_lite {
 
     inline lease_status parse_lease_status(const std::string &value)
     {
-        if (value == "locked") {
+        if (value == "locked")
+        {
             return lease_status::locked;
         }
-        else if (value == "unlocked") {
+        else if (value == "unlocked")
+        {
             return lease_status::unlocked;
         }
         return lease_status::unlocked;
@@ -132,19 +145,24 @@ namespace azure {  namespace storage_lite {
 
     inline lease_state parse_lease_state(const std::string &value)
     {
-        if (value == "available") {
+        if (value == "available")
+        {
             return lease_state::available;
         }
-        else if (value == "leased") {
+        else if (value == "leased")
+        {
             return lease_state::leased;
         }
-        else if (value == "expired") {
+        else if (value == "expired")
+        {
             return lease_state::expired;
         }
-        else if (value == "breaking") {
+        else if (value == "breaking")
+        {
             return lease_state::breaking;
         }
-        else if (value == "broken") {
+        else if (value == "broken")
+        {
             return lease_state::broken;
         }
         return lease_state::available;
@@ -152,10 +170,12 @@ namespace azure {  namespace storage_lite {
 
     inline lease_duration parse_lease_duration(const std::string &value)
     {
-        if (value == "infinite") {
+        if (value == "infinite")
+        {
             return lease_duration::infinite;
         }
-        else if (value == "fixed") {
+        else if (value == "fixed")
+        {
             return lease_duration::fixed;
         }
         return lease_duration::none;

@@ -9,6 +9,7 @@ namespace azure {  namespace storage_lite {
         {
             const auto &r = *this;
 
+            // TODO: allow setting max execution time.
             h.set_absolute_timeout(30L);
 
             h.set_method(http_base::http_method::get);

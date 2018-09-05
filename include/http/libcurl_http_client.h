@@ -26,7 +26,7 @@ namespace azure {  namespace storage_lite {
     class CurlEasyRequest : public http_base
     {
 
-        using MY_TYPE = CurlEasyRequest;
+        using REQUEST_TYPE = CurlEasyRequest;
 
     public:
         AZURE_STORAGE_API CurlEasyRequest(std::shared_ptr<CurlEasyClient> client, CURL *h);
@@ -97,27 +97,12 @@ namespace azure {  namespace storage_lite {
             m_headers.clear();
             curl_slist_free_all(m_slist);
             m_slist = NULL;
-            //curl_easy_setopt(m_curl, CURLOPT_INFILESIZE, -1);
-            //curl_easy_setopt(m_curl, CURLOPT_WRITEFUNCTION, NULL);
-            //curl_easy_setopt(m_curl, CURLOPT_READFUNCTION, NULL);
         }
 
         http_code status_code() const override
         {
             return m_code;
         }
-
-        /*void set_output_callback(OUT_CB output_callback) override {
-            m_output_callback = output_callback;
-            check_code(curl_easy_setopt(m_curl, CURLOPT_WRITEFUNCTION, write_callback));
-            check_code(curl_easy_setopt(m_curl, CURLOPT_WRITEDATA, this));
-        }*/
-
-        /*void set_input_callback(IN_CB input_callback) override {
-            m_input_callback = input_callback;
-            check_code(curl_easy_setopt(m_curl, CURLOPT_READFUNCTION, read_callback));
-            check_code(curl_easy_setopt(m_curl, CURLOPT_READDATA, this));
-        }*/
 
         void set_output_stream(storage_ostream s) override
         {
@@ -130,8 +115,6 @@ namespace azure {  namespace storage_lite {
         {
             m_switch_error_callback = f;
             m_error_stream = s;
-            //check_code(curl_easy_setopt(m_curl, CURLOPT_WRITEFUNCTION, write));
-            //check_code(curl_easy_setopt(m_curl, CURLOPT_WRITEDATA, this));
         }
 
         void set_input_stream(storage_istream s) override
@@ -192,8 +175,6 @@ namespace azure {  namespace storage_lite {
 
         http_method m_method;
         std::string m_url;
-        //IN_CB m_input_callback;
-        //OUT_CB m_output_callback;
         storage_istream m_input_stream;
         storage_ostream m_output_stream;
         storage_iostream m_error_stream;
@@ -204,34 +185,23 @@ namespace azure {  namespace storage_lite {
 
         AZURE_STORAGE_API static size_t header_callback(char *buffer, size_t size, size_t nitems, void *userdata);
 
-        /*static size_t write_callback(char *buffer, size_t size, size_t nitems, void *userdata) {
-            MY_TYPE *p = static_cast<MY_TYPE *>(userdata);
-            p->m_output_callback(buffer, size * nitems);
-            return size * nitems;
-        }*/
-
-        /*static size_t read_callback(char *buffer, size_t size, size_t nitems, void *userdata) {
-            MY_TYPE *p = static_cast<MY_TYPE *>(userdata);
-            return p->m_input_callback(buffer, size * nitems);
-        }*/
-
         static size_t write(char *buffer, size_t size, size_t nitems, void *userdata)
         {
-            MY_TYPE *p = static_cast<MY_TYPE *>(userdata);
+            REQUEST_TYPE *p = static_cast<REQUEST_TYPE *>(userdata);
             p->m_output_stream.ostream().write(buffer, size * nitems);
             return size * nitems;
         }
 
         static size_t error(char *buffer, size_t size, size_t nitems, void *userdata)
         {
-            MY_TYPE *p = static_cast<MY_TYPE *>(userdata);
+            REQUEST_TYPE *p = static_cast<REQUEST_TYPE *>(userdata);
             p->m_error_stream.ostream().write(buffer, size * nitems);
             return size * nitems;
         }
 
         static size_t read(char *buffer, size_t size, size_t nitems, void *userdata)
         {
-            MY_TYPE *p = static_cast<MY_TYPE *>(userdata);
+            REQUEST_TYPE *p = static_cast<REQUEST_TYPE *>(userdata);
             auto &s = p->m_input_stream.istream();
 
             auto cur = s.tellg();
@@ -246,11 +216,7 @@ namespace azure {  namespace storage_lite {
 
         static void check_code(CURLcode code, std::string = std::string())
         {
-            if (code != CURLE_OK)
-            {
-                //std::cout << s << ":" << curl_easy_strerror(code) << std::endl;
-            }
-            else
+            if (code == CURLE_OK)
             {
                 errno = 0; // CURL sometimes sets errno internally, if everything was ok we should reset it to zero.
             }

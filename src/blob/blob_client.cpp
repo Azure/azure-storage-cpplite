@@ -102,7 +102,6 @@ std::future<storage_outcome<void>> blob_client::upload_block_blob_from_stream(co
     is.seekg(0, std::ios_base::end);
     auto end = is.tellg();
     is.seekg(cur);
-    //check < 2^32
     request->set_content_length(static_cast<unsigned int>(end - cur));
     if (metadata.size() > 0)
     {
@@ -294,7 +293,6 @@ std::future<storage_outcome<void>> blob_client::append_block_from_stream(const s
     is.seekg(0, std::ios_base::end);
     auto end = is.tellg();
     is.seekg(cur);
-    //check < 2^32
     request->set_content_length(static_cast<unsigned int>(end - cur));
 
     http->set_input_stream(storage_istream(is));
@@ -306,7 +304,6 @@ std::future<storage_outcome<void>> blob_client::create_page_blob(const std::stri
 {
     auto http = m_client->get_handle();
 
-    //check (size % 512 == 0)
     auto request = std::make_shared<create_page_blob_request>(container, blob, size);
 
     return async_executor<void>::submit(m_account, request, http, m_context);
@@ -332,7 +329,6 @@ std::future<storage_outcome<void>> blob_client::put_page_from_stream(const std::
     auto end = is.tellg();
     is.seekg(cur);
     auto stream_size = static_cast<unsigned int>(end - cur);
-    // check stream_size == size || size == 0
     request->set_content_length(stream_size);
 
     http->set_input_stream(storage_istream(is));

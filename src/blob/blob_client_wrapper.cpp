@@ -322,8 +322,6 @@ namespace azure {  namespace storage_lite {
                 if(!result.success())
                 {
                     errno = std::stoi(result.error().code);
-                    //std::cout<< "error: " << result.error().code <<std::endl;
-                    //std::cout<< "error: " << result.error().message <<std::endl;
                     return list_blobs_segmented_response();
                 }
                 else
@@ -452,7 +450,6 @@ namespace azure {  namespace storage_lite {
                 /*errno already set by get_file_size*/
                 return;
             }
-            //std::cout << blob << "file size is: " << fileSize << std::endl;
 
             if(fileSize <= 64*1024*1024)
             {
@@ -507,7 +504,6 @@ namespace azure {  namespace storage_lite {
                     }
                 }
                 if (0 != result) {
-                    //std::cout << blob <<  " request failed: " << result << std::endl;
                     break;
                 }
                 int length = block_size;
@@ -518,13 +514,11 @@ namespace azure {  namespace storage_lite {
 
                 char* buffer = (char*)malloc(block_size);
                 if (!buffer) {
-                    //std::cout << blob << " failed to allocate buffer" << std::endl;
                     result = 12;
                     break;
                 }
                 if(!ifs.read(buffer, length))
                 {
-                    //std::cout << blob << " failed to read " << length << std::endl;
                     syslog(LOG_ERR, "Failed to read from input stream in upload_file_to_blob.  sourcePath = %s, container = %s, blob = %s, offset = %lld, length = %d.", sourcePath.c_str(), container.c_str(), blob.c_str(), offset, length);
                     result = unknown_error;
                     break;
@@ -565,7 +559,6 @@ namespace azure {  namespace storage_lite {
                         int result = 0;
                         if(!blockResult.success())
                         {
-                            // std::cout << blob << " upload failed " << blockResult.error().code << std::endl;
                             result = std::stoi(blockResult.error().code);
                             if (0 == result) {
                                 // It seems that timeouted requests has no code setup
@@ -587,7 +580,6 @@ namespace azure {  namespace storage_lite {
                 }
             }
             if (0 != result) {
-                //std::cout << blob << " request failed " << std::endl;
             }
             if(result == 0)
             {

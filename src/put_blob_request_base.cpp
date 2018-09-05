@@ -39,7 +39,6 @@ void put_blob_request_base::build_request(const storage_account &a, http_base &h
     add_ms_header(h, headers, constants::header_ms_blob_content_language, r.ms_blob_content_language(), true);
     if (r.ms_blob_type() == put_blob_request_base::blob_type::page_blob)
     {
-        // check % 512
         add_ms_header(h, headers, constants::header_ms_blob_content_length, std::to_string(r.ms_blob_content_length()));
     }
     add_ms_header(h, headers, constants::header_ms_blob_content_md5, r.ms_blob_content_md5(), true);
