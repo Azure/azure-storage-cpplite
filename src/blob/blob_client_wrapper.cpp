@@ -2,8 +2,9 @@
  * No exceptions will throw.
  */
 #include <sys/stat.h>
-#ifdef __linux__
+#if defined(__linux__) || defined(__APPLE__)
 #include <unistd.h>
+#include <syslog.h>
 #else
 #include <Rpc.h>
 #endif //__linux__

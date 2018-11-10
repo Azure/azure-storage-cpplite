@@ -2,6 +2,14 @@ cmake_minimum_required(VERSION 2.8)
 
 project(azurestoragelite)
 
+#set(CMAKE_CXX_STANDARD 14)
+if(APPLE)
+  set(CMAKE_FIND_FRAMEWORK LAST)
+endif()
+
+# Add custom cmake modules to CMAKE_MODULE_PATH
+set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake" "${CMAKE_MODULE_PATH}" )
+
 option(BUILD_TESTS "Build test codes" OFF)
 option(BUILD_SAMPLES "Build sample codes" OFF)
 
@@ -111,19 +119,36 @@ find_package(CURL REQUIRED)
 option(USE_OPENSSL "Use OpenSSL instead of GnuTLS" OFF)
 
 find_package(Threads REQUIRED)
-find_package(OpenSSL REQUIRED)
-pkg_search_module(UUID REQUIRED uuid)
+
+if(UNIX AND NOT APPLE)
+  pkg_search_module(UUID REQUIRED uuid)
+else()
+  find_package(UUID REQUIRED)
+endif()
 
 if (NOT ${USE_OPENSSL})
   find_package(GnuTLS REQUIRED)
   set(EXTRA_INCLUDE ${GNUTLS_INCLUDE_DIR})
   set(EXTRA_LIBRARIES ${GNUTLS_LIBRARIES})
 else()
+  if (APPLE AND NOT OPENSSL_ROOT_DIR)
+    # Prefer a homebrew version of OpenSSL over the one in /usr/lib
+    file(GLOB OPENSSL_BREW_ROOT /usr/local/Cellar/openssl/*)
+ 
+    # check if there is a newer version available installed via brew
+    if (OPENSSL_BREW_ROOT)
+      # Prefer the latest (make the latest one first)
+      list(REVERSE OPENSSL_BREW_ROOT)
+      set(OPENSSL_ROOT_DIR ${OPENSSL_BREW_ROOT})
+      unset(OPENSSL_BREW_ROOT)
+    endif()
+  endif()
+  find_package(OpenSSL REQUIRED)
   add_definitions(-DUSE_OPENSSL)
 endif()
 
 add_definitions(-std=c++11)
-set(WARNING "-Wall -Wextra -Werror -pedantic -pedantic-errors")
+#set(WARNING "-Wall -Wextra -Werror -pedantic -pedantic-errors")
 set(CMAKE_CXX_FLAGS "${CMAKE_THREAD_LIBS_INIT} ${WARNING} ${CMAKE_CXX_FLAGS}")
 include_directories(${PROJECT_SOURCE_DIR}/include ${CURL_INCLUDE_DIRS} ${OPENSSL_INCLUDE_DIR} ${UUID_INCLUDE_DIR} ${EXTRA_INCLUDE})
 
