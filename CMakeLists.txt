@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 2.8)
 
 project(azurestoragelite)
 
-#set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 11)
 if(APPLE)
   set(CMAKE_FIND_FRAMEWORK LAST)
 endif()
@@ -134,7 +134,6 @@ else()
   if (APPLE AND NOT OPENSSL_ROOT_DIR)
     # Prefer a homebrew version of OpenSSL over the one in /usr/lib
     file(GLOB OPENSSL_BREW_ROOT /usr/local/Cellar/openssl/*)
- 
     # check if there is a newer version available installed via brew
     if (OPENSSL_BREW_ROOT)
       # Prefer the latest (make the latest one first)
@@ -147,8 +146,7 @@ else()
   add_definitions(-DUSE_OPENSSL)
 endif()
 
-add_definitions(-std=c++11)
-#set(WARNING "-Wall -Wextra -Werror -pedantic -pedantic-errors")
+set(WARNING "-Wall -Wextra -Werror -pedantic -pedantic-errors")
 set(CMAKE_CXX_FLAGS "${CMAKE_THREAD_LIBS_INIT} ${WARNING} ${CMAKE_CXX_FLAGS}")
 include_directories(${PROJECT_SOURCE_DIR}/include ${CURL_INCLUDE_DIRS} ${OPENSSL_INCLUDE_DIR} ${UUID_INCLUDE_DIR} ${EXTRA_INCLUDE})
 
