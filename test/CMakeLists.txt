@@ -25,4 +25,4 @@ set(AZURE_STORAGE_TEST_SOURCE
 add_executable(azure-storage-test ${AZURE_STORAGE_TEST_SOURCE})
 target_include_directories(azure-storage-test INTERFACE ${AZURE_STORAGE_TEST_HEADER})
 
-target_link_libraries(azure-storage-test azure-storage-lite)
+target_link_libraries(azure-storage-test ${AZ_CPPLITE_LIB_NAME})
