@@ -39,6 +39,22 @@ Or, on Red Hat OS:
 sudo yum install openssl-devel.x86_64 libcurl-devel.x86_64 cmake.x86_64 gcc-c++.x86_64
 ```
 Please be aware that RHEL6 comes with gcc version 4.4.7, which does not meet the requirement of this SDK. In order to use this SDK, [devtoolset](http://linux.web.cern.ch/linux/devtoolset/#install) needs to be installed properly.
+
+### Install the depenencies on MacOS
+The easiest way to install the necessary packages is using `brew`. Please follow the installation instructions at https://brew.sh/
+
+#### Using GNUTLS
+```bash
+brew install gnutls ossp-uuid
+```
+
+#### Using OpenSSL
+```bash
+brew install openssl ossp-uuid
+```
+
+CMake will automatically select the newest installed version of OpenSSL. If you want to use a specific version, use `OPENSSL_ROOT_DIR` to indicate the location.
+
 ### Build and install azure-storage-cpplite:
 ```
 cd azure-storage-cpplite
