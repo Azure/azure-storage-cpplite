@@ -111,7 +111,6 @@ find_package(CURL REQUIRED)
 option(USE_OPENSSL "Use OpenSSL instead of GnuTLS" OFF)
 
 find_package(Threads REQUIRED)
-find_package(OpenSSL REQUIRED)
 pkg_search_module(UUID REQUIRED uuid)
 
 if (NOT ${USE_OPENSSL})
@@ -120,6 +119,7 @@ if (NOT ${USE_OPENSSL})
   set(EXTRA_LIBRARIES ${GNUTLS_LIBRARIES})
 else()
   add_definitions(-DUSE_OPENSSL)
+  find_package(OpenSSL REQUIRED)
 endif()
 
 add_definitions(-std=c++11)
@@ -128,7 +128,12 @@ set(CMAKE_CXX_FLAGS "${CMAKE_THREAD_LIBS_INIT} ${WARNING} ${CMAKE_CXX_FLAGS}")
 include_directories(${PROJECT_SOURCE_DIR}/include ${CURL_INCLUDE_DIRS} ${OPENSSL_INCLUDE_DIR} ${UUID_INCLUDE_DIR} ${EXTRA_INCLUDE})
 
 set(CMAKE_MACOSX_RPATH ON)
-add_library(azure-storage-lite SHARED ${AZURE_STORAGE_LITE_HEADER} ${AZURE_STORAGE_LITE_SOURCE})
+
+if (BUILD_SHARED_LIBS)
+  add_library(azure-storage-lite SHARED ${AZURE_STORAGE_LITE_HEADER} ${AZURE_STORAGE_LITE_SOURCE})
+else ()
+  add_library(azure-storage-lite STATIC ${AZURE_STORAGE_LITE_HEADER} ${AZURE_STORAGE_LITE_SOURCE})
+endif()
 
 target_link_libraries(azure-storage-lite ${CURL_LIBRARIES} ${OPENSSL_CRYPTO_LIBRARY} ${OPENSSL_SSL_LIBRARY} ${UUID_LIBRARIES} ${EXTRA_LIBRARIES})
 

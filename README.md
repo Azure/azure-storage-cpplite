@@ -32,13 +32,14 @@ git clone https://github.com/azure/azure-storage-cpplite.git
 ```
 ### Install the dependencies, e.g. on Ubuntu:
 ```
-sudo apt-get install libssl-dev libcurl4-openssl-dev cmake g++
+sudo apt-get install libssl-dev libcurl4-openssl-dev cmake g++ uuid-dev
 ```
 Or, on Red Hat OS:
 ```
-sudo yum install openssl-devel.x86_64 libcurl-devel.x86_64 cmake.x86_64 gcc-c++.x86_64
+sudo yum install openssl-devel.x86_64 libcurl-devel.x86_64 cmake.x86_64 gcc-c++.x86_64 uuid-devel
 ```
 Please be aware that RHEL6 comes with gcc version 4.4.7, which does not meet the requirement of this SDK. In order to use this SDK, [devtoolset](http://linux.web.cern.ch/linux/devtoolset/#install) needs to be installed properly.
+Please be aware that on some Linux distributions, pkg-config is not properly installed that would result in CMake to not behave as expected. Installing pkg-config or updating it will eliminate the potential issue. The tested version of pkg-config is 0.29.1-0.
 ### Build and install azure-storage-cpplite:
 ```
 cd azure-storage-cpplite
@@ -49,6 +50,9 @@ sudo make install
 ```
 ### Use GNUTLS instead of OpenSSL:
 Alternatively, you can use GNUTLS instead of OpenSSL. Simply install GNUTLS and remove the argument `-DUSE_OPENSSL` during build.
+
+### Build static library instead of dynamic libraries.
+By default, dynamic libraries are built. Adding `-DBUILD_SHARED_LIBS=OFF` will build static library instead.
 
 ## Usage
 Simply include the header files after installing the library, everything is good to go. For a more comprehensive sample, please see [sample](https://github.com/azure/azure-storage-cpplite/blob/master/sample/sample.cpp).
@@ -84,7 +88,7 @@ the rights to use your contribution. For details, visit https://cla.microsoft.co
 
 When you submit a pull request, a CLA-bot will automatically determine whether you need to provide
 a CLA and decorate the PR appropriately (e.g., label, comment). Simply follow the instructions
-provided by the bot. You will only need to do this once across all repos using our CLA.
+provided by the bot. You will only need to do this once across all repositories using our CLA.
 
 This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/).
 For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or
@@ -99,13 +103,14 @@ When contributing to this client library, there are following ground rules:
 ### Build Test
 Download [Catch2 single header version](https://raw.githubusercontent.com/catchorg/Catch2/master/single_include/catch2/catch.hpp) and put it in the folder `.\test\catch2\`.
 Add `-DBUILD_TESTS=true` when building the repository.
-Please modify the [connection string here](https://github.com/katmsft/azure-storage-cpplite/blob/master/test/test_base.h#L18) to successfully run the tests. All the test uses standard Azure Storage account.
+Please modify the [connection string here](https://github.com/azure/azure-storage-cpplite/blob/master/test/test_base.h#L18) in `.\test\test_base.h` line 18 `static std::string sscs = "DefaultEndpointsProtocol=https;";` to successfully run the tests. All the tests use standard Azure Storage account.
 #### *Please note that in order to run test, a minimum version of g++ 5.1 is required.*
 
 ### Dependencies
 - Project dependencies:
-  - GNUTLS(or Openssl v7.35.0)
-  - libcurl v1.0.1
+  - GNUTLS(or Openssl v1.0.1)
+  - libcurl v7.35.0
   - CMake v2.8.12.2
   - g++ v4.8.2
+  - UUID 2.13.1-0.4
 - Dev dependency: catch2.
