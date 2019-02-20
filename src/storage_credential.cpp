@@ -57,11 +57,7 @@ namespace azure {  namespace storage_lite {
         }
 
         std::string authorization("SharedKey ");
-#ifdef _WIN32
-        authorization.append(m_account_name).append(":").append(hmac_sha256_hash_provider::hash(string_to_sign, m_account_key));
-#else
         authorization.append(m_account_name).append(":").append(hash(string_to_sign, m_account_key));
-#endif
         h.add_header(constants::header_authorization, authorization);
     }
 
