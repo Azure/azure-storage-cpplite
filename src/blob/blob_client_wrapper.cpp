@@ -1,19 +1,18 @@
 /* C++ interface wrapper for blob client
  * No exceptions will throw.
  */
-#include <sys/stat.h>
-#ifdef __linux__
-#include <unistd.h>
-#else
-#include <Rpc.h>
-#endif //__linux__
-#include <sys/types.h>
-#include <fcntl.h>
+
 #include <iostream>
 #include <fstream>
 
 #include "blob/blob_client.h"
+#include "logging.h"
 #include "storage_errno.h"
+
+#pragma push_macro("max")
+#undef max
+#pragma push_macro("min")
+#undef min
 
 namespace azure {  namespace storage_lite {
 
@@ -152,7 +151,7 @@ namespace azure {  namespace storage_lite {
             }
             catch(const std::exception &ex)
             {
-                syslog(LOG_ERR, "Failed to create blob client.  ex.what() = %s.", ex.what());
+                logger::log(log_level::error, "Failed to create blob client.  ex.what() = %s.", ex.what());
                 errno = unknown_error;
                 return blob_client_wrapper(false);
             }
@@ -190,7 +189,7 @@ namespace azure {  namespace storage_lite {
             }
             catch(std::exception& ex)
             {
-                syslog(LOG_ERR, "Unknown failure in create_container.  ex.what() = %s, container = %s.", ex.what(), container.c_str());
+                logger::log(log_level::error, "Unknown failure in create_container.  ex.what() = %s, container = %s.", ex.what(), container.c_str());
                 errno = unknown_error;
                 return;
             }
@@ -225,7 +224,7 @@ namespace azure {  namespace storage_lite {
             }
             catch(std::exception& ex)
             {
-                syslog(LOG_ERR, "Unknown failure in delete_container.  ex.what() = %s, container = %s.", ex.what(), container.c_str());
+                logger::log(log_level::error, "Unknown failure in delete_container.  ex.what() = %s, container = %s.", ex.what(), container.c_str());
                 errno = unknown_error;
                 return;
             }
@@ -255,14 +254,14 @@ namespace azure {  namespace storage_lite {
                 }
                 else
                 {
-                    syslog(LOG_ERR, "Unknown failure in container_exists.  No exception, but the container property object is invalid.  errno = %d.", errno);
+                    logger::log(log_level::error, "Unknown failure in container_exists.  No exception, but the container property object is invalid.  errno = %d.", errno);
                     errno = unknown_error;
                     return false;
                 }
             }
             catch(std::exception& ex)
             {
-                syslog(LOG_ERR, "Unknown failure in container_exists.  ex.what() = %s, container = %s.", ex.what(), container.c_str());
+                logger::log(log_level::error, "Unknown failure in container_exists.  ex.what() = %s, container = %s.", ex.what(), container.c_str());
                 errno = unknown_error;
                 return false;
             }
@@ -295,7 +294,7 @@ namespace azure {  namespace storage_lite {
             }
             catch(std::exception& ex)
             {
-                syslog(LOG_ERR, "Unknown failure in list_containers.  ex.what() = %s, prefix = %s.", ex.what(), prefix.c_str());
+                logger::log(log_level::error, "Unknown failure in list_containers.  ex.what() = %s, prefix = %s.", ex.what(), prefix.c_str());
                 errno = unknown_error;
                 return std::vector<list_containers_item>();
             }
@@ -332,7 +331,7 @@ namespace azure {  namespace storage_lite {
             }
             catch(std::exception& ex)
             {
-                syslog(LOG_ERR, "Unknown failure in list_blobs_hierarchial.  ex.what() = %s, container = %s, prefix = %s.", ex.what(), container.c_str(), prefix.c_str());
+                logger::log(log_level::error, "Unknown failure in list_blobs_hierarchial.  ex.what() = %s, container = %s, prefix = %s.", ex.what(), container.c_str(), prefix.c_str());
                 errno = unknown_error;
                 return list_blobs_segmented_response();
             }
@@ -359,7 +358,7 @@ namespace azure {  namespace storage_lite {
             catch(std::exception& ex)
             {
                 // TODO open failed
-                syslog(LOG_ERR, "Failure to open the input stream in put_blob.  ex.what() = %s, sourcePath = %s.", ex.what(), sourcePath.c_str());
+                logger::log(log_level::error, "Failure to open the input stream in put_blob.  ex.what() = %s, sourcePath = %s.", ex.what(), sourcePath.c_str());
                 errno = unknown_error;
                 return;
             }
@@ -379,7 +378,7 @@ namespace azure {  namespace storage_lite {
             }
             catch(std::exception& ex)
             {
-                syslog(LOG_ERR, "Failure to upload the blob in put_blob.  ex.what() = %s, container = %s, blob = %s, sourcePath = %s.", ex.what(), container.c_str(), blob.c_str(), sourcePath.c_str());
+                logger::log(log_level::error, "Failure to upload the blob in put_blob.  ex.what() = %s, container = %s, blob = %s, sourcePath = %s.", ex.what(), container.c_str(), blob.c_str(), sourcePath.c_str());
                 errno = unknown_error;
             }
 
@@ -390,7 +389,7 @@ namespace azure {  namespace storage_lite {
             catch(std::exception& ex)
             {
                 // TODO close failed
-                syslog(LOG_ERR, "Failure to close the input stream in put_blob.  ex.what() = %s, container = %s, blob = %s, sourcePath = %s.", ex.what(), container.c_str(), blob.c_str(), sourcePath.c_str());
+                logger::log(log_level::error, "Failure to close the input stream in put_blob.  ex.what() = %s, container = %s, blob = %s, sourcePath = %s.", ex.what(), container.c_str(), blob.c_str(), sourcePath.c_str());
                 errno = unknown_error;
             }
         }
@@ -426,7 +425,7 @@ namespace azure {  namespace storage_lite {
             }
             catch(std::exception& ex)
             {
-                syslog(LOG_ERR, "Unknown failure in upload_block_blob_from_stream.  ex.what() = %s, container = %s, blob = %s.", ex.what(), container.c_str(), blob.c_str());
+                logger::log(log_level::error, "Unknown failure in upload_block_blob_from_stream.  ex.what() = %s, container = %s, blob = %s.", ex.what(), container.c_str(), blob.c_str());
                 errno = unknown_error;
             }
         }
@@ -481,7 +480,7 @@ namespace azure {  namespace storage_lite {
             std::ifstream ifs(sourcePath);
             if(!ifs)
             {
-                syslog(LOG_ERR, "Failed to open the input stream in upload_file_to_blob.  errno = %d, sourcePath = %s.", errno, sourcePath.c_str());
+                logger::log(log_level::error, "Failed to open the input stream in upload_file_to_blob.  errno = %d, sourcePath = %s.", errno, sourcePath.c_str());
                 errno = unknown_error;
                 return;
             }
@@ -506,20 +505,20 @@ namespace azure {  namespace storage_lite {
                 if (0 != result) {
                     break;
                 }
-                int length = block_size;
+                long long length = block_size;
                 if(offset + length > fileSize)
                 {
                     length = fileSize - offset;
                 }
 
-                char* buffer = (char*)malloc(block_size);
+                char* buffer = (char*)malloc(static_cast<size_t>(block_size)); // This cast is save because block size should always be lower than 4GB
                 if (!buffer) {
                     result = 12;
                     break;
                 }
                 if(!ifs.read(buffer, length))
                 {
-                    syslog(LOG_ERR, "Failed to read from input stream in upload_file_to_blob.  sourcePath = %s, container = %s, blob = %s, offset = %lld, length = %d.", sourcePath.c_str(), container.c_str(), blob.c_str(), offset, length);
+                    logger::log(log_level::error, "Failed to read from input stream in upload_file_to_blob.  sourcePath = %s, container = %s, blob = %s, offset = %lld, length = %d.", sourcePath.c_str(), container.c_str(), blob.c_str(), offset, length);
                     result = unknown_error;
                     break;
                 }
@@ -587,7 +586,7 @@ namespace azure {  namespace storage_lite {
                 if(!r.success())
                 {
                     result = std::stoi(r.error().code);
-                    syslog(LOG_ERR, "put_block_list failed in upload_file_to_blob.  error code = %d, sourcePath = %s, container = %s, blob = %s.", result, sourcePath.c_str(), container.c_str(), blob.c_str());
+                    logger::log(log_level::error, "put_block_list failed in upload_file_to_blob.  error code = %d, sourcePath = %s, container = %s, blob = %s.", result, sourcePath.c_str(), container.c_str(), blob.c_str());
                     if (0 == result) {
                         result = unknown_error;
                     }
@@ -633,7 +632,7 @@ namespace azure {  namespace storage_lite {
             }
             catch(std::exception& ex)
             {
-                syslog(LOG_ERR, "Unknown failure in download_blob_to_stream.  ex.what() = %s, container = %s, blob = %s.", ex.what(), container.c_str(), blob.c_str());
+                logger::log(log_level::error, "Unknown failure in download_blob_to_stream.  ex.what() = %s, container = %s, blob = %s.", ex.what(), container.c_str(), blob.c_str());
                 errno = unknown_error;
                 return;
             }
@@ -657,7 +656,7 @@ namespace azure {  namespace storage_lite {
                 firstChunk = m_blobClient->get_chunk_to_stream_sync(container, blob, 0, DOWNLOAD_CHUNK_SIZE, os);
                 os.close();
                 if (!os) {
-                    syslog(LOG_ERR, "get_chunk_to_stream_async failed for firstchunk in download_blob_to_file.  container = %s, blob = %s, destPath = %s.", container.c_str(), blob.c_str(), destPath.c_str());
+                    logger::log(log_level::error, "get_chunk_to_stream_async failed for firstchunk in download_blob_to_file.  container = %s, blob = %s, destPath = %s.", container.c_str(), blob.c_str(), destPath.c_str());
                     errno = unknown_error;
                     return;
                 }
@@ -680,16 +679,8 @@ namespace azure {  namespace storage_lite {
                 const auto originalEtag = firstChunk.response().etag;
                 const auto length = static_cast<unsigned long long>(firstChunk.response().totalSize);
 
-                // Resize the target file.
-                auto fd = open(destPath.c_str(), O_WRONLY, 0770);
-                if (-1 == fd) {
-                    return;
-                }
-                if (-1 == ftruncate(fd, length)) {
-                    close(fd);
-                    return;
-                } 
-                close(fd);
+                // Create or resize the target file if already exist.
+                create_or_resize_file(destPath, length);
 
                 // Download the rest.
                 const auto left = length - firstChunk.response().size;
@@ -718,7 +709,7 @@ namespace azure {  namespace storage_lite {
                             }
                             // Check for any writing errors.
                             if (!output) {
-                                syslog(LOG_ERR, "get_chunk_to_stream_async failure in download_blob_to_file.  container = %s, blob = %s, destPath = %s, offset = %llu, range = %llu.", container.c_str(), blob.c_str(), destPath.c_str(), offset, range);
+                                logger::log(log_level::error, "get_chunk_to_stream_async failure in download_blob_to_file.  container = %s, blob = %s, destPath = %s, offset = %llu, range = %llu.", container.c_str(), blob.c_str(), destPath.c_str(), offset, range);
                                 return unknown_error;
                             }
                             return 0;
@@ -740,7 +731,7 @@ namespace azure {  namespace storage_lite {
             }
             catch(std::exception& ex)
             {
-                syslog(LOG_ERR, "Unknown failure in download_blob_to_file.  ex.what() = %s, container = %s, blob = %s, destPath = %s.", ex.what(), container.c_str(), blob.c_str(), destPath.c_str());
+                logger::log(log_level::error, "Unknown failure in download_blob_to_file.  ex.what() = %s, container = %s, blob = %s, destPath = %s.", ex.what(), container.c_str(), blob.c_str(), destPath.c_str());
                 errno = unknown_error;
                 return;
             }
@@ -773,7 +764,7 @@ namespace azure {  namespace storage_lite {
             }
             catch(std::exception& ex)
             {
-                syslog(LOG_ERR, "Unknown failure in get_blob_property.  ex.what() = %s, container = %s, blob = %s.", ex.what(), container.c_str(), blob.c_str());
+                logger::log(log_level::error, "Unknown failure in get_blob_property.  ex.what() = %s, container = %s, blob = %s.", ex.what(), container.c_str(), blob.c_str());
                 errno = unknown_error;
                 return blob_property(false);
             }
@@ -799,7 +790,7 @@ namespace azure {  namespace storage_lite {
             }
             catch(std::exception& ex)
             {
-                syslog(LOG_ERR, "Unknown failure in blob_exists.  ex.what() = %s, container = %s, blob = %s.", ex.what(), container.c_str(), blob.c_str());
+                logger::log(log_level::error, "Unknown failure in blob_exists.  ex.what() = %s, container = %s, blob = %s.", ex.what(), container.c_str(), blob.c_str());
                 errno = unknown_error;
                 return false;
             }
@@ -835,7 +826,7 @@ namespace azure {  namespace storage_lite {
             }
             catch(std::exception& ex)
             {
-                syslog(LOG_ERR, "Unknown failure in delete_blob.  ex.what() = %s, container = %s, blob = %s.", ex.what(), container.c_str(), blob.c_str());
+                logger::log(log_level::error, "Unknown failure in delete_blob.  ex.what() = %s, container = %s, blob = %s.", ex.what(), container.c_str(), blob.c_str());
                 errno = unknown_error;
                 return;
             }
@@ -873,10 +864,13 @@ namespace azure {  namespace storage_lite {
             }
             catch(std::exception& ex)
             {
-                syslog(LOG_ERR, "Unknown failure in start_copy.  ex.what() = %s, sourceContainer = %s, sourceBlob = %s, destContainer = %s, destBlob = %s.", ex.what(), sourceContainer.c_str(), sourceBlob.c_str(), destContainer.c_str(), destBlob.c_str());
+                logger::log(log_level::error, "Unknown failure in start_copy.  ex.what() = %s, sourceContainer = %s, sourceBlob = %s, destContainer = %s, destBlob = %s.", ex.what(), sourceContainer.c_str(), sourceBlob.c_str(), destContainer.c_str(), destBlob.c_str());
                 errno = unknown_error;
                 return;
             }
         }
 
 }} // azure::storage_lite
+
+#pragma pop_macro("min")
+#pragma pop_macro("max")

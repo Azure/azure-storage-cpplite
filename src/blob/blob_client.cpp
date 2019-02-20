@@ -1,5 +1,11 @@
 #include <algorithm>
 #include <sstream>
+
+#ifdef _WIN32
+#include <BaseTsd.h>
+typedef SSIZE_T ssize_t;
+#endif
+
 #include "blob/blob_client.h"
 
 #include "blob/download_blob_request.h"

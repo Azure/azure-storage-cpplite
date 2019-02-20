@@ -10,28 +10,28 @@
 #include <vector>
 
 namespace as_test {
-	std::string get_random_string(size_t size) {
+    std::string get_random_string(size_t size) {
         static bool initialized = false;
         if (!initialized) {
-            srand(time(NULL));
+            srand(static_cast<unsigned int>(time(NULL)));
             initialized = true;
         }
-		auto randchar = []() -> char
-		{
+        auto randchar = []() -> char
+        {
             const char charset[] =
-				"0123456789abcdefghijklmnopqrstuvwxyz";
-			const size_t max_index = (sizeof(charset) - 1);
-			return charset[rand() % max_index];
-		};
-		std::string str(size, 0);
-		std::generate_n(str.begin(), size, randchar);
-		return str;
-	}
+                "0123456789abcdefghijklmnopqrstuvwxyz";
+            const size_t max_index = (sizeof(charset) - 1);
+            return charset[rand() % max_index];
+        };
+        std::string str(size, 0);
+        std::generate_n(str.begin(), size, randchar);
+        return str;
+    }
 
     std::istringstream get_istringstream_with_random_buffer(size_t size) {
         static bool initialized = false;
         if (!initialized) {
-            srand(time(NULL));
+            srand(static_cast<unsigned int>(time(NULL)));
             initialized = true;
         }
         auto randchar = []() -> char
@@ -96,70 +96,70 @@ namespace as_test {
         return result;
     }
 
-	azure::storage_lite::blob_client& base::test_blob_client(int size) {
-		static std::unordered_map<int, std::shared_ptr<azure::storage_lite::blob_client>> bcs;
-		if (bcs[size] == NULL)
-		{
+    azure::storage_lite::blob_client& base::test_blob_client(int size) {
+        static std::unordered_map<int, std::shared_ptr<azure::storage_lite::blob_client>> bcs;
+        if (bcs[size] == NULL)
+        {
             bcs[size] = std::make_shared<azure::storage_lite::blob_client>(azure::storage_lite::blob_client(init_account(standard_storage_connection_string()), size));
-		}
-		return *bcs[size];
-	}
+        }
+        return *bcs[size];
+    }
 
     const std::shared_ptr<azure::storage_lite::storage_account> base::init_account(const std::string& connection_string) {
-		auto settings = parse_string_into_settings(connection_string);
-		auto credential = std::make_shared<azure::storage_lite::shared_key_credential>(azure::storage_lite::shared_key_credential(settings["AccountName"], settings["AccountKey"]));
-		bool use_https = true;
-		if (settings["DefaultEndpointsProtocol"] == "http")
-		{
-			use_https = false;
-		}
-		std::string blob_endpoint;
-		if (!settings["BlobEndpoint"].empty())
-		{
-			blob_endpoint = settings["BlobEndpoint"];
-		}
+        auto settings = parse_string_into_settings(connection_string);
+        auto credential = std::make_shared<azure::storage_lite::shared_key_credential>(azure::storage_lite::shared_key_credential(settings["AccountName"], settings["AccountKey"]));
+        bool use_https = true;
+        if (settings["DefaultEndpointsProtocol"] == "http")
+        {
+            use_https = false;
+        }
+        std::string blob_endpoint;
+        if (!settings["BlobEndpoint"].empty())
+        {
+            blob_endpoint = settings["BlobEndpoint"];
+        }
 
-		return std::make_shared<azure::storage_lite::storage_account>(azure::storage_lite::storage_account(settings["AccountName"], credential, use_https, blob_endpoint));
-	}
+        return std::make_shared<azure::storage_lite::storage_account>(azure::storage_lite::storage_account(settings["AccountName"], credential, use_https, blob_endpoint));
+    }
 
-	std::map<std::string, std::string> base::parse_string_into_settings(const std::string& connection_string)
-	{
-		std::map<std::string, std::string> settings;
-		std::vector<std::string> splitted_string;
+    std::map<std::string, std::string> base::parse_string_into_settings(const std::string& connection_string)
+    {
+        std::map<std::string, std::string> settings;
+        std::vector<std::string> splitted_string;
 
-		// Split the connection string by ';'
-		{
-			std::istringstream iss(connection_string);
-			std::string s;
-			while (getline(iss, s, ';')) {
-				splitted_string.push_back(s);
-			}
-		}
+        // Split the connection string by ';'
+        {
+            std::istringstream iss(connection_string);
+            std::string s;
+            while (getline(iss, s, ';')) {
+                splitted_string.push_back(s);
+            }
+        }
 
-		for (auto iter = splitted_string.cbegin(); iter != splitted_string.cend(); ++iter)
-		{
-			if (!iter->empty())
-			{
-				auto equals = iter->find('=');
+        for (auto iter = splitted_string.cbegin(); iter != splitted_string.cend(); ++iter)
+        {
+            if (!iter->empty())
+            {
+                auto equals = iter->find('=');
 
-				std::string key = iter->substr(0, equals);
-				if (!key.empty())
-				{
-					std::string value;
-					if (equals != std::string::npos)
-					{
-						value = iter->substr(equals + 1);
-					}
+                std::string key = iter->substr(0, equals);
+                if (!key.empty())
+                {
+                    std::string value;
+                    if (equals != std::string::npos)
+                    {
+                        value = iter->substr(equals + 1);
+                    }
 
-					settings.insert(std::make_pair(std::move(key), std::move(value)));
-				}
-				else
-				{
-					throw std::logic_error("The format of connection string cannot be recognized.");
-				}
-			}
-		}
+                    settings.insert(std::make_pair(std::move(key), std::move(value)));
+                }
+                else
+                {
+                    throw std::logic_error("The format of connection string cannot be recognized.");
+                }
+            }
+        }
 
-		return settings;
-	}
+        return settings;
+    }
 }
