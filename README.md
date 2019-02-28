@@ -25,6 +25,14 @@ The full supported Azure Storage API can be found in the following list, please 
 - [Append Block](https://docs.microsoft.com/en-us/rest/api/storageservices/append-block).
 
 ## Installation
+### Supported Platforms
+Please be aware that below platforms are tested and verified, but other platforms beyond this list can be working with some modification on the build steps resolving the dependencies. Feel free to test them out and contribute back.
+  - Ubuntu 16.04 x86_64.
+  - Red Hat 6 x86_64.
+  - Red Hat 7 x86_64.
+  - MacOS Sierra version 10.12.6 building with x86_64 or i386.
+  - Windows 10 with Visual Studio 2017, x86 or x64.
+
 ### Build this library on Linux
 Project dependencies:
   - GNUTLS(or Openssl v1.0.1)
@@ -56,6 +64,39 @@ sudo make install
 ```
 #### Use GNUTLS instead of OpenSSL:
 Alternatively, you can use GNUTLS instead of OpenSSL. Simply install GNUTLS and remove the argument `-DUSE_OPENSSL` during build.
+
+### Build this library on MacOS
+Project dependencies:
+-   Openssl v1.0.1 to v 1.1.1
+-   libcurl
+-   CMake
+-   Clang (Comes with XCode)
+
+#### Clone the latest code from this repository:
+```
+git clone https://github.com/azure/azure-storage-cpplite.git
+```
+#### Install dependencies:
+```
+Brew install openssl curl-openssl cmake
+```
+#### Build and install azure-storage-cpplite:
+```
+cd azure-storage-cpplite
+mkdir build.release
+cd build.release
+cmake .. -DCMAKE_BUILD_TYPE=Release
+sudo make install
+```
+#### Specifying customized OpenSSL or libcurl root folder:
+Default OpenSSL or libcurl root directory may not be applicable for all users. In that case, following parameters can be used to specify the prefered path:
+`-DCURL_ROOT_DIR=<curl's root directory>`.
+`-DOPENSSL_ROOT_DIR=<openssl's root directory>`.
+#### Specifying the build for x86_64 or i386:
+First, follow [OpenSSL build guide](https://wiki.openssl.org/index.php/Compilation_and_Installation#OS_X) to build and install x86_64 or i386 version of OpenSSL.
+Then, follow [CURL build guide](https://curl.haxx.se/docs/install.html) to build and install x86_64 or i386 version of libcurl.
+At last, when building this library, add argument below when executing CMake commands:
+`-DCMAKE_OSX_ARCHITECTURES=x86_64` or `i386`.
 
 ### Build this library on Windows
 Project dependencies:

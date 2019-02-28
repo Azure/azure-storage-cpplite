@@ -5,6 +5,10 @@
 #include <iostream>
 #include <fstream>
 
+#ifndef _WIN32
+#include <sys/stat.h>
+#endif
+
 #include "blob/blob_client.h"
 #include "logging.h"
 #include "storage_errno.h"

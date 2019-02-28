@@ -108,13 +108,21 @@ set(AZURE_STORAGE_LITE_SOURCE
   src/blob/blob_client_wrapper.cpp
 )
 
-
-
-
-if (UNIX)
+if(APPLE)
+  option(USE_OPENSSL "Use OpenSSL instead of GnuTLS" ON)
+  add_definitions(-DUSE_OPENSSL)
+  find_package(CURL REQUIRED)
+  # Adding default brew install DIR for openssl
+  set(OPENSSL_ROOT_DIR ${OPENSSL_ROOT_DIR} "/usr/local/opt/openssl/")
+  find_package(OpenSSL REQUIRED)
+  include_directories(${PROJECT_SOURCE_DIR}/include ${CURL_INCLUDE_DIRS} ${OPENSSL_INCLUDE_DIR} ${EXTRA_INCLUDE})
+  set(EXTRA_LIBRARIES ${EXTRA_LIBRARIES} system)
+  set(CMAKE_MACOSX_RPATH ON)
+elseif (UNIX)
   option(USE_OPENSSL "Use OpenSSL instead of GnuTLS" OFF)
   find_package(Threads REQUIRED)
   find_package(CURL REQUIRED)
+  include(FindPkgConfig)
   pkg_search_module(UUID REQUIRED uuid)
   if (NOT ${USE_OPENSSL})
     find_package(GnuTLS REQUIRED)
@@ -234,14 +242,11 @@ else()
   include_directories(${PROJECT_SOURCE_DIR}/include ${CURL_INCLUDE_DIRS} ${OPENSSL_INCLUDE_DIR} ${EXTRA_INCLUDE})
 endif()
 
-if(CMAKE_COMPILER_IS_GNUCXX)
-    message(STATUS "GCC detected, adding compile flags")
-    add_definitions(-std=c++11)
-    set(WARNING "-Wall -Wextra -Werror -pedantic -pedantic-errors")
-    set(CMAKE_CXX_FLAGS "${CMAKE_THREAD_LIBS_INIT} ${WARNING} ${CMAKE_CXX_FLAGS}")
-endif(CMAKE_COMPILER_IS_GNUCXX)
-
-set(CMAKE_MACOSX_RPATH ON)
+if (("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang") OR ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU"))
+  add_definitions(-std=c++11)
+  set(WARNING "-Wall -Wextra -Werror -pedantic -pedantic-errors")
+  set(CMAKE_CXX_FLAGS "${CMAKE_THREAD_LIBS_INIT} ${WARNING} ${CMAKE_CXX_FLAGS}")
+endif()
 
 if (BUILD_SHARED_LIBS)
   add_library(azure-storage-lite SHARED ${AZURE_STORAGE_LITE_HEADER} ${AZURE_STORAGE_LITE_SOURCE})
