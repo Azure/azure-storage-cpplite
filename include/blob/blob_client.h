@@ -40,6 +40,16 @@ namespace azure { namespace storage_lite {
             m_client = std::make_shared<CurlEasyClient>(max_concurrency);
         }
 
+        ///<summary>
+        /// Sets curl CA certificate path.
+        ///</summary>
+        ///<param name="capath"> A string, provides the CA absolute path for curl handles.</param>
+        /// <returns> Returns CURLcode as int if could not set the path. </returns>
+        int set_ca_path(std::string& capath)
+        {
+            return m_client->set_curl_ca_path(capath);
+        }
+
         /// <summary>
         /// Gets the curl client used to execute requests.
         /// </summary>

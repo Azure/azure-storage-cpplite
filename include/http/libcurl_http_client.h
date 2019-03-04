@@ -244,6 +244,20 @@ namespace azure {  namespace storage_lite {
             curl_global_cleanup();
         }
 
+        int set_curl_ca_path(std::string& capath)
+        {
+            for (int i = 0; i < m_size; i++) {
+                CURL *h = m_handles.front();
+                m_handles.pop();
+                CURLcode ret = curl_easy_setopt(h, CURLOPT_CAPATH, capath.c_str());
+                m_handles.push(h);
+
+                if(ret != CURLE_OK)
+                    return ret;
+            }
+            return CURLE_OK;
+        }
+
         int size()
         {
             return m_size;
