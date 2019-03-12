@@ -41,6 +41,19 @@ namespace azure { namespace storage_lite {
         }
 
         /// <summary>
+        /// Initializes a new instance of the <see cref="azure::storage_lite::blob_client" /> class.
+        /// </summary>
+        /// <param name="account">An existing <see cref="azure::storage_lite::storage_account" /> object.</param>
+        /// <param name="max_concurrency">An int value indicates the maximum concurrency expected during execute requests against the service.</param>
+        /// <param name="ca_path">A string value with absolute path to CA bundle location.</param>
+        blob_client(std::shared_ptr<storage_account> account, int max_concurrency, const std::string& ca_path)
+            : m_account(account)
+        {
+            m_context = std::make_shared<executor_context>(std::make_shared<tinyxml2_parser>(), std::make_shared<retry_policy>());
+            m_client = std::make_shared<CurlEasyClient>(max_concurrency, ca_path);
+        }
+
+        /// <summary>
         /// Gets the curl client used to execute requests.
         /// </summary>
         /// <returns>The <see cref="azure::storage_lite::CurlEasyClient"> object</returns>
