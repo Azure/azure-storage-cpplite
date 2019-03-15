@@ -11,6 +11,9 @@
 #include "storage_request_base.h"
 #include "storage_url.h"
 
+#pragma push_macro("max")
+#undef max
+
 namespace azure {  namespace storage_lite {
 
     enum class date_format
@@ -124,6 +127,7 @@ namespace azure {  namespace storage_lite {
 
     AZURE_STORAGE_API std::string get_uuid();
 
+    AZURE_STORAGE_API bool create_or_resize_file(const std::string& path, unsigned long long length) noexcept;
 
     inline bool unsuccessful(http_base::http_code status_code)
     {
@@ -182,3 +186,5 @@ namespace azure {  namespace storage_lite {
     }
 
 }}   // azure::storage_lite
+
+#pragma pop_macro("max")

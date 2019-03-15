@@ -52,9 +52,13 @@ dkms.conf
 
 # Cmake
 build
+build.release
 
 # VS folder
 .vs/
+
+# Git
+*.orig
 
 # Test framework
 test/catch2
