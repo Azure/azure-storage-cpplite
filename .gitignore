@@ -62,3 +62,6 @@ build.release
 
 # Test framework
 test/catch2
+
+# Bazel
+bazel-*
