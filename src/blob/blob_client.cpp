@@ -119,6 +119,25 @@ std::future<storage_outcome<void>> blob_client::upload_block_blob_from_stream(co
     return async_executor<void>::submit(m_account, request, http, m_context);
 }
 
+std::future<storage_outcome<void>> blob_client::upload_block_blob_from_stream(const std::string &container, const std::string &blob, std::istream &is, const std::vector<std::pair<std::string, std::string>> &metadata, size_t streamlen)
+{
+    auto http = m_client->get_handle();
+
+    auto request = std::make_shared<create_block_blob_request>(container, blob);
+
+    request->set_content_length(streamlen);
+    if (metadata.size() > 0)
+    {
+        request->set_metadata(metadata);
+    }
+
+    http->set_input_stream(storage_istream(is));
+    http->set_is_stream_length();
+    http->set_input_stream_length(streamlen);
+
+    return async_executor<void>::submit(m_account, request, http, m_context);
+}
+
 std::future<storage_outcome<void>> blob_client::delete_blob(const std::string &container, const std::string &blob, bool delete_snapshots)
 {
     auto http = m_client->get_handle();

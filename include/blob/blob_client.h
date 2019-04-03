@@ -111,6 +111,18 @@ namespace azure { namespace storage_lite {
         AZURE_STORAGE_API std::future<storage_outcome<void>> upload_block_blob_from_stream(const std::string &container, const std::string &blob, std::istream &is, const std::vector<std::pair<std::string, std::string>> &metadata);
 
         /// <summary>
+        /// Intitiates an asynchronous operation  to upload the contents of a blob from a stream.
+        /// </summary>
+        /// <param name="container">The container name.</param>
+        /// <param name="blob">The blob name.</param>
+        /// <param name="is">The source stream.</param>
+        /// <param name="metadata">A <see cref="std::vector"> that respresents metadatas.</param>
+        /// <returns>A <see cref="std::future" /> object that represents the current operation.</returns>
+        /// <param name="streamlen">Length of the stream. Used only when the stream does not support tellg/seekg</param>
+        AZURE_STORAGE_API std::future<storage_outcome<void>> upload_block_blob_from_stream(const std::string &container, const std::string &blob, std::istream &is, const std::vector<std::pair<std::string, std::string>> &metadata, size_t streamlen);
+
+
+        /// <summary>
         /// Intitiates an asynchronous operation  to delete a blob.
         /// </summary>
         /// <param name="container">The container name.</param>
@@ -400,7 +412,8 @@ namespace azure { namespace storage_lite {
         /// <param name="blob">The blob name.</param>
         /// <param name="is">The source stream.</param>
         /// <param name="metadata">A <see cref="std::vector"> that respresents metadatas.</param>
-        void upload_block_blob_from_stream(const std::string &container, const std::string blob, std::istream &is, const std::vector<std::pair<std::string, std::string>> &metadata = std::vector<std::pair<std::string, std::string>>());
+        /// <param name="streamlen">Length of the stream. Used only when the stream does not support tellg/seekg</param>
+        void upload_block_blob_from_stream(const std::string &container, const std::string blob, std::istream &is, const std::vector<std::pair<std::string, std::string>> &metadata = std::vector<std::pair<std::string, std::string>>(), size_t streamlen=0);
 
         /// <summary>
         /// Uploads the contents of a blob from a local file.
