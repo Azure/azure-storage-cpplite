@@ -46,19 +46,3 @@ def azure_storage_cpplite_dependencies():
       ],
   )
 
-  if "com_google_googletest" not in native.existing_rules():
-    http_archive(
-      name = "com_google_googletest",
-      url = "https://github.com/google/googletest/archive/release-1.8.1.zip",
-      strip_prefix = "googletest-release-1.8.1",
-    )
-
-  http_file(
-    name = "catch2",
-    downloaded_file_path = "catch.hpp",
-    sha256 = "29c720600bc5d521855364416885a02003b451ed7aac4b5bde38265a66167487",
-    urls = [
-      "https://raw.githubusercontent.com/catchorg/Catch2/master/single_include/catch2/catch.hpp",
-    ],
-  )
-
