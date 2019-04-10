@@ -132,6 +132,11 @@ namespace azure {  namespace storage_lite {
             m_input_stream_len=streamlen;
         }
 
+        size_t get_input_stream_length(void)
+        {
+            return m_input_stream_len;
+        }
+
         void set_is_stream_length(void)
         {
             m_input_stream_len_known=true;
@@ -140,11 +145,6 @@ namespace azure {  namespace storage_lite {
         bool get_is_stream_length(void)
         {
             return m_input_stream_len_known;
-        }
-
-        size_t get_input_stream_length(void)
-        {
-            return m_input_stream_len;
         }
 
         void reset_input_stream() override

@@ -414,10 +414,10 @@ namespace azure {  namespace storage_lite {
             try
             {
                 AZURE_STORAGE_API std::future<storage_outcome<void>> task;
-                if(streamlen != 0)
-                    task = m_blobClient->upload_block_blob_from_stream(container, blob, is, metadata, streamlen);
-                else
+                if(streamlen == blob_client_wrapper::NOT_USER_DEFINED_STREAMLEN)
                     task = m_blobClient->upload_block_blob_from_stream(container, blob, is, metadata);
+                else
+                    task = m_blobClient->upload_block_blob_from_stream(container, blob, is, metadata, streamlen);
                 auto result = task.get();
                 if(!result.success())
                 {
@@ -433,7 +433,7 @@ namespace azure {  namespace storage_lite {
             }
             catch(std::exception& ex)
             {
-                logger::log(log_level::error, "Unknown failure in upload_block_blob_from_stream.  ex.what() = %s, container = %s, blob = %s Streamlen=%zu.", ex.what(), container.c_str(), blob.c_str(), streamlen);
+                logger::log(log_level::error, "Unknown failure in upload_block_blob_from_stream.  ex.what() = %s, container = %s, blob = %s streamlen=%zu.", ex.what(), container.c_str(), blob.c_str(), streamlen);
                 errno = unknown_error;
             }
         }
