@@ -127,6 +127,26 @@ namespace azure {  namespace storage_lite {
             check_code(curl_easy_setopt(m_curl, CURLOPT_READDATA, this));
         }
 
+        void set_input_stream_length(size_t streamlen)
+        {
+            m_input_stream_len=streamlen;
+        }
+
+        size_t get_input_stream_length(void)
+        {
+            return m_input_stream_len;
+        }
+
+        void set_is_stream_length(void)
+        {
+            m_input_stream_len_known=true;
+        }
+
+        bool get_is_stream_length(void)
+        {
+            return m_input_stream_len_known;
+        }
+
         void reset_input_stream() override
         {
             m_input_stream.reset();
@@ -181,6 +201,8 @@ namespace azure {  namespace storage_lite {
         storage_istream m_input_stream;
         storage_ostream m_output_stream;
         storage_iostream m_error_stream;
+        size_t m_input_stream_len;
+        bool m_input_stream_len_known;
         std::function<bool(http_code)> m_switch_error_callback;
 
         http_code m_code;
@@ -206,14 +228,27 @@ namespace azure {  namespace storage_lite {
         {
             REQUEST_TYPE *p = static_cast<REQUEST_TYPE *>(userdata);
             auto &s = p->m_input_stream.istream();
+            size_t streamlen = p->get_input_stream_length();
+            size_t actual_size = 0 ;
+            if( ! p->get_is_stream_length() ) {
+                auto cur = s.tellg();
+                s.seekg(0, std::ios_base::end);
+                auto end = s.tellg();
+                s.seekg(cur);
+                actual_size = std::min(static_cast<size_t>(end-cur), size * nitems);
+            }
+            else
+            {
+                actual_size = std::min(streamlen, size * nitems);
+            }
 
-            auto cur = s.tellg();
-            s.seekg(0, std::ios_base::end);
-            auto end = s.tellg();
-            s.seekg(cur);
-
-            auto actual_size = std::min(static_cast<size_t>(end - cur), size * nitems);
             s.read(buffer, actual_size);
+
+            if(p->get_is_stream_length()) {
+                streamlen -= actual_size;
+                p->set_input_stream_length(streamlen);
+            }
+
             return actual_size;
         }
 

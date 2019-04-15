@@ -398,7 +398,7 @@ namespace azure {  namespace storage_lite {
             }
         }
 
-        void blob_client_wrapper::upload_block_blob_from_stream(const std::string &container, const std::string blob, std::istream &is, const std::vector<std::pair<std::string, std::string>> &metadata)
+        void blob_client_wrapper::upload_block_blob_from_stream(const std::string &container, const std::string blob, std::istream &is, const std::vector<std::pair<std::string, std::string>> &metadata, size_t streamlen)
         {
             if(!is_valid())
             {
@@ -413,7 +413,11 @@ namespace azure {  namespace storage_lite {
 
             try
             {
-                auto task = m_blobClient->upload_block_blob_from_stream(container, blob, is, metadata);
+                AZURE_STORAGE_API std::future<storage_outcome<void>> task;
+                if(streamlen == blob_client_wrapper::NOT_USER_DEFINED_STREAMLEN)
+                    task = m_blobClient->upload_block_blob_from_stream(container, blob, is, metadata);
+                else
+                    task = m_blobClient->upload_block_blob_from_stream(container, blob, is, metadata, streamlen);
                 auto result = task.get();
                 if(!result.success())
                 {
@@ -429,7 +433,7 @@ namespace azure {  namespace storage_lite {
             }
             catch(std::exception& ex)
             {
-                logger::log(log_level::error, "Unknown failure in upload_block_blob_from_stream.  ex.what() = %s, container = %s, blob = %s.", ex.what(), container.c_str(), blob.c_str());
+                logger::log(log_level::error, "Unknown failure in upload_block_blob_from_stream.  ex.what() = %s, container = %s, blob = %s streamlen=%zu.", ex.what(), container.c_str(), blob.c_str(), streamlen);
                 errno = unknown_error;
             }
         }
