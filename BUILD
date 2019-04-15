@@ -107,6 +107,8 @@ cc_library(
     hdrs = [
         "include/blob/blob_client.h",
         "include/storage_errno.h",
+        "include/storage_credential.h",
+        "include/storage_account.h",
     ],
     defines = [
         "USE_OPENSSL",
