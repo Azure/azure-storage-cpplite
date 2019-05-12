@@ -278,11 +278,6 @@ namespace azure {  namespace storage_lite {
                 errno = client_not_init;
                 return std::vector<list_containers_item>();
             }
-            if(prefix.length() == 0)
-            {
-                errno = invalid_parameters;
-                return std::vector<list_containers_item>();
-            }
 
             try
             {
