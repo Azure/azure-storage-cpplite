@@ -11,6 +11,7 @@ set(AZURE_STORAGE_LITE_HEADER
   include/logging.h
   include/base64.h
   include/common.h
+  include/compare.h
   include/constants.h
   include/constants.dat
   include/executor.h
