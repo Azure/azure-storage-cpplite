@@ -81,7 +81,7 @@ namespace azure {  namespace storage_lite {
                 return "";
             }
         }
-        const std::map<std::string, std::string, CaseInsensitiveCompare>& get_headers() const override
+        const std::map<std::string, std::string, case_insensitive_compare>& get_headers() const override
         {
             return m_headers;
         }
@@ -206,7 +206,7 @@ namespace azure {  namespace storage_lite {
         std::function<bool(http_code)> m_switch_error_callback;
 
         http_code m_code;
-        std::map<std::string, std::string, CaseInsensitiveCompare> m_headers;
+        std::map<std::string, std::string, case_insensitive_compare> m_headers;
 
         AZURE_STORAGE_API static size_t header_callback(char *buffer, size_t size, size_t nitems, void *userdata);
 
