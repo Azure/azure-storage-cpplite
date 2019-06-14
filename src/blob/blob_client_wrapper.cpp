@@ -12,6 +12,7 @@
 #include "blob/blob_client.h"
 #include "logging.h"
 #include "storage_errno.h"
+#include "base64.h"
 
 #pragma push_macro("max")
 #undef max
@@ -64,53 +65,6 @@ namespace azure {  namespace storage_lite {
         };
         static mempool mpool;
         off_t get_file_size(const char* path);
-
-        static const char* _base64_enctbl = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-        std::string to_base64(const char* base, size_t length)
-        {
-            std::string result;
-            for(int offset = 0; length - offset >= 3; offset += 3)
-            {
-                const char* ptr = base + offset;
-                unsigned char idx0 = ptr[0] >> 2;
-                unsigned char idx1 = ((ptr[0]&0x3)<<4)| ptr[1] >> 4;
-                unsigned char idx2 = ((ptr[1]&0xF)<<2)| ptr[2] >> 6;
-                unsigned char idx3 = ptr[2]&0x3F;
-                result.push_back(_base64_enctbl[idx0]);
-                result.push_back(_base64_enctbl[idx1]);
-                result.push_back(_base64_enctbl[idx2]);
-                result.push_back(_base64_enctbl[idx3]);
-            }
-            switch(length % 3)
-            {
-                case 1:
-                {
-
-                    const char* ptr = base + length - 1;
-                    unsigned char idx0 = ptr[0] >> 2;
-                    unsigned char idx1 = ((ptr[0]&0x3)<<4);
-                    result.push_back(_base64_enctbl[idx0]);
-                    result.push_back(_base64_enctbl[idx1]);
-                    result.push_back('=');
-                    result.push_back('=');
-                    break;
-                }
-                case 2:
-                {
-
-                    const char* ptr = base + length - 2;
-                    unsigned char idx0 = ptr[0] >> 2;
-                    unsigned char idx1 = ((ptr[0]&0x3)<<4)| ptr[1] >> 4;
-                    unsigned char idx2 = ((ptr[1]&0xF)<<2);
-                    result.push_back(_base64_enctbl[idx0]);
-                    result.push_back(_base64_enctbl[idx1]);
-                    result.push_back(_base64_enctbl[idx2]);
-                    result.push_back('=');
-                    break;
-                }
-            }
-            return result;
-        }
 
         blob_client_wrapper blob_client_wrapper::blob_client_wrapper_init(const std::string &account_name, const std::string &account_key, const std::string &sas_token, const unsigned int concurrency)
         {
@@ -528,7 +482,8 @@ namespace azure {  namespace storage_lite {
                 std::string raw_block_id = std::to_string(idx);
                 //pad the string to length of 6.
                 raw_block_id.insert(raw_block_id.begin(), 12 - raw_block_id.length(), '0');
-                const std::string block_id(to_base64((raw_block_id + get_uuid()).c_str(), 64));
+                const std::string block_id_un_base64 = raw_block_id + get_uuid();
+                const std::string block_id(to_base64(reinterpret_cast<const unsigned char*>(block_id_un_base64.c_str()), block_id_un_base64.size()));
                 put_block_list_request_base::block_item block;
                 block.id = block_id;
                 block.type = put_block_list_request_base::block_type::uncommitted;

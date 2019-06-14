@@ -1,6 +1,10 @@
 #pragma once
 
+#ifdef __linux__
+#include <string.h>
+#else
 #include <string>
+#endif
 
 namespace azure { namespace storage_lite {
     // Case insensitive comparator for std::map comparator
