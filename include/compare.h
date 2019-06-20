@@ -3,6 +3,7 @@
 #ifdef __linux__
 #include <string.h>
 #else
+#include <cstring>
 #include <string>
 #endif
 
