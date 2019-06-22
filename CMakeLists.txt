@@ -2,8 +2,9 @@ cmake_minimum_required(VERSION 2.8)
 
 project(azurestoragelite)
 
-option(BUILD_TESTS "Build test codes" OFF)
-option(BUILD_SAMPLES "Build sample codes" OFF)
+option(BUILD_TESTS       "Build test codes"                  OFF)
+option(BUILD_SAMPLES     "Build sample codes"                OFF)
+option(BUILD_SHARED_LIBS "Request build of shared libraries" OFF)
 
 set(AZURE_STORAGE_LITE_HEADER
   include/storage_EXPORTS.h
@@ -249,11 +250,7 @@ if (("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang") OR ("${CMAKE_CXX_COMPILER_ID}"
   set(CMAKE_CXX_FLAGS "${CMAKE_THREAD_LIBS_INIT} ${WARNING} ${CMAKE_CXX_FLAGS}")
 endif()
 
-if (BUILD_SHARED_LIBS)
-  add_library(azure-storage-lite SHARED ${AZURE_STORAGE_LITE_HEADER} ${AZURE_STORAGE_LITE_SOURCE})
-else ()
-  add_library(azure-storage-lite STATIC ${AZURE_STORAGE_LITE_HEADER} ${AZURE_STORAGE_LITE_SOURCE})
-endif()
+add_library(azure-storage-lite ${AZURE_STORAGE_LITE_HEADER} ${AZURE_STORAGE_LITE_SOURCE})
 
 if (NOT ${USE_OPENSSL})
   target_link_libraries(azure-storage-lite ${CURL_LIBRARIES} ${UUID_LIBRARIES} ${EXTRA_LIBRARIES})
