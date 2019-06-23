@@ -5,6 +5,9 @@ project(azurestoragelite)
 option(BUILD_TESTS "Build test codes" OFF)
 option(BUILD_SAMPLES "Build sample codes" OFF)
 
+# Generate compile_commands.json file
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 set(AZURE_STORAGE_LITE_HEADER
   include/storage_EXPORTS.h
 
