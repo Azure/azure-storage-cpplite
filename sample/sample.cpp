@@ -28,7 +28,7 @@ int main()
     std::string account_name = "YOUR_ACCOUNT_NAME";
     std::string account_key = "YOUR_ACCOUNT_KEY";
     std::shared_ptr<storage_credential>  cred = std::make_shared<shared_key_credential>(account_name, account_key);
-    std::shared_ptr<storage_account> account = std::make_shared<storage_account>(account_name, cred, false);
+    std::shared_ptr<storage_account> account = std::make_shared<storage_account>(account_name, cred, true);
     auto bC = std::make_shared<blob_client>(account, 10);
     //auto f1 = bc.list_containers("");
     //f1.wait();

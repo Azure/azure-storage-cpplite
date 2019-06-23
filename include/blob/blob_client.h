@@ -25,7 +25,7 @@ namespace azure { namespace storage_lite {
     /// Provides a client-side logical representation of blob storage service on Windows Azure. This client is used to configure and execute requests against the service.
     /// </summary>
     /// <remarks>The service client encapsulates the base URI for the service. If the service client will be used for authenticated access, it also encapsulates the credentials for accessing the storage account.</remarks>
-    class blob_client
+    class blob_client final
     {
     public:
         /// <summary>
