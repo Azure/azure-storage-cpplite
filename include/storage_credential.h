@@ -21,7 +21,7 @@ namespace azure {  namespace storage_lite {
         }
     };
 
-    class shared_key_credential : public storage_credential
+    class shared_key_credential final : public storage_credential
     {
     public:
         AZURE_STORAGE_API shared_key_credential(const std::string &account_name, const std::string &account_key);
@@ -47,7 +47,7 @@ namespace azure {  namespace storage_lite {
         std::vector<unsigned char> m_account_key;
     };
 
-    class shared_access_signature_credential : public storage_credential
+    class shared_access_signature_credential final : public storage_credential
     {
     public:
         shared_access_signature_credential(const std::string &sas_token)
@@ -67,7 +67,7 @@ namespace azure {  namespace storage_lite {
         std::string m_sas_token;
     };
 
-    class anonymous_credential : public storage_credential
+    class anonymous_credential final : public storage_credential
     {
     public:
         void sign_request(const storage_request_base &, http_base &, const storage_url &, const storage_headers &) const override {}

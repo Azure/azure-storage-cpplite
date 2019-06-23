@@ -26,7 +26,7 @@ namespace azure {  namespace storage_lite {
 
     class CurlEasyClient;
 
-    class CurlEasyRequest : public http_base
+    class CurlEasyRequest final : public http_base
     {
 
         using REQUEST_TYPE = CurlEasyRequest;
