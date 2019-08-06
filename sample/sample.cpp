@@ -8,6 +8,12 @@
 #include "storage_account.h"
 #include "blob/blob_client.h"
 
+static std::string account_name = "YOUR_ACCOUNT_NAME";
+
+// Provide either account key or access token
+// Account key operations require RBAC 'Storage Blob Data Owner'
+static std::string account_key = "";    // Storage account key if using shared key auth
+static std::string access_token = "";   // Get an access token via `az account get-access-token --resource https://storage.azure.com/ -o tsv --query accessToken`
 
 using namespace azure::storage_lite;
 
@@ -25,10 +31,16 @@ void checkstatus()
 
 int main()
 {
-    std::string account_name = "YOUR_ACCOUNT_NAME";
-    std::string account_key = "YOUR_ACCOUNT_KEY";
-    std::shared_ptr<storage_credential>  cred = std::make_shared<shared_key_credential>(account_name, account_key);
-    std::shared_ptr<storage_account> account = std::make_shared<storage_account>(account_name, cred, true);
+    std::shared_ptr<storage_credential> cred = nullptr;
+    if (!access_token.empty())
+    {
+        cred = std::make_shared<token_credential>(access_token);
+    }
+    else 
+    {
+        cred = std::make_shared<shared_key_credential>(account_name, account_key);
+    }
+    std::shared_ptr<storage_account> account = std::make_shared<storage_account>(account_name, cred, /* use_https */ true);
     auto bC = std::make_shared<blob_client>(account, 10);
     //auto f1 = bc.list_containers("");
     //f1.wait();
