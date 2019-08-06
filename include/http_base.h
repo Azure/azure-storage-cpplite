@@ -23,6 +23,8 @@ namespace azure {  namespace storage_lite {
             put
         };
 
+        virtual ~http_base() {}
+
         using http_code = int;
 
         virtual void set_method(http_method method) = 0;
