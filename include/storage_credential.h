@@ -14,6 +14,7 @@ namespace azure {  namespace storage_lite {
     class storage_credential
     {
     public:
+        virtual ~storage_credential() {};
         virtual void sign_request(const storage_request_base &, http_base &, const storage_url &, const storage_headers &) const {}
         virtual std::string transform_url(std::string url) const
         {

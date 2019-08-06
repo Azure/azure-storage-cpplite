@@ -71,6 +71,7 @@ namespace azure {  namespace storage_lite {
     class retry_policy_base
     {
     public:
+        virtual ~retry_policy_base() {}
         virtual retry_info evaluate(const retry_context &context) const = 0;
     };
 
