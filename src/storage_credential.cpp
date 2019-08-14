@@ -85,10 +85,12 @@ namespace azure {  namespace storage_lite {
         : m_token(std::move(token)) {}
 
     void token_credential::set_token(const std::string& token) {
+        std::lock_guard<std::mutex> lg(m_token_mutex);
         m_token = token;
     }
 
     void token_credential::sign_request(const storage_request_base &, http_base &h, const storage_url &, const storage_headers &) const {
+        std::lock_guard<std::mutex> lg(m_token_mutex);
         std::string authorization("Bearer ");
         authorization.append(m_token);
         h.add_header(constants::header_authorization, authorization);
