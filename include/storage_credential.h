@@ -2,6 +2,7 @@
 
 #include <string>
 #include <vector>
+#include <mutex>
 
 #include "storage_EXPORTS.h"
 
@@ -88,5 +89,6 @@ namespace azure {  namespace storage_lite {
 
     private:
         std::string m_token;
+        std::mutex m_token_mutex;
     };
 }}
