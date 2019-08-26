@@ -89,6 +89,6 @@ namespace azure {  namespace storage_lite {
 
     private:
         std::string m_token;
-        std::mutex m_token_mutex;
+        mutable std::mutex m_token_mutex;
     };
 }}
