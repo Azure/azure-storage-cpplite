@@ -1,0 +1,29 @@
+name: Build
+
+on: 
+  push:
+    branches:
+    - master
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-16.04, macos-latest]
+    steps:
+      - uses: actions/checkout@master
+      - name: Install linux depenencies
+        if: matrix.os == 'ubuntu-16.04'
+        run: sudo apt-get install -y libssl-dev libcurl4-openssl-dev cmake g++ uuid-dev
+      - name: Install macOS dependencies
+        if: matrix.os == 'macos-latest'
+        run: brew install openssl curl-openssl cmake
+      - name: Build
+        run: |
+          mkdir -p build.release
+          cd build.release
+          cmake -DCMAKE_BUILD_TYPE=Release -DUSE_OPENSSL=ON -DBUILD_SAMPLES=ON ..
+          make -j
+

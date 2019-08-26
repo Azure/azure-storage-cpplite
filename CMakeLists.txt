@@ -251,6 +251,7 @@ if (("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang") OR ("${CMAKE_CXX_COMPILER_ID}"
 endif()
 
 add_library(azure-storage-lite ${AZURE_STORAGE_LITE_HEADER} ${AZURE_STORAGE_LITE_SOURCE})
+target_link_libraries(azure-storage-lite ${CMAKE_THREAD_LIBS_INIT})
 
 if (NOT ${USE_OPENSSL})
   target_link_libraries(azure-storage-lite ${CURL_LIBRARIES} ${UUID_LIBRARIES} ${EXTRA_LIBRARIES})
