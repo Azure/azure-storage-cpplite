@@ -197,6 +197,17 @@ namespace azure { namespace storage_lite {
         AZURE_STORAGE_API std::future<storage_outcome<void>> upload_block_from_stream(const std::string &container, const std::string &blob, const std::string &blockid, std::istream &is);
 
         /// <summary>
+        /// Intitiates an asynchronous operation  to upload a block of a blob from a stream.
+        /// </summary>
+        /// <param name="container">The container name.</param>
+        /// <param name="blob">The blob name.</param>
+        /// <param name="blockid">A Base64-encoded block ID that identifies the block.</param>
+        /// <param name="is">The source stream.</param>
+        /// <param name="streamlen">Length of the stream. Used only when the stream does not support tellg/seekg</param>
+        /// <returns>A <see cref="std::future" /> object that represents the current operation.</returns>
+        AZURE_STORAGE_API std::future<storage_outcome<void>> upload_block_from_stream(const std::string &container, const std::string &blob, const std::string &blockid, std::istream &is, size_t streamlen);
+
+        /// <summary>
         /// Intitiates an asynchronous operation  to create a block blob with existing blocks.
         /// </summary>
         /// <param name="container">The container name.</param>

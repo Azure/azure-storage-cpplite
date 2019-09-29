@@ -504,7 +504,7 @@ namespace azure {  namespace storage_lite {
 
                         std::istringstream in;
                         in.rdbuf()->pubsetbuf(buffer, length);
-                        const auto blockResult = m_blobClient->upload_block_from_stream(container, blob, block_id, in).get();
+                        const auto blockResult = m_blobClient->upload_block_from_stream(container, blob, block_id, in, length).get();
                         free(buffer);
 
                         {
