@@ -7,6 +7,11 @@
 #include <string>
 #endif
 
+#ifdef _MSC_VER 
+#define strncasecmp _strnicmp
+#define strcasecmp _stricmp
+#endif
+
 namespace azure { namespace storage_lite {
     // Case insensitive comparator for std::map comparator
     struct case_insensitive_compare 

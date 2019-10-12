@@ -362,7 +362,7 @@ namespace azure {  namespace storage_lite {
 
             try
             {
-                AZURE_STORAGE_API std::future<storage_outcome<void>> task;
+                std::future<storage_outcome<void>> task;
                 if(streamlen == blob_client_wrapper::NOT_USER_DEFINED_STREAMLEN)
                     task = m_blobClient->upload_block_blob_from_stream(container, blob, is, metadata);
                 else
@@ -502,9 +502,7 @@ namespace azure {  namespace storage_lite {
                                 });
                         }
 
-                        std::istringstream in;
-                        in.rdbuf()->pubsetbuf(buffer, length);
-                        const auto blockResult = m_blobClient->upload_block_from_stream(container, blob, block_id, in, length).get();
+                        const auto blockResult = m_blobClient->upload_block_from_buffer(container, blob, block_id, buffer, length).get();
                         free(buffer);
 
                         {
@@ -518,7 +516,7 @@ namespace azure {  namespace storage_lite {
                         {
                             result = std::stoi(blockResult.error().code);
                             if (0 == result) {
-                                // It seems that timeouted requests has no code setup
+                                // It seems that timeout requests has no code setup
                                 result = 503;
                             }
                         }
@@ -535,8 +533,6 @@ namespace azure {  namespace storage_lite {
                 {
                     result = r;
                 }
-            }
-            if (0 != result) {
             }
             if(result == 0)
             {
