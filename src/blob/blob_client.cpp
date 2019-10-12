@@ -132,8 +132,22 @@ std::future<storage_outcome<void>> blob_client::upload_block_blob_from_stream(co
     }
 
     http->set_input_stream(storage_istream(is));
-    http->set_is_stream_length();
-    http->set_input_stream_length(streamlen);
+    http->set_is_input_length_known();
+    http->set_input_content_length(streamlen);
+
+    return async_executor<void>::submit(m_account, request, http, m_context);
+}
+
+std::future<storage_outcome<void>> blob_client::upload_block_from_buffer(const std::string &container, const std::string &blob, const std::string &blockid, char* buff, size_t bufferlen)
+{
+    auto http = m_client->get_handle();
+
+    auto request = std::make_shared<put_block_request>(container, blob, blockid);
+    request->set_content_length(streamlen);
+
+    http->set_input_buffer(buff);
+    http->set_is_input_length_known();
+    http->set_input_content_length(bufferlen);
 
     return async_executor<void>::submit(m_account, request, http, m_context);
 }
@@ -293,8 +307,8 @@ std::future<storage_outcome<void>> blob_client::upload_block_from_stream(const s
     request->set_content_length(streamlen);
 
     http->set_input_stream(storage_istream(is));
-    http->set_is_stream_length();
-    http->set_input_stream_length(streamlen);
+    http->set_is_input_length_known();
+    http->set_input_content_length(streamlen);
 
     return async_executor<void>::submit(m_account, request, http, m_context);
 }
