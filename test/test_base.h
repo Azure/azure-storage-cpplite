@@ -8,6 +8,7 @@ namespace as_test {
 
     std::string get_random_string(size_t size);
     std::istringstream get_istringstream_with_random_buffer(size_t size);
+    char* get_random_buffer(size_t size);
     std::string to_base64(const char* base, size_t length);
 
     class base {

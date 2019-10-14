@@ -84,6 +84,34 @@ TEST_CASE("Upload blob block from stream", "[block blob],[blob_service]")
         }
     }
 
+    SECTION("Upload block from buffer successfully")
+    {
+        size_t block_size = 4 * 1024 * 1024;
+        unsigned block_count = 10;
+        std::vector<azure::storage_lite::put_block_list_request_base::block_item> block_list;
+        std::string full_content;
+        for (unsigned i = 0; i < block_count; ++i)
+        {
+            azure::storage_lite::put_block_list_request_base::block_item item;
+            auto buff = as_test::get_random_buffer(block_size);
+            item.id = as_test::get_base64_block_id(i);
+            auto upload_block_outcome = client.upload_block_from_buffer(container_name, blob_name, item.id, buff, block_size).get();
+            REQUIRE(upload_block_outcome.success());
+            item.type = azure::storage_lite::put_block_list_request_base::block_type::uncommitted;
+            full_content.append(buff, block_size);
+            block_list.push_back(item);
+            free(buff);
+        }
+
+        auto put_block_list_outcome = client.put_block_list(container_name, blob_name, block_list, std::vector<std::pair<std::string, std::string>>()).get();
+        REQUIRE(put_block_list_outcome.success());
+        std::stringbuf strbuf;
+        std::ostream os(&strbuf);
+        auto get_blob_outcome = client.download_blob_to_stream(container_name, blob_name, 0, block_size * block_count, os).get();
+        REQUIRE(get_blob_outcome.success());
+        REQUIRE(strbuf.str() == full_content);
+    }
+
     SECTION("Upload block from stream with invalid block ID unsuccessfully")
     {
         auto iss = as_test::get_istringstream_with_random_buffer(4 * 1024 * 1024);

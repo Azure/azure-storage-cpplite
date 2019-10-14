@@ -49,6 +49,30 @@ namespace as_test {
         return ss;
     }
 
+    char* get_random_buffer(size_t size) {
+        static bool initialized = false;
+        if (!initialized) {
+            srand(static_cast<unsigned int>(time(NULL)));
+            initialized = true;
+        }
+        auto randchar = []() -> char
+        {
+            const char charset[] =
+                "0123456789abcdefghijklmnopqrstuvwxyz";
+            const size_t max_index = (sizeof(charset) - 1);
+            return charset[rand() % max_index];
+        };
+
+        char* buffer = (char*)(malloc(size * sizeof(char)));
+
+        for (unsigned i = 0; i < size; ++i)
+        {
+            buffer[i] = randchar();
+        }
+
+        return buffer;
+    }
+
     std::string to_base64(const char* base, size_t length)
     {
         static const char* base64_enctbl = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";

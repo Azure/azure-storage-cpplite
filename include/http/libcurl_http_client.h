@@ -251,8 +251,6 @@ namespace azure {  namespace storage_lite {
                 actual_size = std::min(contentlen, size * nitems);
             }
 
-            s.read(buffer, actual_size);
-
             if (p->m_input_buffer != NULL)
             {
                 memcpy(buffer, p->m_input_buffer + p->m_input_buffer_pos, actual_size);
