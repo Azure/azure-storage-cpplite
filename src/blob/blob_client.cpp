@@ -143,7 +143,7 @@ std::future<storage_outcome<void>> blob_client::upload_block_from_buffer(const s
     auto http = m_client->get_handle();
 
     auto request = std::make_shared<put_block_request>(container, blob, blockid);
-    request->set_content_length(streamlen);
+    request->set_content_length(bufferlen);
 
     http->set_input_buffer(buff);
     http->set_is_input_length_known();
