@@ -24,9 +24,9 @@ namespace azure {  namespace storage_lite {
         UUID uuid;
         UuidCreate(&uuid);
         char* uuid_cstr = nullptr;
-        UuidToString(&uuid, reinterpret_cast<RPC_CSTR*>(uuid_cstr));
+        UuidToStringA(&uuid, reinterpret_cast<RPC_CSTR*>(&uuid_cstr));
         res = std::string(uuid_cstr);
-        RpcStringFreeA(reinterpret_cast<RPC_CSTR*>(uuid_cstr));
+        RpcStringFreeA(reinterpret_cast<RPC_CSTR*>(&uuid_cstr));
 #else
         uuid_t uuid;
         char uuid_cstr[37]; // 36 byte uuid plus null.
@@ -35,7 +35,7 @@ namespace azure {  namespace storage_lite {
         res = std::string(uuid_cstr);
 #endif
 
-        return std::string(uuid_cstr);
+        return res;
     }
 
     bool create_or_resize_file(const std::string& path, unsigned long long length) noexcept

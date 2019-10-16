@@ -434,7 +434,7 @@ namespace azure {  namespace storage_lite {
                 block_size = min_block < MIN_UPLOAD_CHUNK_SIZE ? MIN_UPLOAD_CHUNK_SIZE : min_block;
             }
 
-            std::ifstream ifs(sourcePath);
+            std::ifstream ifs(sourcePath, std::ios::in | std::ios::binary);
             if(!ifs)
             {
                 logger::log(log_level::error, "Failed to open the input stream in upload_file_to_blob.  errno = %d, sourcePath = %s.", errno, sourcePath.c_str());
