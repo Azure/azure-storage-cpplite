@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 2.8)
 
 project(azurestoragelite)
 
+include(GNUInstallDirs)
+
 option(BUILD_TESTS       "Build test codes"                  OFF)
 option(BUILD_SAMPLES     "Build sample codes"                OFF)
 option(BUILD_SHARED_LIBS "Request build of shared libraries" OFF)
@@ -251,6 +253,12 @@ if (("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang") OR ("${CMAKE_CXX_COMPILER_ID}"
 endif()
 
 add_library(azure-storage-lite ${AZURE_STORAGE_LITE_HEADER} ${AZURE_STORAGE_LITE_SOURCE})
+target_include_directories(azure-storage-lite
+    PUBLIC
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+        $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+        $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/azure-storage-lite>
+)
 
 if (NOT ${USE_OPENSSL})
   target_link_libraries(azure-storage-lite ${CURL_LIBRARIES} ${UUID_LIBRARIES} ${EXTRA_LIBRARIES})
@@ -301,3 +309,29 @@ endif()
 if(NOT DEFINED CMAKE_INSTALL_LIBDIR)
   set(CMAKE_INSTALL_LIBDIR lib)
 endif()
+
+install(
+    TARGETS azure-storage-lite
+    EXPORT azure-storage-lite-export
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+)
+install(
+    DIRECTORY
+        include/
+    DESTINATION
+        ${CMAKE_INSTALL_INCLUDEDIR}/azure-storage-lite
+)
+
+install(
+    EXPORT azure-storage-lite-export
+    NAMESPACE azure::
+    DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/azure-storage-lite/cmake
+    FILE azure-storage-lite-config.cmake
+)
+export(
+    TARGETS azure-storage-lite
+    NAMESPACE azure::
+    FILE azure-storage-lite-config.cmake
+)
