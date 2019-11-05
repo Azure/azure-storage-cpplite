@@ -11,8 +11,6 @@ namespace azure {  namespace storage_lite {
             m_curl(h),
             m_slist(NULL)
         {
-            m_input_content_length=0;
-            m_is_input_length_known =false;
             check_code(curl_easy_setopt(m_curl, CURLOPT_HEADERFUNCTION, header_callback));
             check_code(curl_easy_setopt(m_curl, CURLOPT_HEADERDATA, this));
         }
