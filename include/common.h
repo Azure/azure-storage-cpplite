@@ -6,6 +6,7 @@
 #include <string>
 
 namespace azure {  namespace storage_lite {
+    template<class... T> void unused(T&&...) {}
 
     enum class lease_status
     {

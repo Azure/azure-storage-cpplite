@@ -1,6 +1,6 @@
 #include "blob_integration_base.h"
 
-#include "../catch2/catch.hpp"
+#include "catch2/catch.hpp"
 
 // List all blobs that returns a iterator is going to be supported in the future, and this test case set will be valid again.
 

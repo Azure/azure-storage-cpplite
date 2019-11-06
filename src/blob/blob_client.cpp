@@ -125,7 +125,7 @@ std::future<storage_outcome<void>> blob_client::upload_block_blob_from_stream(co
 
     auto request = std::make_shared<create_block_blob_request>(container, blob);
 
-    request->set_content_length(streamlen);
+    request->set_content_length(static_cast<unsigned int>(streamlen));
     if (metadata.size() > 0)
     {
         request->set_metadata(metadata);
@@ -143,7 +143,7 @@ std::future<storage_outcome<void>> blob_client::upload_block_from_buffer(const s
     auto http = m_client->get_handle();
 
     auto request = std::make_shared<put_block_request>(container, blob, blockid);
-    request->set_content_length(bufferlen);
+    request->set_content_length(static_cast<unsigned int>(bufferlen));
 
     http->set_input_buffer(buff);
     http->set_is_input_length_known();
@@ -304,7 +304,7 @@ std::future<storage_outcome<void>> blob_client::upload_block_from_stream(const s
     auto http = m_client->get_handle();
 
     auto request = std::make_shared<put_block_request>(container, blob, blockid);
-    request->set_content_length(streamlen);
+    request->set_content_length(static_cast<unsigned int>(streamlen));
 
     http->set_input_stream(storage_istream(is));
     http->set_is_input_length_known();

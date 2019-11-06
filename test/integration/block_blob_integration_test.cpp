@@ -1,6 +1,6 @@
 #include "blob_integration_base.h"
 
-#include "../catch2/catch.hpp"
+#include "catch2/catch.hpp"
 
 TEST_CASE("Upload block blob from stream", "[block blob],[blob_service]")
 {
