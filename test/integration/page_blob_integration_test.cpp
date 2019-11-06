@@ -1,6 +1,6 @@
 #include "blob_integration_base.h"
 
-#include "../catch2/catch.hpp"
+#include "catch2/catch.hpp"
 
 TEST_CASE("Create page blob", "[page blob],[blob_service]")
 {

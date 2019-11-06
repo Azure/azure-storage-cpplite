@@ -462,11 +462,7 @@ namespace azure {  namespace storage_lite {
                 if (0 != result) {
                     break;
                 }
-                long long length = block_size;
-                if(offset + length > fileSize)
-                {
-                    length = fileSize - offset;
-                }
+                size_t length = static_cast<size_t>(std::min(block_size, fileSize - offset));
 
                 char* buffer = (char*)malloc(static_cast<size_t>(block_size)); // This cast is save because block size should always be lower than 4GB
                 if (!buffer) {

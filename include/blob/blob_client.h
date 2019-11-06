@@ -506,7 +506,7 @@ namespace azure { namespace storage_lite {
         std::mutex s_mutex;
         unsigned int m_concurrency;
         bool m_valid;
-        static const size_t NOT_USER_DEFINED_STREAMLEN = ULLONG_MAX ;
+        static const size_t NOT_USER_DEFINED_STREAMLEN = (std::numeric_limits<size_t>::max)();
     };
 
 } } // azure::storage_lite

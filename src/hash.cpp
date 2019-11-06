@@ -19,7 +19,7 @@ namespace azure {  namespace storage_lite {
 #else
         HMAC_CTX * ctx = HMAC_CTX_new();
         HMAC_CTX_reset(ctx);
-        HMAC_Init_ex(ctx, key.data(), key.size(), EVP_sha256(), NULL);
+        HMAC_Init_ex(ctx, key.data(), static_cast<int>(key.size()), EVP_sha256(), NULL);
         HMAC_Update(ctx, (const unsigned char*)to_sign.c_str(), to_sign.size());
         HMAC_Final(ctx, digest, &l);
         HMAC_CTX_free(ctx);

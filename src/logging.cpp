@@ -1,4 +1,5 @@
 #include "logging.h"
+#include "common.h"
 
 #ifndef WIN32
 #include <vector>
@@ -13,6 +14,7 @@ namespace azure {    namespace storage_lite {
 #ifdef _WIN32
     void logger::simple_logger(log_level level, const std::string& msg)
     {
+        unused(level, msg);
         //Do nothing for now.
         //TODO: integrate with Windows trace log.
     }
