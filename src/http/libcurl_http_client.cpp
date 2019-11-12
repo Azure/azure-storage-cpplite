@@ -13,6 +13,10 @@ namespace azure {  namespace storage_lite {
         {
             check_code(curl_easy_setopt(m_curl, CURLOPT_HEADERFUNCTION, header_callback));
             check_code(curl_easy_setopt(m_curl, CURLOPT_HEADERDATA, this));
+            if (!m_client->get_capath().empty())
+            {
+                check_code(curl_easy_setopt(m_curl, CURLOPT_CAINFO, m_client->get_capath().data()));
+            }
         }
 
         CurlEasyRequest::~CurlEasyRequest()
