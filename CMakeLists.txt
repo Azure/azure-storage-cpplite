@@ -267,19 +267,19 @@ if(BUILD_SAMPLES)
 endif()
 
 if (WIN32 OR UNIX)
-  file(GLOB BLOB_HEADERS includes/blob/*.h)
+  file(GLOB BLOB_HEADERS include/blob/*.h)
   install(FILES ${BLOB_HEADERS} DESTINATION include/blob)
 
-  file(GLOB HTTP_HEADERS includes/http/*.h)
+  file(GLOB HTTP_HEADERS include/http/*.h)
   install(FILES ${HTTP_HEADERS} DESTINATION include/http)
 
-  file(GLOB TODO_HEADERS includes/todo/*.h)
+  file(GLOB TODO_HEADERS include/todo/*.h)
   install(FILES ${HTTP_HEADERS} DESTINATION todo/http)
 
-  file(GLOB GENERAL_HEADERS includes/*.h)
+  file(GLOB GENERAL_HEADERS include/*.h)
   install(FILES ${GENERAL_HEADERS} DESTINATION include)
 
-  file(GLOB GENERAL_DATA includes/*.dat)
+  file(GLOB GENERAL_DATA include/*.dat)
   install(FILES ${GENERAL_DATA} DESTINATION include)
 endif()
 
@@ -301,3 +301,9 @@ endif()
 if(NOT DEFINED CMAKE_INSTALL_LIBDIR)
   set(CMAKE_INSTALL_LIBDIR lib)
 endif()
+
+if ("${BUILD_SHARED_LIBS}" STREQUAL "ON")
+    install(TARGETS azure-storage-lite
+        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
+endif()
+
