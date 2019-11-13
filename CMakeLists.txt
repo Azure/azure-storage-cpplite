@@ -6,6 +6,7 @@ set(CMAKE_CXX_STANDARD 11)
 option(BUILD_TESTS       "Build test codes"                  OFF)
 option(BUILD_SAMPLES     "Build sample codes"                OFF)
 option(BUILD_SHARED_LIBS "Request build of shared libraries" OFF)
+option(BUILD_ADLS        "Build ADLS Gen2 codes"             OFF)
 
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
@@ -167,6 +168,10 @@ endif()
 
 if(BUILD_SAMPLES)
   add_subdirectory(sample)
+endif()
+
+if(BUILD_ADLS)
+  add_subdirectory(adls)
 endif()
 
 # Set version numbers centralized
