@@ -112,7 +112,7 @@ jobs:
         [System.IO.Compression.ZipFile]::ExtractToDirectory("vcpkg-master.zip", "C:\")
         cd C:\vcpkg-master
         .\bootstrap-vcpkg.bat
-        .\vcpkg install openssl:x86-windows openssl:x64-windows curl[winssl]:x86-windows curl[winssl]:x64-windows catch2:x86-windows catch2:x64-windows
+        .\vcpkg install curl[winssl]:x86-windows curl[winssl]:x64-windows catch2:x86-windows catch2:x64-windows
       displayName: Install Dependencies
 
     - task: CMake@1
