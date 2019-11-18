@@ -100,7 +100,7 @@ TEST_CASE("Upload blob block from stream", "[block blob],[blob_service]")
             item.type = azure::storage_lite::put_block_list_request_base::block_type::uncommitted;
             full_content.append(buff, block_size);
             block_list.push_back(item);
-            free(buff);
+            delete[] buff;
         }
 
         auto put_block_list_outcome = client.put_block_list(container_name, blob_name, block_list, std::vector<std::pair<std::string, std::string>>()).get();

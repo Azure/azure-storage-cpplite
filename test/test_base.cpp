@@ -8,68 +8,33 @@
 #include <sstream>
 #include <iostream>
 #include <vector>
+#include <random>
 
 namespace as_test {
+    static thread_local std::mt19937_64 random_generator(std::random_device{}());
+
+    char get_random_char()
+    {
+        const char charset[] = "0123456789abcdefghijklmnopqrstuvwxyz";
+        std::uniform_int_distribution<size_t> distribution(0, sizeof(charset) - 2);
+        return charset[distribution(random_generator)];
+    }
+
     std::string get_random_string(size_t size) {
-        static bool initialized = false;
-        if (!initialized) {
-            srand(static_cast<unsigned int>(time(NULL)));
-            initialized = true;
-        }
-        auto randchar = []() -> char
-        {
-            const char charset[] =
-                "0123456789abcdefghijklmnopqrstuvwxyz";
-            const size_t max_index = (sizeof(charset) - 1);
-            return charset[rand() % max_index];
-        };
         std::string str(size, 0);
-        std::generate_n(str.begin(), size, randchar);
+        std::generate(str.begin(), str.end(), get_random_char);
         return str;
     }
 
     std::istringstream get_istringstream_with_random_buffer(size_t size) {
-        static bool initialized = false;
-        if (!initialized) {
-            srand(static_cast<unsigned int>(time(NULL)));
-            initialized = true;
-        }
-        auto randchar = []() -> char
-        {
-            const char charset[] =
-                "0123456789abcdefghijklmnopqrstuvwxyz";
-            const size_t max_index = (sizeof(charset) - 1);
-            return charset[rand() % max_index];
-        };
-        std::string str(size, 0);
-        std::generate_n(str.begin(), size, randchar);
-
         std::istringstream ss;
-        ss.str(str);
+        ss.str(get_random_string(size));
         return ss;
     }
 
     char* get_random_buffer(size_t size) {
-        static bool initialized = false;
-        if (!initialized) {
-            srand(static_cast<unsigned int>(time(NULL)));
-            initialized = true;
-        }
-        auto randchar = []() -> char
-        {
-            const char charset[] =
-                "0123456789abcdefghijklmnopqrstuvwxyz";
-            const size_t max_index = (sizeof(charset) - 1);
-            return charset[rand() % max_index];
-        };
-
-        char* buffer = (char*)(malloc(size * sizeof(char)));
-
-        for (unsigned i = 0; i < size; ++i)
-        {
-            buffer[i] = randchar();
-        }
-
+        char* buffer = new char[size];
+        std::generate(buffer, buffer + size, get_random_char);
         return buffer;
     }
 
