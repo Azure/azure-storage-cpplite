@@ -13,6 +13,7 @@
 #include <gnutls/crypto.h>
 #endif
 #endif
+#include <stdexcept>
 
 namespace azure {  namespace storage_lite {
     std::string hash(const std::string &to_sign, const std::vector<unsigned char> &key)
