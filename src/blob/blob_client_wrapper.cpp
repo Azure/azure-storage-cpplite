@@ -316,23 +316,20 @@ namespace azure {  namespace storage_lite {
                 return;
             }
 
+            int error_code = 0;
             try
             {
                 auto task = m_blobClient->upload_block_blob_from_stream(container, blob, ifs, metadata);
                 auto result = task.get();
                 if(!result.success())
                 {
-                    errno = std::stoi(result.error().code);
-                }
-                else
-                {
-                    errno = 0;
+                    error_code = std::stoi(result.error().code);
                 }
             }
             catch(std::exception& ex)
             {
                 logger::log(log_level::error, "Failure to upload the blob in put_blob.  ex.what() = %s, container = %s, blob = %s, sourcePath = %s.", ex.what(), container.c_str(), blob.c_str(), sourcePath.c_str());
-                errno = unknown_error;
+                error_code = unknown_error;
             }
 
             try
@@ -341,10 +338,13 @@ namespace azure {  namespace storage_lite {
             }
             catch(std::exception& ex)
             {
-                // TODO close failed
                 logger::log(log_level::error, "Failure to close the input stream in put_blob.  ex.what() = %s, container = %s, blob = %s, sourcePath = %s.", ex.what(), container.c_str(), blob.c_str(), sourcePath.c_str());
-                errno = unknown_error;
+                if (error_code == 0)
+                {
+                    error_code = unknown_error;
+                }
             }
+            errno = error_code;
         }
 
         void blob_client_wrapper::upload_block_blob_from_stream(const std::string &container, const std::string blob, std::istream &is, const std::vector<std::pair<std::string, std::string>> &metadata, size_t streamlen)
