@@ -93,9 +93,9 @@ jobs:
       VS2017:
         vm_image: vs2017-win2016
         build_type: Release
-      #VS2019:
-      #  vm_image: windows-2019
-      #  build_type: Debug
+      VS2019:
+        vm_image: windows-2019
+        build_type: Debug
 
   pool:
     vmImage: $(vm_image)
