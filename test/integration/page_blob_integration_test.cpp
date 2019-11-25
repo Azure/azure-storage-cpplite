@@ -51,7 +51,7 @@ TEST_CASE("Put page from stream", "[page blob],[blob_service]")
         auto put_page_from_stream_outcome = client.put_page_from_stream(container_name, blob_name, 0, iss.str().size(), iss).get();
         REQUIRE(put_page_from_stream_outcome.success());
 
-        auto get_blob_property_outcome = client.get_blob_property(container_name, blob_name);
+        auto get_blob_property_outcome = client.get_blob_properties(container_name, blob_name).get();
         REQUIRE(get_blob_property_outcome.success());
         REQUIRE(get_blob_property_outcome.response().size == 64 * 1024 * 1024);
 
@@ -75,7 +75,7 @@ TEST_CASE("Put page from stream", "[page blob],[blob_service]")
         auto put_page_from_stream_outcome = client.put_page_from_stream(container_name, blob_name, 1024, iss.str().size(), iss).get();
         REQUIRE(put_page_from_stream_outcome.success());
 
-        auto get_blob_property_outcome = client.get_blob_property(container_name, blob_name);
+        auto get_blob_property_outcome = client.get_blob_properties(container_name, blob_name).get();
         REQUIRE(get_blob_property_outcome.success());
         REQUIRE(get_blob_property_outcome.response().size == 64 * 1024 * 1024);
 
@@ -103,7 +103,7 @@ TEST_CASE("Put page from stream", "[page blob],[blob_service]")
         put_page_from_stream_outcome = client.put_page_from_stream(container_name, blob_name, 1024, iss2.str().size(), iss2).get();
         REQUIRE(put_page_from_stream_outcome.success());
 
-        auto get_blob_property_outcome = client.get_blob_property(container_name, blob_name);
+        auto get_blob_property_outcome = client.get_blob_properties(container_name, blob_name).get();
         REQUIRE(get_blob_property_outcome.success());
         REQUIRE(get_blob_property_outcome.response().size == 64 * 1024 * 1024);
 
@@ -140,7 +140,7 @@ TEST_CASE("Clear page", "[page blob],[blob_service]")
         auto clear_page_outcome = client.clear_page(container_name, blob_name, 0, 4 * 1024 * 1024).get();
         REQUIRE(clear_page_outcome.success());
 
-        auto get_blob_property_outcome = client.get_blob_property(container_name, blob_name);
+        auto get_blob_property_outcome = client.get_blob_properties(container_name, blob_name).get();
         REQUIRE(get_blob_property_outcome.success());
         REQUIRE(get_blob_property_outcome.response().size == 4 * 1024 * 1024);
 
@@ -164,7 +164,7 @@ TEST_CASE("Clear page", "[page blob],[blob_service]")
         auto clear_page_outcome = client.clear_page(container_name, blob_name, 3 * 1024 * 1024, 1 * 1024 * 1024).get();
         REQUIRE(clear_page_outcome.success());
 
-        auto get_blob_property_outcome = client.get_blob_property(container_name, blob_name);
+        auto get_blob_property_outcome = client.get_blob_properties(container_name, blob_name).get();
         REQUIRE(get_blob_property_outcome.success());
         REQUIRE(get_blob_property_outcome.response().size == 4 * 1024 * 1024);
 

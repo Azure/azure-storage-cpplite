@@ -11,7 +11,7 @@ TEST_CASE("Create containers", "[container],[blob_service]")
         auto container_name = prefix + as_test::get_random_string(10);
         auto first_outcome = client.create_container(container_name).get();
         REQUIRE(first_outcome.success());
-        auto second_outcome = client.get_container_property(container_name);
+        auto second_outcome = client.get_container_properties(container_name).get();
         REQUIRE(second_outcome.success());
         REQUIRE_FALSE(second_outcome.response().etag.empty());
         client.delete_container(container_name).wait();
@@ -24,8 +24,8 @@ TEST_CASE("Create containers", "[container],[blob_service]")
         REQUIRE_FALSE(first_outcome.success());
         REQUIRE(first_outcome.error().code == "400");
         REQUIRE(first_outcome.error().code_name == "InvalidResourceName");
-        auto second_outcome = client.get_container_property(container_name);
-        REQUIRE(second_outcome.success());
+        auto second_outcome = client.get_container_properties(container_name).get();
+        REQUIRE_FALSE(second_outcome.success());
         REQUIRE(second_outcome.response().etag.empty());
     }
 
@@ -34,7 +34,7 @@ TEST_CASE("Create containers", "[container],[blob_service]")
         auto container_name = prefix + "-" + as_test::get_random_string(10);
         auto first_outcome = client.create_container(container_name).get();
         REQUIRE(first_outcome.success());
-        auto second_outcome = client.get_container_property(container_name);
+        auto second_outcome = client.get_container_properties(container_name).get();
         REQUIRE(second_outcome.success());
         REQUIRE_FALSE(second_outcome.response().etag.empty());
         client.delete_container(container_name).wait();
@@ -50,7 +50,7 @@ TEST_CASE("Delete containers", "[container],[blob_service]")
         auto container_name = prefix + as_test::get_random_string(10);
         auto first_outcome = client.create_container(container_name).get();
         REQUIRE(first_outcome.success());
-        auto second_outcome = client.get_container_property(container_name);
+        auto second_outcome = client.get_container_properties(container_name).get();
         REQUIRE(second_outcome.success());
         REQUIRE_FALSE(second_outcome.response().etag.empty());
         auto third_outcome = client.delete_container(container_name).get();
@@ -74,7 +74,7 @@ TEST_CASE("Get Container Property", "[container], [blob_service]")
         auto container_name = prefix + as_test::get_random_string(10);
         auto first_outcome = client.create_container(container_name).get();
         REQUIRE(first_outcome.success());
-        auto second_outcome = client.get_container_property(container_name);
+        auto second_outcome = client.get_container_properties(container_name).get();
         REQUIRE(second_outcome.success());
         REQUIRE_FALSE(second_outcome.response().etag.empty());
         client.delete_container(container_name).wait();
@@ -83,8 +83,8 @@ TEST_CASE("Get Container Property", "[container], [blob_service]")
     SECTION("Get container property from non-existing container")
     {
         auto container_name = prefix + as_test::get_random_string(10);
-        auto first_outcome = client.get_container_property(container_name);
-        REQUIRE(first_outcome.success());
+        auto first_outcome = client.get_container_properties(container_name).get();
+        REQUIRE_FALSE(first_outcome.success());
     }
 }
 

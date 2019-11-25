@@ -21,6 +21,8 @@ namespace azure {  namespace storage_lite {
     class container_property
     {
     public:
+        container_property() : m_valid(false) {}
+
         container_property(bool valid)
             :m_valid(valid)
         {
@@ -40,7 +42,6 @@ namespace azure {  namespace storage_lite {
         std::vector<std::pair<std::string, std::string>> metadata;
 
     private:
-        container_property() {}
         bool m_valid;
     };
 }}  // azure::storage_lite

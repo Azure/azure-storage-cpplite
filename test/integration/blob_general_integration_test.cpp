@@ -188,15 +188,15 @@ TEST_CASE("Get blob property", "[blob],[blob_service]")
 
     SECTION("Get blob property for existing blob successfully")
     {
-        auto get_blob_property_outcome = client.get_blob_property(container_name, blob_name);
+        auto get_blob_property_outcome = client.get_blob_properties(container_name, blob_name).get();
         REQUIRE(get_blob_property_outcome.success());
         REQUIRE(get_blob_property_outcome.response().size == 1024);
     }
 
     SECTION("Get blob property for non-existing blob successfully")
     {
-        auto get_blob_property_outcome = client.get_blob_property(container_name, as_test::get_random_string(20));
-        REQUIRE(get_blob_property_outcome.success());
+        auto get_blob_property_outcome = client.get_blob_properties(container_name, as_test::get_random_string(20)).get();
+        REQUIRE_FALSE(get_blob_property_outcome.success());
     }
 
     client.delete_container(container_name);
@@ -241,7 +241,7 @@ TEST_CASE("Start copy blob", "[blob],[blob_service]")
         std::string dest_blob_name = as_test::get_random_string(20);
         auto start_copy_outcome = client.start_copy(container_name, blob_name, container_name, dest_blob_name).get();
         REQUIRE(start_copy_outcome.success());
-        auto get_blob_property_outcome = client.get_blob_property(container_name, dest_blob_name);
+        auto get_blob_property_outcome = client.get_blob_properties(container_name, dest_blob_name).get();
         REQUIRE(get_blob_property_outcome.success());
         REQUIRE(get_blob_property_outcome.response().size == 2048);
     }

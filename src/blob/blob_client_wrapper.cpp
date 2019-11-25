@@ -203,7 +203,7 @@ namespace azure {  namespace storage_lite {
 
             try
             {
-                auto containerProperty = m_blobClient->get_container_property(container).response();
+                auto containerProperty = m_blobClient->get_container_properties(container).get().response();
 
                 if(containerProperty.valid())
                 {
@@ -700,7 +700,7 @@ namespace azure {  namespace storage_lite {
 
             try
             {
-                auto result = m_blobClient->get_blob_property(container, blob);
+                auto result = m_blobClient->get_blob_properties(container, blob).get();
                 if(!result.success())
                 {
                     errno = std::stoi(result.error().code);

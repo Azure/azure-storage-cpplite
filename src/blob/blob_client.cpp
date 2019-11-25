@@ -179,33 +179,37 @@ std::future<storage_outcome<void>> blob_client::delete_container(const std::stri
     return async_executor<void>::submit(m_account, request, http, m_context);
 }
 
-storage_outcome<container_property> blob_client::get_container_property(const std::string &container)
+std::future<storage_outcome<container_property>> blob_client::get_container_properties(const std::string &container)
 {
     auto http = m_client->get_handle();
 
     auto request = std::make_shared<get_container_property_request>(container);
 
-    // TODO: async submit transfered to sync operation. This can be utilized.
-    auto response = async_executor<void>::submit(m_account, request, http, m_context).get();
-    container_property containerProperty(true);
-    if (response.success())
-    {
-        containerProperty.etag = http->get_header(constants::header_etag);
+    std::shared_future<storage_outcome<void>> response = async_executor<void>::submit(m_account, request, http, m_context);
 
-        auto& headers = http->get_headers();
-        for (auto iter = headers.begin(); iter != headers.end(); ++iter)
-        {
-            if (iter->first.find("x-ms-metadata-") == 0)
-            {
-                containerProperty.metadata.push_back(std::make_pair(iter->first, iter->second));
-            }
-        }
-    }
-    else
+    std::future<storage_outcome<container_property>> container_properties = std::async(std::launch::deferred, [http, response]()
     {
-        containerProperty.set_valid(false);
-    }
-    return storage_outcome<container_property>(containerProperty);
+        if (response.get().success())
+        {
+            container_property properties(true);
+            properties.etag = http->get_header(constants::header_etag);
+
+            auto& headers = http->get_headers();
+            for (auto iter = headers.begin(); iter != headers.end(); ++iter)
+            {
+                if (iter->first.find("x-ms-metadata-") == 0)
+                {
+                    properties.metadata.push_back(std::make_pair(iter->first, iter->second));
+                }
+            }
+            return storage_outcome<container_property>(properties);
+        }
+        else
+        {
+            return storage_outcome<container_property>(response.get().error());
+        }
+    });
+    return container_properties;
 }
 
 std::future<storage_outcome<list_constainers_segmented_response>> blob_client::list_containers_segmented(const std::string &prefix, const std::string& continuation_token, const int max_result, bool include_metadata)
@@ -239,47 +243,52 @@ std::future<storage_outcome<get_block_list_response>> blob_client::get_block_lis
     return async_executor<get_block_list_response>::submit(m_account, request, http, m_context);
 }
 
-storage_outcome<blob_property> blob_client::get_blob_property(const std::string &container, const std::string &blob)
+std::future<storage_outcome<blob_property>> blob_client::get_blob_properties(const std::string &container, const std::string &blob)
 {
     auto http = m_client->get_handle();
 
     auto request = std::make_shared<get_blob_property_request>(container, blob);
 
-    auto response = async_executor<void>::submit(m_account, request, http, m_context).get();
-    blob_property blobProperty(true);
-    if (response.success())
-    {
-        blobProperty.cache_control = http->get_header(constants::header_cache_control);
-        blobProperty.content_disposition = http->get_header(constants::header_content_disposition);
-        blobProperty.content_encoding = http->get_header(constants::header_content_encoding);
-        blobProperty.content_language = http->get_header(constants::header_content_language);
-        blobProperty.content_md5 = http->get_header(constants::header_content_md5);
-        blobProperty.content_type = http->get_header(constants::header_content_type);
-        blobProperty.etag = http->get_header(constants::header_etag);
-        blobProperty.copy_status = http->get_header(constants::header_ms_copy_status);
-        blobProperty.last_modified = curl_getdate(http->get_header(constants::header_last_modified).c_str(), NULL);
-        std::string::size_type sz = 0;
-        std::string contentLength = http->get_header(constants::header_content_length);
-        if(contentLength.length() > 0)
-        {
-            blobProperty.size = std::stoull(contentLength, &sz, 0);
-        }
+    std::shared_future<storage_outcome<void>> response = async_executor<void>::submit(m_account, request, http, m_context);
 
-        auto& headers = http->get_headers();
-        for (auto iter = headers.begin(); iter != headers.end(); ++iter)
-        {
-            if (iter->first.find("x-ms-meta-") == 0)
-            {
-                // We need to strip ten characters from the front of the key to account for "x-ms-meta-", and two characters from the end of the value, to account for the "\r\n".
-                blobProperty.metadata.push_back(std::make_pair(iter->first.substr(10), iter->second.substr(0, iter->second.size() - 2)));
-            }
-        }
-    }
-    else
+    std::future<storage_outcome<blob_property>> blob_properties = std::async(std::launch::deferred, [http, response]()
     {
-        blobProperty.set_valid(false);
-    }
-    return storage_outcome<blob_property>(blobProperty);
+        if (response.get().success())
+        {
+            blob_property properties(true);
+            properties.cache_control = http->get_header(constants::header_cache_control);
+            properties.content_disposition = http->get_header(constants::header_content_disposition);
+            properties.content_encoding = http->get_header(constants::header_content_encoding);
+            properties.content_language = http->get_header(constants::header_content_language);
+            properties.content_md5 = http->get_header(constants::header_content_md5);
+            properties.content_type = http->get_header(constants::header_content_type);
+            properties.etag = http->get_header(constants::header_etag);
+            properties.copy_status = http->get_header(constants::header_ms_copy_status);
+            properties.last_modified = curl_getdate(http->get_header(constants::header_last_modified).c_str(), NULL);
+            std::string::size_type sz = 0;
+            std::string contentLength = http->get_header(constants::header_content_length);
+            if (contentLength.length() > 0)
+            {
+                properties.size = std::stoull(contentLength, &sz, 0);
+            }
+
+            auto& headers = http->get_headers();
+            for (auto iter = headers.begin(); iter != headers.end(); ++iter)
+            {
+                if (iter->first.find("x-ms-meta-") == 0)
+                {
+                    // We need to strip ten characters from the front of the key to account for "x-ms-meta-", and two characters from the end of the value, to account for the "\r\n".
+                    properties.metadata.push_back(std::make_pair(iter->first.substr(10), iter->second.substr(0, iter->second.size() - 2)));
+                }
+            }
+            return storage_outcome<blob_property>(properties);
+        }
+        else
+        {
+            return storage_outcome<blob_property>(response.get().error());
+        }
+    });
+    return blob_properties;
 }
 
 std::future<storage_outcome<void>> blob_client::upload_block_from_stream(const std::string &container, const std::string &blob, const std::string &blockid, std::istream &is)

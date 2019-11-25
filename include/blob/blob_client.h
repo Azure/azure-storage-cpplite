@@ -150,7 +150,7 @@ namespace azure { namespace storage_lite {
         /// </summary>
         /// <param name="container">The container name.</param>
         /// <returns>A <see cref="std::future" /> object that represents the current operation's result.</returns>
-        AZURE_STORAGE_API storage_outcome<container_property> get_container_property(const std::string &container);
+        AZURE_STORAGE_API std::future<storage_outcome<container_property>> get_container_properties(const std::string &container);
 
         /// <summary>
         /// Intitiates an asynchronous operation  to list containers.
@@ -176,7 +176,7 @@ namespace azure { namespace storage_lite {
         /// <param name="container">The container name.</param>
         /// <param name="blob">The blob name.</param>
         /// <returns>A <see cref="std::future" /> object that represents the current operation.</returns>
-        AZURE_STORAGE_API storage_outcome<blob_property> get_blob_property(const std::string &container, const std::string &blob);
+        AZURE_STORAGE_API std::future<storage_outcome<blob_property>> get_blob_properties(const std::string &container, const std::string &blob);
 
         /// <summary>
         /// Intitiates an asynchronous operation  to download the block list of a blob.
