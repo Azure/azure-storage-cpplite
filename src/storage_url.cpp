@@ -1,92 +1,11 @@
 #include "storage_url.h"
+#include "utility.h"
 
 namespace azure {  namespace storage_lite {
-    bool is_alnum(char ch)
-    {
-        return (ch >= 'A' && ch <= 'Z') || (ch >= 'a' && ch <= 'z') || (ch >= '0' && ch <= '9');
-    }
 
-    bool is_unreserved(char ch)
+    std::string storage_url::get_encoded_path() const
     {
-        return is_alnum(ch) || ch == '-' || ch == '.' || ch == '_' || ch == '~';
-    }
-    bool is_sub_delim(char ch)
-    {
-        switch (ch)
-        {
-        case '!':
-        case '$':
-        case '&':
-        case '\'':
-        case '(':
-        case ')':
-        case '*':
-        case '+':
-        case ',':
-        case ';':
-        case '=':
-            return true;
-        default:
-            return false;
-        }
-    }
-
-    bool is_path_character(char ch)
-    {
-        return is_unreserved(ch) || is_sub_delim(ch) || ch == '%' || ch == '/' || ch == ':' || ch == '@';
-    }
-
-    bool is_query_character(char ch)
-    {
-        return is_path_character(ch) || ch == '?';
-    }
-
-    std::string encode_url_path(const std::string& path)
-    {
-        const char* const hex = "0123456789ABCDEF";
-        std::string encoded;
-        for (size_t index = 0; index < path.size(); ++index)
-        {
-            char ch = path[index];
-            if (!is_path_character(ch)
-                || ch == '%'
-                || ch == '+'
-                || ch == '&')
-            {
-                encoded.push_back('%');
-                encoded.push_back(hex[(ch >> 4) & 0xF]);
-                encoded.push_back(hex[ch & 0xF]);
-            }
-            else
-            {
-                encoded.push_back(ch);
-            }
-        }
-        return encoded;
-    }
-
-    std::string encode_url_query(const std::string& path)
-    {
-        const char* const hex = "0123456789ABCDEF";
-        std::string encoded;
-        for (size_t index = 0; index < path.size(); ++index)
-        {
-            char ch = path[index];
-            if (!is_query_character(ch)
-                || ch == '%'
-                || ch == '+'
-                || ch == '&')
-            {
-                encoded.push_back('%');
-                encoded.push_back(hex[(ch >> 4) & 0xF]);
-                encoded.push_back(hex[ch & 0xF]);
-            }
-            else
-            {
-                encoded.push_back(ch);
-            }
-        }
-        return encoded;
+        return encode_url_path(m_path);
     }
 
     std::string storage_url::to_string() const
