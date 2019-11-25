@@ -37,7 +37,7 @@ TEST_CASE("Append block from stream", "[append blob],[blob_service]")
         auto append_block_from_stream_outcome = client.append_block_from_stream(container_name, blob_name, iss).get();
         REQUIRE(append_block_from_stream_outcome.success());
         
-        auto get_blob_property_outcome = client.get_blob_property(container_name, blob_name);
+        auto get_blob_property_outcome = client.get_blob_properties(container_name, blob_name).get();
         REQUIRE(get_blob_property_outcome.success());
         REQUIRE(get_blob_property_outcome.response().size == 4 * 1024 * 1024);
 
@@ -59,7 +59,7 @@ TEST_CASE("Append block from stream", "[append blob],[blob_service]")
             blob_content.append(iss.str());
         }
 
-        auto get_blob_property_outcome = client.get_blob_property(container_name, blob_name);
+        auto get_blob_property_outcome = client.get_blob_properties(container_name, blob_name).get();
         REQUIRE(get_blob_property_outcome.success());
         REQUIRE(get_blob_property_outcome.response().size == 4 * 1024 * 1024 * 10);
 

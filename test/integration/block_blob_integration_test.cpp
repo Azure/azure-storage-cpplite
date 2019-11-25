@@ -47,7 +47,7 @@ TEST_CASE("Upload block blob from stream", "[block blob],[blob_service]")
         meta.push_back(std::make_pair(std::string("custommeta2"), std::string("meta2")));
         auto create_blob_outcome = client.upload_block_blob_from_stream(container_name, blob_name, iss, meta).get();
         REQUIRE(create_blob_outcome.success());
-        auto get_blob_property_outcome = client.get_blob_property(container_name, blob_name);
+        auto get_blob_property_outcome = client.get_blob_properties(container_name, blob_name).get();
         REQUIRE(get_blob_property_outcome.success());
         for ( auto m : get_blob_property_outcome.response().metadata )
         {
@@ -151,7 +151,7 @@ TEST_CASE("Put block list", "[block blob],[blob_service]")
         auto uncommitted_block_list = get_block_list_outcome.response().uncommitted;
         REQUIRE(committed_block_list.size() == 10);
         REQUIRE(uncommitted_block_list.size() == 0);
-        auto get_blob_property_outcome = client.get_blob_property(container_name, blob_name);
+        auto get_blob_property_outcome = client.get_blob_properties(container_name, blob_name).get();
         REQUIRE(get_blob_property_outcome.success());
         REQUIRE(get_blob_property_outcome.response().size == 4 * 1024 * 1024 * 10);
     }
@@ -178,7 +178,7 @@ TEST_CASE("Put block list", "[block blob],[blob_service]")
             auto uncommitted_block_list = get_block_list_outcome.response().uncommitted;
             REQUIRE(committed_block_list.size() == 10);
             REQUIRE(uncommitted_block_list.size() == 0);
-            auto get_blob_property_outcome = client.get_blob_property(container_name, blob_name);
+            auto get_blob_property_outcome = client.get_blob_properties(container_name, blob_name).get();
             REQUIRE(get_blob_property_outcome.success());
             REQUIRE(get_blob_property_outcome.response().size == 4 * 1024 * 1024 * 10);
         }
@@ -197,7 +197,7 @@ TEST_CASE("Put block list", "[block blob],[blob_service]")
             REQUIRE(committed_block_list.size() == 9);
             REQUIRE(uncommitted_block_list.size() == 0);
 
-            auto get_blob_property_outcome = client.get_blob_property(container_name, blob_name);
+            auto get_blob_property_outcome = client.get_blob_properties(container_name, blob_name).get();
             REQUIRE(get_blob_property_outcome.success());
             REQUIRE(get_blob_property_outcome.response().size == 4 * 1024 * 1024 * 9);
         }
@@ -225,7 +225,7 @@ TEST_CASE("Put block list", "[block blob],[blob_service]")
             auto uncommitted_block_list = get_block_list_outcome.response().uncommitted;
             REQUIRE(committed_block_list.size() == 5);
             REQUIRE(uncommitted_block_list.size() == 0);
-            auto get_blob_property_outcome = client.get_blob_property(container_name, blob_name);
+            auto get_blob_property_outcome = client.get_blob_properties(container_name, blob_name).get();
             REQUIRE(get_blob_property_outcome.success());
             REQUIRE(get_blob_property_outcome.response().size == 4 * 1024 * 1024 * 5);
         }
@@ -254,7 +254,7 @@ TEST_CASE("Put block list", "[block blob],[blob_service]")
             REQUIRE(committed_block_list.size() == 9);
             REQUIRE(uncommitted_block_list.size() == 0);
 
-            auto get_blob_property_outcome = client.get_blob_property(container_name, blob_name);
+            auto get_blob_property_outcome = client.get_blob_properties(container_name, blob_name).get();
             REQUIRE(get_blob_property_outcome.success());
             REQUIRE(get_blob_property_outcome.response().size == 4 * 1024 * 1024 * 9);
         }

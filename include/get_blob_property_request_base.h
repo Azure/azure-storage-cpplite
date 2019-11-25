@@ -25,6 +25,8 @@ namespace azure {  namespace storage_lite {
     class blob_property
     {
     public:
+        blob_property() : m_valid(false) {}
+
         blob_property(bool valid)
             :last_modified{time(NULL)},
             m_valid(valid)
@@ -59,7 +61,6 @@ namespace azure {  namespace storage_lite {
         // azure::storage::lease_duration m_lease_duration;
 
     private:
-        blob_property() {}
         bool m_valid;
     };
 }}  // azure::storage_lite
