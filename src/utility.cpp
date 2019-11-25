@@ -117,6 +117,8 @@ namespace azure {  namespace storage_lite {
             return constants::http_post;
         case http_base::http_method::put:
             return constants::http_put;
+        case http_base::http_method::patch:
+            return constants::http_patch;
         }
         return std::string();
     }

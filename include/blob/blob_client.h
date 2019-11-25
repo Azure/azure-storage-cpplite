@@ -79,6 +79,14 @@ namespace azure { namespace storage_lite {
         }
 
         /// <summary>
+        /// Gets the executor context.
+        /// </summary>
+        std::shared_ptr<executor_context> context() const
+        {
+            return m_context;
+        }
+
+        /// <summary>
         /// Synchronously download the contents of a blob to a stream.
         /// </summary>
         /// <param name="container">The container name.</param>

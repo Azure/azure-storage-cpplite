@@ -20,7 +20,8 @@ namespace azure {  namespace storage_lite {
             get,
             head,
             post,
-            put
+            put,
+            patch
         };
 
         virtual ~http_base() {}
