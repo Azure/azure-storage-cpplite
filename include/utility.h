@@ -72,7 +72,7 @@ namespace azure {  namespace storage_lite {
         }
     }
 
-    inline void add_content_length(http_base &h, storage_headers &headers, unsigned int length)
+    inline void add_content_length(http_base &h, storage_headers &headers, uint64_t length)
     {
         std::string value = std::to_string(length);
         h.add_header(constants::header_content_length, value);

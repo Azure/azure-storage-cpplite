@@ -19,7 +19,7 @@ namespace azure {  namespace storage_lite {
         virtual storage_error parse_storage_error(const std::string &) const = 0;
 
         template<typename RESPONSE_TYPE>
-        RESPONSE_TYPE parse_response(const std::string &) const {}
+        RESPONSE_TYPE parse_response(const std::string &) const { return RESPONSE_TYPE();  }
 
         virtual list_constainers_segmented_response parse_list_constainers_segmented_response(const std::string &xml) const = 0;
 

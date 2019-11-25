@@ -20,7 +20,7 @@ namespace as_test {
             return sscs;
         }
 
-    private:
+    protected:
         static const std::shared_ptr<azure::storage_lite::storage_account> init_account(const std::string& connection_string);
         static std::map<std::string, std::string> parse_string_into_settings(const std::string& connection_string);
     };

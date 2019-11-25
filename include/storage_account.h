@@ -18,7 +18,8 @@ namespace azure {  namespace storage_lite {
             blob,
             table,
             queue,
-            file
+            file,
+            adls
         };
 
         static std::shared_ptr<storage_account> development_storage_account();
@@ -38,6 +39,7 @@ namespace azure {  namespace storage_lite {
         std::string m_table_domain;
         std::string m_queue_domain;
         std::string m_file_domain;
+        std::string m_adls_domain;
 
         AZURE_STORAGE_API void append_all(const std::string &part);
     };

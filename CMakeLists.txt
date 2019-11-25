@@ -117,6 +117,10 @@ set(AZURE_STORAGE_LITE_SOURCE
   src/blob/blob_client_wrapper.cpp
 )
 
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+
 add_library(azure-storage-lite ${AZURE_STORAGE_LITE_HEADER} ${AZURE_STORAGE_LITE_SOURCE})
 
 set(CMAKE_THREAD_PREFER_PTHREAD TRUE)
@@ -164,16 +168,16 @@ elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "
   target_compile_options(azure-storage-lite PRIVATE -Wall -Wextra -Werror -pedantic)
 endif()
 
+if(BUILD_ADLS)
+  add_subdirectory(adls)
+endif()
+
 if(BUILD_TESTS)
   add_subdirectory(test)
 endif()
 
 if(BUILD_SAMPLES)
   add_subdirectory(sample)
-endif()
-
-if(BUILD_ADLS)
-  add_subdirectory(adls)
 endif()
 
 # Set version numbers centralized
