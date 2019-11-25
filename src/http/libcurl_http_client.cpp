@@ -71,6 +71,14 @@ namespace azure {  namespace storage_lite {
         {
             CurlEasyRequest::REQUEST_TYPE *p = static_cast<CurlEasyRequest::REQUEST_TYPE *>(userdata);
             std::string header(buffer, size * nitems);
+            if (!header.empty() && header.back() == '\n')
+            {
+                header.pop_back();
+            }
+            if (!header.empty() && header.back() == '\r')
+            {
+                header.pop_back();
+            }
             auto colon = header.find(':');
             if (colon == std::string::npos) {
                 auto space = header.find(' ');

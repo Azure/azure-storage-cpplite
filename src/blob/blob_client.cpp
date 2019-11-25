@@ -277,8 +277,8 @@ std::future<storage_outcome<blob_property>> blob_client::get_blob_properties(con
             {
                 if (iter->first.find("x-ms-meta-") == 0)
                 {
-                    // We need to strip ten characters from the front of the key to account for "x-ms-meta-", and two characters from the end of the value, to account for the "\r\n".
-                    properties.metadata.push_back(std::make_pair(iter->first.substr(10), iter->second.substr(0, iter->second.size() - 2)));
+                    // We need to strip ten characters from the front of the key to account for "x-ms-meta-".
+                    properties.metadata.push_back(std::make_pair(iter->first.substr(10), iter->second));
                 }
             }
             return storage_outcome<blob_property>(properties);
