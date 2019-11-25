@@ -31,6 +31,8 @@ set(AZURE_STORAGE_LITE_HEADER
   include/tinyxml2_parser.h
   include/xml_writer.h
 
+  include/json_parser_base.h
+
   include/storage_account.h
   include/storage_credential.h
   include/storage_outcome.h
