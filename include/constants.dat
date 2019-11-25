@@ -81,6 +81,7 @@ DAT(header_ms_version, "x-ms-version")
 
 DAT(header_ms_meta_prefix, "x-ms-meta-")
 
+DAT(header_value_content_type_json, "application/json")
 DAT(header_value_blob_public_access_blob, "blob")
 DAT(header_value_blob_public_access_container, "container")
 DAT(header_value_blob_type_blockblob, "BlockBlob")
