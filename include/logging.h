@@ -15,7 +15,7 @@
 
 #include "storage_EXPORTS.h"
 
-constexpr auto MAX_LOG_LENGTH = 8192u;
+constexpr size_t MAX_LOG_LENGTH = 8192u;
 
 namespace azure { namespace storage_lite {
 
@@ -37,52 +37,59 @@ namespace azure { namespace storage_lite {
             s_logger(level, msg);
         }
 
-        template<typename ... Args>
-        static void log(log_level level, const char* format, Args ... args)
+        template<typename... Args>
+        static void log(log_level level, const std::string& format, Args... args)
         {
             if (level > log_level::critical)
             {
                 return; // does not support higher level logging.
             }
-            size_t size = _SNPRINTF(nullptr, 0, format, args ...) + 1;
+            size_t size = _SNPRINTF(nullptr, 0, format.data(), args...) + 1;
             // limit the maximum size of this log string to 8kb, as the buffer needs
             // to be allocated to a continuous memory and is likely to fail
             // when the size is relatively big.
-            size = size > MAX_LOG_LENGTH ? MAX_LOG_LENGTH : size;
-            std::unique_ptr<char[]> buf(new char[size]);
-            _SNPRINTF(buf.get(), size, format, args ...);
-            auto msg = std::string(buf.get(), buf.get() + size - 1);
+            size = (std::min)(size, MAX_LOG_LENGTH);
+
+            std::string msg;
+            msg.resize(size);
+            _SNPRINTF(&msg[0], size, format.data(), args...);
             log(level, msg);
         }
 
-        static void debug(const std::string& msg)
+        template<typename... Args>
+        static void debug(const std::string& msg, Args... args)
         {
-            log(log_level::debug, msg);
+            log(log_level::debug, msg, args...);
         }
 
-        static void info(const std::string& msg)
+        template<typename... Args>
+        static void info(const std::string& msg, Args... args)
         {
-            log(log_level::info, msg);
+            log(log_level::info, msg, args...);
         }
 
-        static void warn(const std::string& msg)
+        template<typename... Args>
+        static void warn(const std::string& msg, Args... args)
         {
-            log(log_level::warn, msg);
+            log(log_level::warn, msg, args...);
         }
 
-        static void error(const std::string& msg)
+        template<typename... Args>
+        static void error(const std::string& msg, Args... args)
         {
-            log(log_level::error, msg);
+            log(log_level::error, msg, args...);
         }
 
-        static void critical(const std::string& msg)
+        template<typename... Args>
+        static void critical(const std::string& msg, Args... args)
         {
-            log(log_level::critical, msg);
+            log(log_level::critical, msg, args...);
         }
 
-        static void trace(const std::string& msg)
+        template<typename... Args>
+        static void trace(const std::string& msg, Args... args)
         {
-            log(log_level::trace, msg);
+            log(log_level::trace, msg, args...);
         }
 
         static void set_logger(const std::function<void(log_level, const std::string&)>& new_logger)
@@ -91,7 +98,7 @@ namespace azure { namespace storage_lite {
         }
 
     protected:
-        static std::function<void(log_level, const std::string&)> s_logger;
+        AZURE_STORAGE_API static std::function<void(log_level, const std::string&)> s_logger;
 
         static void simple_logger(log_level level, const std::string& msg);
     };
