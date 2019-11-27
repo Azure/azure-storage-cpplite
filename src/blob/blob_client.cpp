@@ -197,9 +197,9 @@ std::future<storage_outcome<container_property>> blob_client::get_container_prop
             auto& headers = http->get_headers();
             for (auto iter = headers.begin(); iter != headers.end(); ++iter)
             {
-                if (iter->first.find("x-ms-metadata-") == 0)
+                if (iter->first.find(constants::header_ms_meta_prefix) == 0)
                 {
-                    properties.metadata.push_back(std::make_pair(iter->first, iter->second));
+                    properties.metadata.push_back(std::make_pair(iter->first.substr(constants::header_ms_meta_prefix_size), iter->second));
                 }
             }
             return storage_outcome<container_property>(properties);
@@ -275,10 +275,10 @@ std::future<storage_outcome<blob_property>> blob_client::get_blob_properties(con
             auto& headers = http->get_headers();
             for (auto iter = headers.begin(); iter != headers.end(); ++iter)
             {
-                if (iter->first.find("x-ms-meta-") == 0)
+                if (iter->first.find(constants::header_ms_meta_prefix) == 0)
                 {
                     // We need to strip ten characters from the front of the key to account for "x-ms-meta-".
-                    properties.metadata.push_back(std::make_pair(iter->first.substr(10), iter->second));
+                    properties.metadata.push_back(std::make_pair(iter->first.substr(constants::header_ms_meta_prefix_size), iter->second));
                 }
             }
             return storage_outcome<blob_property>(properties);
