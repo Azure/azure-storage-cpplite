@@ -128,6 +128,8 @@ namespace azure {  namespace storage_lite {
     AZURE_STORAGE_API std::string encode_url_path(const std::string& path);
     AZURE_STORAGE_API std::string encode_url_query(const std::string& query);
 
+    AZURE_STORAGE_API std::string to_lowercase(std::string str);
+
     AZURE_STORAGE_API std::string get_uuid();
 
     AZURE_STORAGE_API bool create_or_resize_file(const std::string& path, unsigned long long length) noexcept;
