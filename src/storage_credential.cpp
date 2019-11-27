@@ -42,7 +42,7 @@ namespace azure {  namespace storage_lite {
         // Canonicalized resource
         string_to_sign.append("/").append(m_account_name).append(url.get_encoded_path());
         for (const auto &name : url.get_query()) {
-            string_to_sign.append("\n").append(name.first);
+            string_to_sign.append("\n").append(to_lowercase(name.first));
             bool first_value = true;
             for (const auto &value : name.second) {
                 if (first_value) {

@@ -14,9 +14,17 @@
 #include <fcntl.h>
 #include <unistd.h>
 #endif
+#include <cctype>
 #include <vector>
+#include <algorithm>
 
 namespace azure {  namespace storage_lite {
+
+    std::string to_lowercase(std::string str)
+    {
+        std::transform(str.begin(), str.end(), str.begin(), [](char c) { return char(std::tolower(c)); });
+        return str;
+    }
 
     std::string get_uuid()
     {
