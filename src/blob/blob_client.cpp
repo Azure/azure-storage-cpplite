@@ -24,6 +24,8 @@ typedef SSIZE_T ssize_t;
 #include "blob/append_block_request.h"
 #include "blob/put_page_request.h"
 #include "blob/get_page_ranges_request.h"
+#include "blob/set_container_metadata_request.h"
+#include "blob/set_blob_metadata_request.h"
 
 #include "executor.h"
 #include "utility.h"
@@ -212,6 +214,15 @@ std::future<storage_outcome<container_property>> blob_client::get_container_prop
     return container_properties;
 }
 
+std::future<storage_outcome<void>> blob_client::set_container_metadata(const std::string &container, const std::vector<std::pair<std::string, std::string>>& metadata)
+{
+    auto http = m_client->get_handle();
+
+    auto request = std::make_shared<set_container_metadata_request>(container, metadata);
+
+    return async_executor<void>::submit(m_account, request, http, m_context);
+}
+
 std::future<storage_outcome<list_constainers_segmented_response>> blob_client::list_containers_segmented(const std::string &prefix, const std::string& continuation_token, const int max_result, bool include_metadata)
 {
     auto http = m_client->get_handle();
@@ -289,6 +300,15 @@ std::future<storage_outcome<blob_property>> blob_client::get_blob_properties(con
         }
     });
     return blob_properties;
+}
+
+std::future<storage_outcome<void>> blob_client::set_blob_metadata(const std::string &container, const std::string& blob, const std::vector<std::pair<std::string, std::string>>& metadata)
+{
+    auto http = m_client->get_handle();
+
+    auto request = std::make_shared<set_blob_metadata_request>(container, blob, metadata);
+
+    return async_executor<void>::submit(m_account, request, http, m_context);
 }
 
 std::future<storage_outcome<void>> blob_client::upload_block_from_stream(const std::string &container, const std::string &blob, const std::string &blockid, std::istream &is)

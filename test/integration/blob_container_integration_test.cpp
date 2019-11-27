@@ -77,6 +77,25 @@ TEST_CASE("Get Container Property", "[container], [blob_service]")
         auto second_outcome = client.get_container_properties(container_name).get();
         REQUIRE(second_outcome.success());
         REQUIRE_FALSE(second_outcome.response().etag.empty());
+
+        std::vector<std::pair<std::string, std::string>> metadata;
+        metadata.emplace_back(std::make_pair("mkey1", "mvalue1"));
+        metadata.emplace_back(std::make_pair("mkEy2", "MValUe2#  % %2D"));
+        auto third_outcome = client.set_container_metadata(container_name, metadata).get();
+        REQUIRE(third_outcome.success());
+
+        auto fourth_outcome = client.get_container_properties(container_name).get();
+        REQUIRE(fourth_outcome.success());
+        REQUIRE(fourth_outcome.response().metadata == metadata);
+
+        metadata.clear();
+        auto fifth_outcome = client.set_container_metadata(container_name, metadata).get();
+        REQUIRE(fifth_outcome.success());
+
+        auto sixth_outcome = client.get_container_properties(container_name).get();
+        REQUIRE(sixth_outcome.success());
+        REQUIRE(sixth_outcome.response().metadata == metadata);
+
         client.delete_container(container_name).wait();
     }
 

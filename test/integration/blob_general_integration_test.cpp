@@ -191,6 +191,24 @@ TEST_CASE("Get blob property", "[blob],[blob_service]")
         auto get_blob_property_outcome = client.get_blob_properties(container_name, blob_name).get();
         REQUIRE(get_blob_property_outcome.success());
         REQUIRE(get_blob_property_outcome.response().size == 1024);
+
+        std::vector<std::pair<std::string, std::string>> metadata;
+        metadata.emplace_back(std::make_pair("mkey1", "mvalue1"));
+        metadata.emplace_back(std::make_pair("mkEy2", "MValUe2#  % %2d"));
+        auto set_metadata_outcome = client.set_blob_metadata(container_name, blob_name, metadata).get();
+        REQUIRE(set_metadata_outcome.success());
+
+        get_blob_property_outcome = client.get_blob_properties(container_name, blob_name).get();
+        REQUIRE(get_blob_property_outcome.success());
+        REQUIRE(get_blob_property_outcome.response().metadata == metadata);
+
+        metadata.clear();
+        set_metadata_outcome = client.set_blob_metadata(container_name, blob_name, metadata).get();
+        REQUIRE(set_metadata_outcome.success());
+
+        get_blob_property_outcome = client.get_blob_properties(container_name, blob_name).get();
+        REQUIRE(get_blob_property_outcome.success());
+        REQUIRE(get_blob_property_outcome.response().metadata == metadata);
     }
 
     SECTION("Get blob property for non-existing blob successfully")
