@@ -34,7 +34,12 @@ namespace azure {  namespace storage_lite {
         string_to_sign.append("\n"); // Range
 
         // Canonicalized headers
-        for (const auto &header : headers.ms_headers)
+        std::map<std::string, std::string> ordered_ms_headers;
+        for (const auto& header : headers.ms_headers)
+        {
+            ordered_ms_headers.emplace(to_lowercase(header.first), header.second);
+        }
+        for (const auto &header : ordered_ms_headers)
         {
             string_to_sign.append(header.first).append(":").append(header.second).append("\n");
         }
