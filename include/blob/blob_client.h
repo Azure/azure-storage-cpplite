@@ -161,6 +161,14 @@ namespace azure { namespace storage_lite {
         AZURE_STORAGE_API std::future<storage_outcome<container_property>> get_container_properties(const std::string &container);
 
         /// <summary>
+        /// Intitiates a synchronous operation to set the container metadata.
+        /// </summary>
+        /// <param name="container">The container name.</param>
+        /// <param name="metadata">A <see cref="std::vector"> that respresents metadatas.</param>
+        /// <returns>A <see cref="std::future" /> object that represents the current operation's result.</returns>
+        AZURE_STORAGE_API std::future<storage_outcome<void>> set_container_metadata(const std::string &container, const std::vector<std::pair<std::string, std::string>>& metadata);
+
+        /// <summary>
         /// Intitiates an asynchronous operation  to list containers.
         /// </summary>
         /// <param name="prefix">The container name prefix.</param>
@@ -185,6 +193,15 @@ namespace azure { namespace storage_lite {
         /// <param name="blob">The blob name.</param>
         /// <returns>A <see cref="std::future" /> object that represents the current operation.</returns>
         AZURE_STORAGE_API std::future<storage_outcome<blob_property>> get_blob_properties(const std::string &container, const std::string &blob);
+
+        /// <summary>
+        /// Intitiates a synchronous operation to set the blob metadata.
+        /// </summary>
+        /// <param name="container">The container name.</param>
+        /// <param name="blob">The blob name.</param>
+        /// <param name="metadata">A <see cref="std::vector"> that respresents metadatas.</param>
+        /// <returns>A <see cref="std::future" /> object that represents the current operation's result.</returns>
+        AZURE_STORAGE_API std::future<storage_outcome<void>> set_blob_metadata(const std::string &container, const std::string& blob, const std::vector<std::pair<std::string, std::string>>& metadata);
 
         /// <summary>
         /// Intitiates an asynchronous operation  to download the block list of a blob.

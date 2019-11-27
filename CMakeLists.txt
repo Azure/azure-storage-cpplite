@@ -47,11 +47,13 @@ set(AZURE_STORAGE_LITE_HEADER
   include/copy_blob_request_base.h
   include/create_container_request_base.h
   include/delete_container_request_base.h
+  include/set_container_metadata_request_base.h
   include/list_containers_request_base.h
   include/list_blobs_request_base.h
   include/get_block_list_request_base.h
   include/put_block_request_base.h
   include/get_blob_property_request_base.h
+  include/set_blob_metadata_request_base.h
   include/get_container_property_request_base.h
   include/put_block_list_request_base.h
   include/append_block_request_base.h
@@ -68,9 +70,11 @@ set(AZURE_STORAGE_LITE_HEADER
   include/blob/copy_blob_request.h
   include/blob/create_container_request.h
   include/blob/delete_container_request.h
+  include/blob/set_container_metadata_request.h
   include/blob/list_containers_request.h
   include/blob/list_blobs_request.h
   include/blob/get_blob_property_request.h
+  include/blob/set_blob_metadata_request.h
   include/blob/get_container_property_request.h
   include/blob/get_block_list_request.h
   include/blob/put_block_request.h
@@ -100,9 +104,11 @@ set(AZURE_STORAGE_LITE_SOURCE
   src/copy_blob_request_base.cpp
   src/create_container_request_base.cpp
   src/delete_container_request_base.cpp
+  src/set_container_metadata_request_base.cpp
   src/list_containers_request_base.cpp
   src/list_blobs_request_base.cpp
   src/get_blob_property_request_base.cpp
+  src/set_blob_metadata_request_base.cpp
   src/get_block_list_request_base.cpp
   src/get_container_property_request_base.cpp
   src/put_block_request_base.cpp
