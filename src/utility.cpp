@@ -213,6 +213,8 @@ namespace azure {  namespace storage_lite {
             {
                 ret[c] = 1;
             }
+            // Surprisingly, '=' also needs to be encoded because Azure Storage server side is so strict.
+            ret['='] = 0;
             return ret;
         }();
 
