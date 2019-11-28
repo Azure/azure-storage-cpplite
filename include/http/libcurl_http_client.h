@@ -58,6 +58,7 @@ namespace azure {  namespace storage_lite {
 
         void add_header(const std::string &name, const std::string &value) override
         {
+            m_request_headers.emplace(name, value);
             std::string header(name);
             header.append(": ").append(value);
             m_slist = curl_slist_append(m_slist, header.data());
@@ -69,10 +70,15 @@ namespace azure {  namespace storage_lite {
             }
         }
 
-        std::string get_header(const std::string &name) const override
+        const std::map<std::string, std::string, case_insensitive_compare>& get_request_headers() const override
         {
-            auto iter = m_headers.find(name);
-            if (iter != m_headers.end())
+            return m_request_headers;
+        }
+
+        std::string get_response_header(const std::string &name) const override
+        {
+            auto iter = m_response_headers.find(name);
+            if (iter != m_response_headers.end())
             {
                 return iter->second;
             }
@@ -81,9 +87,9 @@ namespace azure {  namespace storage_lite {
                 return "";
             }
         }
-        const std::map<std::string, std::string, case_insensitive_compare>& get_headers() const override
+        const std::map<std::string, std::string, case_insensitive_compare>& get_response_headers() const override
         {
-            return m_headers;
+            return m_response_headers;
         }
 
         AZURE_STORAGE_API CURLcode perform() override;
@@ -97,7 +103,8 @@ namespace azure {  namespace storage_lite {
 
         void reset() override
         {
-            m_headers.clear();
+            m_request_headers.clear();
+            m_response_headers.clear();
             curl_slist_free_all(m_slist);
             m_slist = NULL;
         }
@@ -203,6 +210,7 @@ namespace azure {  namespace storage_lite {
         std::shared_ptr<CurlEasyClient> m_client;
         CURL *m_curl;
         curl_slist *m_slist;
+        std::map<std::string, std::string, case_insensitive_compare> m_request_headers;
 
         http_method m_method;
         std::string m_url;
@@ -216,7 +224,7 @@ namespace azure {  namespace storage_lite {
         std::function<bool(http_code)> m_switch_error_callback;
 
         http_code m_code;
-        std::map<std::string, std::string, case_insensitive_compare> m_headers;
+        std::map<std::string, std::string, case_insensitive_compare> m_response_headers;
 
         AZURE_STORAGE_API static size_t header_callback(char *buffer, size_t size, size_t nitems, void *userdata);
 

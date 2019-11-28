@@ -96,7 +96,7 @@ namespace azure {  namespace storage_lite {
                 }
             }
             else {
-                p->m_headers[header.substr(0, colon)] = header.substr(colon + 2);
+                p->m_response_headers[header.substr(0, colon)] = header.substr(colon + 2);
             }
             return size * nitems;
         }

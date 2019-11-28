@@ -72,10 +72,10 @@ storage_outcome<chunk_property> blob_client::get_chunk_to_stream_sync(const std:
     if (response.success())
     {
         chunk_property property{};
-        property.etag = http->get_header(constants::header_etag);
-        property.totalSize = get_length_from_content_range(http->get_header(constants::header_content_range));
-        std::istringstream(http->get_header(constants::header_content_length)) >> property.size;
-        property.last_modified = curl_getdate(http->get_header(constants::header_last_modified).c_str(), NULL);
+        property.etag = http->get_response_header(constants::header_etag);
+        property.totalSize = get_length_from_content_range(http->get_response_header(constants::header_content_range));
+        std::istringstream(http->get_response_header(constants::header_content_length)) >> property.size;
+        property.last_modified = curl_getdate(http->get_response_header(constants::header_last_modified).c_str(), NULL);
         return storage_outcome<chunk_property>(property);
     }
     return storage_outcome<chunk_property>(storage_error(response.error()));
@@ -194,9 +194,9 @@ std::future<storage_outcome<container_property>> blob_client::get_container_prop
         if (response.get().success())
         {
             container_property properties(true);
-            properties.etag = http->get_header(constants::header_etag);
+            properties.etag = http->get_response_header(constants::header_etag);
 
-            auto& headers = http->get_headers();
+            auto& headers = http->get_response_headers();
             for (auto iter = headers.begin(); iter != headers.end(); ++iter)
             {
                 if (iter->first.find(constants::header_ms_meta_prefix) == 0)
@@ -267,23 +267,23 @@ std::future<storage_outcome<blob_property>> blob_client::get_blob_properties(con
         if (response.get().success())
         {
             blob_property properties(true);
-            properties.cache_control = http->get_header(constants::header_cache_control);
-            properties.content_disposition = http->get_header(constants::header_content_disposition);
-            properties.content_encoding = http->get_header(constants::header_content_encoding);
-            properties.content_language = http->get_header(constants::header_content_language);
-            properties.content_md5 = http->get_header(constants::header_content_md5);
-            properties.content_type = http->get_header(constants::header_content_type);
-            properties.etag = http->get_header(constants::header_etag);
-            properties.copy_status = http->get_header(constants::header_ms_copy_status);
-            properties.last_modified = curl_getdate(http->get_header(constants::header_last_modified).c_str(), NULL);
+            properties.cache_control = http->get_response_header(constants::header_cache_control);
+            properties.content_disposition = http->get_response_header(constants::header_content_disposition);
+            properties.content_encoding = http->get_response_header(constants::header_content_encoding);
+            properties.content_language = http->get_response_header(constants::header_content_language);
+            properties.content_md5 = http->get_response_header(constants::header_content_md5);
+            properties.content_type = http->get_response_header(constants::header_content_type);
+            properties.etag = http->get_response_header(constants::header_etag);
+            properties.copy_status = http->get_response_header(constants::header_ms_copy_status);
+            properties.last_modified = curl_getdate(http->get_response_header(constants::header_last_modified).c_str(), NULL);
             std::string::size_type sz = 0;
-            std::string contentLength = http->get_header(constants::header_content_length);
+            std::string contentLength = http->get_response_header(constants::header_content_length);
             if (contentLength.length() > 0)
             {
                 properties.size = std::stoull(contentLength, &sz, 0);
             }
 
-            auto& headers = http->get_headers();
+            auto& headers = http->get_response_headers();
             for (auto iter = headers.begin(); iter != headers.end(); ++iter)
             {
                 if (iter->first.find(constants::header_ms_meta_prefix) == 0)
