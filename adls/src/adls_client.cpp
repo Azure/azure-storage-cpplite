@@ -145,7 +145,7 @@ namespace azure { namespace storage_adls {
             {
                 return;
             }
-            continuation = http->get_header(constants::header_ms_continuation);
+            continuation = http->get_response_header(constants::header_ms_continuation);
             if (continuation.empty())
             {
                 break;
@@ -227,10 +227,10 @@ namespace azure { namespace storage_adls {
         access_control acl;
         if (success())
         {
-            acl.owner = http->get_header(constants::header_ms_owner);
-            acl.group = http->get_header(constants::header_ms_group);
-            acl.permissions = http->get_header(constants::header_ms_permissions);
-            acl.acl = http->get_header(constants::header_ms_acl);
+            acl.owner = http->get_response_header(constants::header_ms_owner);
+            acl.group = http->get_response_header(constants::header_ms_group);
+            acl.permissions = http->get_response_header(constants::header_ms_permissions);
+            acl.acl = http->get_response_header(constants::header_ms_acl);
         }
         return acl;
     }
@@ -243,7 +243,7 @@ namespace azure { namespace storage_adls {
 
         list_paths_result result;
         result.paths = blob_client_adaptor<std::vector<list_paths_item>>(async_func);
-        result.continuation_token = http->get_header(constants::header_ms_continuation);
+        result.continuation_token = http->get_response_header(constants::header_ms_continuation);
         return result;
     }
 
@@ -380,10 +380,10 @@ namespace azure { namespace storage_adls {
         access_control acl;
         if (success())
         {
-            acl.owner = http->get_header(constants::header_ms_owner);
-            acl.group = http->get_header(constants::header_ms_group);
-            acl.permissions = http->get_header(constants::header_ms_permissions);
-            acl.acl = http->get_header(constants::header_ms_acl);
+            acl.owner = http->get_response_header(constants::header_ms_owner);
+            acl.group = http->get_response_header(constants::header_ms_group);
+            acl.permissions = http->get_response_header(constants::header_ms_permissions);
+            acl.acl = http->get_response_header(constants::header_ms_acl);
         }
         return acl;
     }

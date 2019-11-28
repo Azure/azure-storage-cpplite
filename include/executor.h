@@ -85,7 +85,7 @@ namespace azure {  namespace storage_lite {
                             http->reset_input_buffer();
                             async_executor<RESPONSE_TYPE>::submit_helper(promise, outcome, account, request, http, context, retry);
                         }
-                        else if (http->get_header(constants::header_content_type).find(constants::header_value_content_type_json) != std::string::npos)
+                        else if (http->get_response_header(constants::header_content_type).find(constants::header_value_content_type_json) != std::string::npos)
                         {
                             *outcome = storage_outcome<RESPONSE_TYPE>(context->json_parser()->parse_response<RESPONSE_TYPE>(str));
                             promise->set_value(*outcome);
