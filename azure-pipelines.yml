@@ -40,16 +40,21 @@ jobs:
     endpoint: azure_docker_registry_connection
 
   steps:
-  - script: sed -i 's@DefaultEndpointsProtocol=https;@'${MAPPED_TEST_CONFIGURATION}'@g' test/test_base.h
+  - script: |
+      sed -i 's@DefaultEndpointsProtocol=https;@'${MAPPED_TEST_CONFIGURATION}'@g' test/test_base.h
+      sed -i 's@DefaultEndpointsProtocol=https;@'${MAPPED_ADLS_TEST_CONFIGURATION}'@g' adls/test/adls_test_base.h
     displayName: Set Test Configuration
     env:
       MAPPED_TEST_CONFIGURATION: $(test_configuration)
+      MAPPED_ADLS_TEST_CONFIGURATION: $(adls_test_configuration)
 
   - script: |
       cmake CMakeLists.txt -B$(Build.BinariesDirectory) -DCMAKE_BUILD_TYPE=$(build_type) -DBUILD_SAMPLES=ON -DBUILD_TESTS=ON -DBUILD_SHARED_LIBS=ON $(extra_cmake_options)
       cmake --build $(Build.BinariesDirectory) -- -j$(nproc)
+      rm -rf $(Build.BinariesDirectory)
+      cmake CMakeLists.txt -B$(Build.BinariesDirectory) -DCMAKE_BUILD_TYPE=$(build_type) -DBUILD_SAMPLES=ON -DBUILD_TESTS=ON -DBUILD_SHARED_LIBS=ON -DBUILD_ADLS=ON $(extra_cmake_options)
+      cmake --build $(Build.BinariesDirectory) -- -j$(nproc)
     displayName: Build
-
 
   - script: ./azure-storage-test
     workingDirectory: $(Build.BinariesDirectory)
@@ -63,16 +68,22 @@ jobs:
     vmImage: 'macOS-latest'
 
   steps:
-  - script: sed -i '' 's@DefaultEndpointsProtocol=https;@'${MAPPED_TEST_CONFIGURATION}'@g' test/test_base.h
+  - script: |
+      sed -i '' 's@DefaultEndpointsProtocol=https;@'${MAPPED_TEST_CONFIGURATION}'@g' test/test_base.h
+      sed -i '' 's@DefaultEndpointsProtocol=https;@'${MAPPED_ADLS_TEST_CONFIGURATION}'@g' adls/test/adls_test_base.h
     displayName: Set Test Configuration
     env:
       MAPPED_TEST_CONFIGURATION: $(test_configuration)
+      MAPPED_ADLS_TEST_CONFIGURATION: $(adls_test_configuration)
 
   - script: brew install openssl cmake catch2
     displayName: Install Dependencies
 
   - script: |
       cmake CMakeLists.txt -B$(Build.BinariesDirectory) -DCMAKE_BUILD_TYPE=Release -DBUILD_SAMPLES=ON -DBUILD_TESTS=ON -DBUILD_SHARED_LIBS=ON
+      cmake --build $(Build.BinariesDirectory) -- -j$(nproc)
+      rm -rf $(Build.BinariesDirectory)
+      cmake CMakeLists.txt -B$(Build.BinariesDirectory) -DCMAKE_BUILD_TYPE=Release -DBUILD_SAMPLES=ON -DBUILD_TESTS=ON -DBUILD_SHARED_LIBS=ON -DBUILD_ADLS=ON
       cmake --build $(Build.BinariesDirectory) -- -j$(nproc)
     displayName: Build
 
@@ -101,10 +112,13 @@ jobs:
     vmImage: $(vm_image)
 
   steps:
-    - powershell: (Get-Content test\test_base.h) -replace 'DefaultEndpointsProtocol=https;', "$Env:MAPPED_TEST_CONFIGURATION" | Out-File -encoding ASCII test\test_base.h
+    - powershell: |
+        (Get-Content test\test_base.h) -replace 'DefaultEndpointsProtocol=https;', "$Env:MAPPED_TEST_CONFIGURATION" | Out-File -encoding ASCII test\test_base.h
+        (Get-Content adls\test\adls_test_base.h) -replace 'DefaultEndpointsProtocol=https;', "$Env:MAPPED_ADLS_TEST_CONFIGURATION" | Out-File -encoding ASCII adls\test\adls_test_base.h
       displayName: Set Test Configuration
       env:
         MAPPED_TEST_CONFIGURATION: $(test_configuration)
+        MAPPED_ADLS_TEST_CONFIGURATION: $(adls_test_configuration)
 
     - powershell: |
         Invoke-WebRequest -Uri https://codeload.github.com/microsoft/vcpkg/zip/master -OutFile vcpkg-master.zip
@@ -115,17 +129,13 @@ jobs:
         .\vcpkg install curl[winssl]:x86-windows curl[winssl]:x64-windows catch2:x86-windows catch2:x64-windows
       displayName: Install Dependencies
 
-    - task: CMake@1
-      displayName: Configure
-      inputs:
-        workingDirectory: $(Build.SourcesDirectory)
-        cmakeArgs: CMakeLists.txt -B$(Build.BinariesDirectory) -DCMAKE_TOOLCHAIN_FILE=C:\vcpkg-master\scripts\buildsystems\vcpkg.cmake -DBUILD_SAMPLES=ON -DBUILD_TESTS=ON -DBUILD_SHARED_LIBS=ON -A x64
-
-    - task: CMake@1
+    - powershell: |
+        cmake CMakeLists.txt -B$(Build.BinariesDirectory) -DCMAKE_TOOLCHAIN_FILE=C:\vcpkg-master\scripts\buildsystems\vcpkg.cmake -DBUILD_SAMPLES=ON -DBUILD_TESTS=ON -DBUILD_SHARED_LIBS=ON -A x64
+        cmake --build $(Build.BinariesDirectory) --config $(build_type)
+        Remove-Item $(Build.BinariesDirectory) -Recurse -Force
+        cmake CMakeLists.txt -B$(Build.BinariesDirectory) -DCMAKE_TOOLCHAIN_FILE=C:\vcpkg-master\scripts\buildsystems\vcpkg.cmake -DBUILD_SAMPLES=ON -DBUILD_TESTS=ON -DBUILD_SHARED_LIBS=ON -DBUILD_ADLS=ON -A x64
+        cmake --build $(Build.BinariesDirectory) --config $(build_type)
       displayName: Build
-      inputs:
-        workingDirectory: $(Build.SourcesDirectory)
-        cmakeArgs: --build $(Build.BinariesDirectory) --config $(build_type)
 
     - powershell: |
         .\azure-storage-test.exe
