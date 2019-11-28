@@ -23,7 +23,7 @@ namespace azure {  namespace storage_lite {
         storage_headers headers;
 
         add_ms_header(h, headers, constants::header_ms_client_request_id, r.ms_client_request_id(), true);
-        // les is not supported.
+        // lease is not supported.
         // add_ms_header(h, headers, constants::header_ms_lease_id, r.ms_lease_id(), true);
 
         h.add_header(constants::header_user_agent, constants::header_value_user_agent);
