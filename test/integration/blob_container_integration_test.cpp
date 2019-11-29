@@ -235,3 +235,43 @@ TEST_CASE("List containers segmented", "[container],[blob_service]")
         client.delete_container(container).wait();
     }
 }
+
+TEST_CASE("SAS Authorization", "[blob_service][sas]")
+{
+    std::string account_name = "";
+    std::string sas_token = "";
+    if (account_name.empty() || sas_token.empty())
+    {
+        return;
+    }
+
+    auto cred = std::make_shared<azure::storage_lite::shared_access_signature_credential>(sas_token);
+    auto account = std::make_shared<azure::storage_lite::storage_account>(account_name, cred);
+    auto client = std::make_shared<azure::storage_lite::blob_client>(account, 1);
+
+    std::string container_name = as_test::get_random_string(10);
+    auto outcome = client->create_container(container_name).get();
+    REQUIRE(outcome.success());
+    outcome = client->delete_container(container_name).get();
+    REQUIRE(outcome.success());
+}
+
+TEST_CASE("Token Authorization", "[blob_service][token]")
+{
+    std::string account_name = "";
+    std::string oauth_token = "";
+    if (account_name.empty() || oauth_token.empty())
+    {
+        return;
+    }
+
+    auto cred = std::make_shared<azure::storage_lite::token_credential>(oauth_token);
+    auto account = std::make_shared<azure::storage_lite::storage_account>(account_name, cred);
+    auto client = std::make_shared<azure::storage_lite::blob_client>(account, 1);
+
+    std::string container_name = as_test::get_random_string(10);
+    auto outcome = client->create_container(container_name).get();
+    REQUIRE(outcome.success());
+    outcome = client->delete_container(container_name).get();
+    REQUIRE(outcome.success());
+}

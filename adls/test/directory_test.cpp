@@ -218,3 +218,24 @@ TEST_CASE("Directory Properties", "[adls][directory]")
 
     client.delete_filesystem(fs_name);
 }
+
+TEST_CASE("ADLS Token Authorization", "[adls][directory][token]")
+{
+    std::string account_name = "";
+    std::string oauth_token = "";
+    if (account_name.empty() || oauth_token.empty())
+    {
+        return;
+    }
+
+    auto cred = std::make_shared<azure::storage_lite::token_credential>(oauth_token);
+    auto account = std::make_shared<azure::storage_lite::storage_account>(account_name, cred);
+    auto client = std::make_shared<azure::storage_adls::adls_client>(account, 1);
+
+    std::string fs_name = as_test::adls_base::create_random_filesystem(*client);
+    std::string dir_name = as_test::get_random_string(10);
+    client->create_directory(fs_name, dir_name);
+    REQUIRE(errno == 0);
+
+    client->delete_filesystem(fs_name);
+}
