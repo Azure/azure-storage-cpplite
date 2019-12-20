@@ -53,6 +53,15 @@ namespace azure { namespace storage_lite {
             m_client = std::make_shared<CurlEasyClient>(max_concurrency, ca_path);
         }
 
+        blob_client(std::shared_ptr<storage_account> account,
+                    std::shared_ptr<executor_context> context,
+                    std::shared_ptr<CurlEasyClient> client)
+            : m_account(account),
+            m_context(context),
+            m_client(client)
+        {
+        }
+
         /// <summary>
         /// Gets the curl client used to execute requests.
         /// </summary>
