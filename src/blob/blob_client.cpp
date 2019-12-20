@@ -196,12 +196,13 @@ std::future<storage_outcome<container_property>> blob_client::get_container_prop
             container_property properties(true);
             properties.etag = http->get_response_header(constants::header_etag);
 
-            auto& headers = http->get_response_headers();
-            for (auto iter = headers.begin(); iter != headers.end(); ++iter)
+            const auto& headers = http->get_response_headers();
+            properties.metadata.reserve(headers.size());
+            for (const auto& header : headers)
             {
-                if (iter->first.find(constants::header_ms_meta_prefix) == 0)
+                if (header.first.find(constants::header_ms_meta_prefix) == 0)
                 {
-                    properties.metadata.push_back(std::make_pair(iter->first.substr(constants::header_ms_meta_prefix_size), iter->second));
+                    properties.metadata.emplace_back(header.first.substr(constants::header_ms_meta_prefix_size), header.second);
                 }
             }
             return storage_outcome<container_property>(properties);
@@ -283,13 +284,14 @@ std::future<storage_outcome<blob_property>> blob_client::get_blob_properties(con
                 properties.size = std::stoull(contentLength, &sz, 0);
             }
 
-            auto& headers = http->get_response_headers();
-            for (auto iter = headers.begin(); iter != headers.end(); ++iter)
+            const auto& headers = http->get_response_headers();
+            properties.metadata.reserve(headers.size());
+            for (const auto& header : headers)
             {
-                if (iter->first.find(constants::header_ms_meta_prefix) == 0)
+                if (header.first.find(constants::header_ms_meta_prefix) == 0)
                 {
                     // We need to strip ten characters from the front of the key to account for "x-ms-meta-".
-                    properties.metadata.push_back(std::make_pair(iter->first.substr(constants::header_ms_meta_prefix_size), iter->second));
+                    properties.metadata.emplace_back(header.first.substr(constants::header_ms_meta_prefix_size), header.second);
                 }
             }
             return storage_outcome<blob_property>(properties);

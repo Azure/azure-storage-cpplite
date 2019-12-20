@@ -56,9 +56,9 @@ namespace azure { namespace storage_lite {
         blob_client(std::shared_ptr<storage_account> account,
                     std::shared_ptr<executor_context> context,
                     std::shared_ptr<CurlEasyClient> client)
-            : m_account(account),
-            m_context(context),
-            m_client(client)
+            : m_client(client),
+            m_account(account),
+            m_context(context)
         {
         }
 

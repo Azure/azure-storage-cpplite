@@ -102,10 +102,11 @@ namespace azure {  namespace storage_lite {
             return retryable(code);
         }
 
-        std::chrono::seconds calculate_new_delay(const retry_context &context)
+        std::chrono::seconds calculate_new_delay(const retry_context &context) const
         {
             // (1 << N) == 2^N
-            return ((context.numbers() == 0) ? 0 : (m_base_timeout * (1 << context.numbers())));
+            return ((context.numbers() == 0) ? std::chrono::seconds(0)
+                                             : (m_base_timeout * (1 << context.numbers())));
         }
 
         const int m_maximum_retries;
