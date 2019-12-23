@@ -6,6 +6,7 @@
 
 #include "storage_EXPORTS.h"
 
+#include "constants.h"
 #include "http_base.h"
 #include "utility.h"
 
@@ -79,7 +80,8 @@ namespace azure {  namespace storage_lite {
     {
     public:
 
-        retry_policy(const int maximum_retries = 3, const std::chrono::seconds base_timeout = std::chrono::seconds{10})
+        retry_policy(const int maximum_retries = azure::storage_lite::constants::maximum_retries,
+                     const std::chrono::seconds base_timeout = std::chrono::seconds{azure::storage_lite::constants::base_timeout})
             : m_maximum_retries(maximum_retries),
             m_base_timeout(base_timeout)
         {
