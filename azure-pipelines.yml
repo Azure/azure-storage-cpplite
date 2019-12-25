@@ -28,6 +28,10 @@ jobs:
         container_image: ubuntu20.04:cpplite
         build_type: Release
         extra_cmake_options: -DUSE_OPENSSL=OFF
+      CENTOS7_DEBUG:
+        container_image: centos7:cpplite
+        build_type: Debug
+        extra_cmake_options: -DCMAKE_C_COMPILER=$(source scl_source enable devtoolset-4 && which gcc) -DCMAKE_CXX_COMPILER=$(source scl_source enable devtoolset-4 && which g++)
       CENTOS8:
         container_image: centos8:cpplite
         build_type: Release
