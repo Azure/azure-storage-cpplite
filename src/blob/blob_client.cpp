@@ -51,20 +51,6 @@ ssize_t get_length_from_content_range(const std::string &header)
    return result;
 }
 
-std::vector<std::pair<std::string, std::string>> filterHeaders(const std::map<std::string, std::string, case_insensitive_compare>& headers, const std::string& value)
-{
-    std::vector<std::pair<std::string, std::string>> filteredHeaders;
-    filteredHeaders.reserve(headers.size());
-    for (const auto& header : headers)
-    {
-        if (header.first.find(value) == 0)
-        {
-            filteredHeaders.emplace_back(header.first.substr(value.size()), header.second);
-        }
-    }
-    return filteredHeaders;
-}
-
 } // noname namespace
 
 storage_outcome<chunk_property> blob_client::get_chunk_to_stream_sync(const std::string &container, const std::string &blob, unsigned long long offset, unsigned long long size, std::ostream &os)
@@ -210,7 +196,7 @@ std::future<storage_outcome<container_property>> blob_client::get_container_prop
             container_property properties(true);
             properties.etag = http->get_response_header(constants::header_etag);
 
-            properties.metadata = filterHeaders(http->get_response_headers(), constants::header_ms_meta_prefix);
+            properties.metadata = filter_headers(http->get_response_headers(), constants::header_ms_meta_prefix);
             return storage_outcome<container_property>(properties);
         }
         else
@@ -290,7 +276,7 @@ std::future<storage_outcome<blob_property>> blob_client::get_blob_properties(con
                 properties.size = std::stoull(contentLength, &sz, 0);
             }
 
-            properties.metadata = filterHeaders(http->get_response_headers(), constants::header_ms_meta_prefix);
+            properties.metadata = filter_headers(http->get_response_headers(), constants::header_ms_meta_prefix);
             return storage_outcome<blob_property>(properties);
         }
         else
