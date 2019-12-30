@@ -52,7 +52,7 @@ void put_block_list_request_base::build_request(const storage_account &a, http_b
 
     h.add_header(constants::header_user_agent, constants::header_value_user_agent);
     add_ms_header(h, headers, constants::header_ms_date, get_ms_date(date_format::rfc_1123));
-    add_ms_header(h, headers, constants::header_ms_version, constants::header_value_storage_version);
+    add_ms_header(h, headers, constants::header_ms_version, constants::header_value_storage_blob_version);
 
     a.credential()->sign_request(r, h, url, headers);
 }
