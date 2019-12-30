@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <exception>
 
 #include "storage_EXPORTS.h"
 
@@ -10,6 +11,15 @@ namespace azure {  namespace storage_lite {
     {
     public:
         std::string code;
+        std::string code_name;
+        std::string message;
+    };
+
+    struct storage_exception : public std::exception
+    {
+        storage_exception(int code, std::string code_name, std::string message) : code(code), code_name(std::move(code_name)), message(std::move(message)) {}
+
+        int code;
         std::string code_name;
         std::string message;
     };
