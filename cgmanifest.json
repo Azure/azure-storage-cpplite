@@ -1,0 +1,22 @@
+{"Registrations":[ 
+  {
+    "component": {
+      "type": "git",
+      "git": {
+        "repositoryUrl": "https://github.com/nlohmann/json",
+        "commitHash": "e7b3b40b5a95bc74b9a7f662830a27c49ffc01b4"
+      }
+    }
+  },
+  {
+    "component": {
+      "type": "git",
+      "git": {
+        "repositoryUrl": "https://github.com/leethomason/tinyxml2",
+        "commitHash": "9c740e8d2341bd46dbe8e87053cdb4d931971967"
+      }
+    }
+  }
+],
+"Version": 1
+}
