@@ -153,6 +153,7 @@ if (UNIX)
   endif()
 elseif(WIN32)
   list(APPEND EXTRA_LIBRARIES rpcrt4 bcrypt)
+  target_compile_definitions(azure-storage-lite PRIVATE azure_storage_lite_EXPORTS)
 endif()
 
 if(BUILD_TESTS)
