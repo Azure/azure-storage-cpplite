@@ -134,7 +134,7 @@ namespace azure {  namespace storage_lite {
             check_code(curl_easy_setopt(m_curl, CURLOPT_READDATA, this));
         }
 
-        void set_input_buffer(char* buff) override
+        void set_input_buffer(const char* buff) override
         {
             m_input_buffer = buff;
             check_code(curl_easy_setopt(m_curl, CURLOPT_READFUNCTION, read));

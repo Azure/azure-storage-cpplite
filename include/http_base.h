@@ -53,7 +53,7 @@ namespace azure {  namespace storage_lite {
 
         virtual void set_input_stream(storage_istream s) = 0;
 
-        virtual void set_input_buffer(char* buff) = 0;
+        virtual void set_input_buffer(const char* buff) = 0;
 
         virtual void reset_input_stream() = 0;
 

@@ -241,7 +241,7 @@ namespace azure { namespace storage_lite {
         /// <param name="buffer">The input buffer.</param>
         /// <param name="streamlen">Length of the buffer.</param>
         /// <returns>A <see cref="std::future" /> object that represents the current operation.</returns>
-        AZURE_STORAGE_API std::future<storage_outcome<void>> upload_block_from_buffer(const std::string &container, const std::string &blob, const std::string &blockid, char* buffer, size_t bufferlen);
+        AZURE_STORAGE_API std::future<storage_outcome<void>> upload_block_from_buffer(const std::string &container, const std::string &blob, const std::string &blockid, const char* buffer, size_t bufferlen);
 
         /// <summary>
         /// Intitiates an asynchronous operation  to create a block blob with existing blocks.
