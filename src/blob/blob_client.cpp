@@ -140,7 +140,7 @@ std::future<storage_outcome<void>> blob_client::upload_block_blob_from_stream(co
     return async_executor<void>::submit(m_account, request, http, m_context);
 }
 
-std::future<storage_outcome<void>> blob_client::upload_block_from_buffer(const std::string &container, const std::string &blob, const std::string &blockid, char* buff, size_t bufferlen)
+std::future<storage_outcome<void>> blob_client::upload_block_from_buffer(const std::string &container, const std::string &blob, const std::string &blockid, const char* buff, size_t bufferlen)
 {
     auto http = m_client->get_handle();
 
