@@ -76,8 +76,18 @@ namespace azure {  namespace storage_lite {
                         std::string str(std::istreambuf_iterator<char>(s.istream()), std::istreambuf_iterator<char>());
                         if (code != CURLE_OK || unsuccessful(result))
                         {
-                            auto error = context->xml_parser()->parse_storage_error(str);
-                            error.code = std::to_string(result);
+                            storage_error error;
+                            if (code != CURLE_OK)
+                            {
+                                error.code = std::to_string(code);
+                                error.code_name = curl_easy_strerror(code);
+                            }
+                            else
+                            {
+                                error = context->xml_parser()->parse_storage_error(str);
+                                error.code = std::to_string(result);
+                            }
+
                             *outcome = storage_outcome<RESPONSE_TYPE>(error);
                             retry->add_result(code == CURLE_OK ? result: 503);
                             http->reset_input_stream();
@@ -138,11 +148,21 @@ namespace azure {  namespace storage_lite {
                 {
                     http->submit([promise, outcome, account, request, http, context, retry](http_base::http_code result, storage_istream s, CURLcode code)
                     {
-                        std::string str(std::istreambuf_iterator<char>(s.istream()), std::istreambuf_iterator<char>());
                         if (code != CURLE_OK || unsuccessful(result))
                         {
-                            auto error = context->xml_parser()->parse_storage_error(str);
-                            error.code = std::to_string(result);
+                            storage_error error;
+                            if (code != CURLE_OK)
+                            {
+                                error.code = std::to_string(code);
+                                error.code_name = curl_easy_strerror(code);
+                            }
+                            else
+                            {
+                                std::string str(std::istreambuf_iterator<char>(s.istream()), std::istreambuf_iterator<char>());
+                                error = context->xml_parser()->parse_storage_error(str);
+                                error.code = std::to_string(result);
+                            }
+
                             *outcome = storage_outcome<void>(error);
                             retry->add_result(code == CURLE_OK ? result: 503);
                             http->reset_input_stream();
