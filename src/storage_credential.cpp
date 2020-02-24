@@ -7,13 +7,15 @@
 
 namespace azure {  namespace storage_lite {
 
-    shared_key_credential::shared_key_credential(const std::string &account_name, const std::string &account_key)
+    shared_key_credential::shared_key_credential(const std::string &account_name, const std::string &account_key, const bool using_emulator)
         : m_account_name(account_name),
-        m_account_key(from_base64(account_key)) {}
+        m_account_key(from_base64(account_key)),
+        m_using_emulator(using_emulator) {}
 
-    shared_key_credential::shared_key_credential(const std::string &account_name, const std::vector<unsigned char> &account_key)
+    shared_key_credential::shared_key_credential(const std::string &account_name, const std::vector<unsigned char> &account_key, const bool using_emulator)
         : m_account_name(account_name),
-        m_account_key(account_key) {}
+        m_account_key(account_key),
+        m_using_emulator(using_emulator) {}
 
     void shared_key_credential::sign_request(const storage_request_base &, http_base &h, const storage_url &url, const storage_headers &headers) const
     {
@@ -45,7 +47,13 @@ namespace azure {  namespace storage_lite {
         }
 
         // Canonicalized resource
-        string_to_sign.append("/").append(m_account_name).append(url.get_encoded_path());
+        string_to_sign.append("/").append(m_account_name);
+        if (m_using_emulator) {
+            // For an Azure emulator, we must append the the
+            // account name twice.
+            string_to_sign.append("/").append(m_account_name);
+        }
+        string_to_sign.append(url.get_encoded_path());
         for (const auto &name : url.get_query()) {
             string_to_sign.append("\n").append(to_lowercase(name.first));
             bool first_value = true;

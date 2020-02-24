@@ -8,7 +8,7 @@ namespace azure {  namespace storage_lite {
     {
         std::string account_name = "devstoreaccount1";
         std::string account_key = "Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==";
-        std::shared_ptr<storage_credential>  cred = std::make_shared<shared_key_credential>(account_name, account_key);
+        std::shared_ptr<storage_credential>  cred = std::make_shared<shared_key_credential>(account_name, account_key, true);
         std::shared_ptr<storage_account> account = std::make_shared<storage_account>(account_name, cred, false, "127.0.0.1:10000/devstoreaccount1");
         return account;
     }

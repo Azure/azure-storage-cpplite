@@ -26,9 +26,9 @@ namespace azure {  namespace storage_lite {
     class shared_key_credential final : public storage_credential
     {
     public:
-        AZURE_STORAGE_API shared_key_credential(const std::string &account_name, const std::string &account_key);
+        AZURE_STORAGE_API shared_key_credential(const std::string &account_name, const std::string &account_key, bool using_emulator = false);
 
-        AZURE_STORAGE_API shared_key_credential(const std::string &account_name, const std::vector<unsigned char> &account_key);
+        AZURE_STORAGE_API shared_key_credential(const std::string &account_name, const std::vector<unsigned char> &account_key, bool using_emulator = false);
 
         AZURE_STORAGE_API void sign_request(const storage_request_base &r, http_base &h, const storage_url &url, const storage_headers &headers) const override;
 
@@ -47,6 +47,7 @@ namespace azure {  namespace storage_lite {
     private:
         std::string m_account_name;
         std::vector<unsigned char> m_account_key;
+        bool m_using_emulator;
     };
 
     class shared_access_signature_credential final : public storage_credential
