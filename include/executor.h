@@ -46,6 +46,11 @@ namespace azure {  namespace storage_lite {
                 return m_retry_policy;
             }
 
+            void set_retry_policy(std::shared_ptr<retry_policy_base> retry_policy)
+            {
+                m_retry_policy = std::move(retry_policy);
+            }
+
         private:
             std::shared_ptr<xml_parser_base> m_xml_parser;
             std::shared_ptr<json_parser_base> m_json_parser;
@@ -68,7 +73,7 @@ namespace azure {  namespace storage_lite {
                 http->set_error_stream([](http_base::http_code) { return true; }, storage_iostream::create_storage_stream());
                 request->build_request(*account, *http);
 
-                retry_info info = context->retry_policy()->evaluate(*retry);
+                retry_info info = retry->numbers() == 0 ? retry_info(true, std::chrono::seconds(0)) : context->retry_policy()->evaluate(*retry);
                 if (info.should_retry())
                 {
                     http->submit([promise, outcome, account, request, http, context, retry](http_base::http_code result, storage_istream s, CURLcode code)
@@ -143,7 +148,7 @@ namespace azure {  namespace storage_lite {
                 http->set_error_stream(unsuccessful, storage_iostream::create_storage_stream());
                 request->build_request(*account, *http);
 
-                retry_info info = context->retry_policy()->evaluate(*retry);
+                retry_info info = retry->numbers() == 0 ? retry_info(true, std::chrono::seconds(0)) : context->retry_policy()->evaluate(*retry);
                 if (info.should_retry())
                 {
                     http->submit([promise, outcome, account, request, http, context, retry](http_base::http_code result, storage_istream s, CURLcode code)
