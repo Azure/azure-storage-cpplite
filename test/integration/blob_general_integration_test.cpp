@@ -79,6 +79,43 @@
 //    client.delete_container(container_name);
 //}
 
+TEST_CASE("Storage endpoint", "[endpoint]")
+{
+    std::string account_name = "account";
+    std::string account_key = "MDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDA=";
+    auto cred = std::make_shared<azure::storage_lite::shared_key_credential>(account_name, account_key);
+
+    struct test_case
+    {
+        bool use_https;
+        std::string endpoint;
+
+        std::string domain;
+        std::string path;
+        std::string url;
+    };
+    std::vector<test_case> test_cases
+    {
+        {true, "", "https://account.blob.core.windows.net", "", "https://account.blob.core.windows.net"},
+        {false, "", "http://account.blob.core.windows.net", "", "http://account.blob.core.windows.net"},
+
+        {true, "www.example.com", "https://www.example.com", "", "https://www.example.com"},
+        {false, "127.0.0.1", "http://127.0.0.1", "", "http://127.0.0.1"},
+
+        {true, "127.0.0.1/account", "https://127.0.0.1", "/account", "https://127.0.0.1/account"},
+        {false, "127.0.0.1:8888/account", "http://127.0.0.1:8888", "/account", "http://127.0.0.1:8888/account"},
+        {false, "https://127.0.0.1:8888/account", "http://127.0.0.1:8888", "/account", "http://127.0.0.1:8888/account"},
+    };
+
+    for (const auto& c: test_cases)
+    {
+        auto account = std::make_shared<azure::storage_lite::storage_account>(account_name, cred, c.use_https, c.endpoint);
+        CHECK(c.domain == account->get_url(azure::storage_lite::storage_account::service::blob).get_domain());
+        CHECK(c.path == account->get_url(azure::storage_lite::storage_account::service::blob).get_path());
+        CHECK(c.url == account->get_url(azure::storage_lite::storage_account::service::blob).to_string());
+    }
+}
+
 TEST_CASE("List blobs segmented", "[blob],[blob_service]")
 {
     azure::storage_lite::blob_client client = as_test::base::test_blob_client();
