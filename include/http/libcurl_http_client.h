@@ -334,10 +334,10 @@ namespace azure {  namespace storage_lite {
             return res;
         }
 
-	 const std::string& get_capath(void)
-	 {
-	     return m_capath;
-	 }
+        const std::string& get_capath()
+        {
+            return m_capath;
+        }
 
         void release_handle(CURL *h)
         {
@@ -346,9 +346,20 @@ namespace azure {  namespace storage_lite {
             m_cv.notify_one();
         }
 
+        void set_proxy(std::string proxy)
+        {
+            m_proxy = std::move(proxy);
+        }
+
+        const std::string& get_proxy() const
+        {
+            return m_proxy;
+        }
+
     private:
         int m_size;
         std::string m_capath;
+        std::string m_proxy;
         std::queue<CURL *> m_handles;
         std::mutex m_handles_mutex;
         std::condition_variable m_cv;
