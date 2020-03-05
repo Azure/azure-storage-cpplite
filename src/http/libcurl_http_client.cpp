@@ -4,19 +4,13 @@
 
 #include "constants.h"
 
-namespace azure {  namespace storage_lite {
+namespace azure { namespace storage_lite {
 
         CurlEasyRequest::CurlEasyRequest(std::shared_ptr<CurlEasyClient> client, CURL *h)
-        : m_client(client),
-            m_curl(h),
-            m_slist(NULL)
+            : m_client(client), m_curl(h), m_slist(NULL)
         {
             check_code(curl_easy_setopt(m_curl, CURLOPT_HEADERFUNCTION, header_callback));
             check_code(curl_easy_setopt(m_curl, CURLOPT_HEADERDATA, this));
-            if (!m_client->get_capath().empty())
-            {
-                check_code(curl_easy_setopt(m_curl, CURLOPT_CAINFO, m_client->get_capath().data()));
-            }
         }
 
         CurlEasyRequest::~CurlEasyRequest()
@@ -39,10 +33,10 @@ namespace azure {  namespace storage_lite {
             switch (m_method)
             {
             case http_method::get:
-                check_code(curl_easy_setopt(m_curl, CURLOPT_HTTPGET, 1));
+                check_code(curl_easy_setopt(m_curl, CURLOPT_HTTPGET, 1L));
                 break;
             case http_method::put:
-                check_code(curl_easy_setopt(m_curl, CURLOPT_UPLOAD, 1));
+                check_code(curl_easy_setopt(m_curl, CURLOPT_UPLOAD, 1L));
                 break;
             case http_method::del:
                 check_code(curl_easy_setopt(m_curl, CURLOPT_CUSTOMREQUEST, constants::http_delete));
@@ -55,7 +49,7 @@ namespace azure {  namespace storage_lite {
                 check_code(curl_easy_setopt(m_curl, CURLOPT_CUSTOMREQUEST, constants::http_post));
                 break;
             case http_method::patch:
-                check_code(curl_easy_setopt(m_curl, CURLOPT_UPLOAD, 1));
+                check_code(curl_easy_setopt(m_curl, CURLOPT_UPLOAD, 1L));
                 check_code(curl_easy_setopt(m_curl, CURLOPT_CUSTOMREQUEST, constants::http_patch));
                 break;
             }
@@ -65,6 +59,16 @@ namespace azure {  namespace storage_lite {
             m_slist = curl_slist_append(m_slist, "Transfer-Encoding:");
             m_slist = curl_slist_append(m_slist, "Expect:");
             check_code(curl_easy_setopt(m_curl, CURLOPT_HTTPHEADER, m_slist));
+
+            if (!m_client->get_capath().empty())
+            {
+                check_code(curl_easy_setopt(m_curl, CURLOPT_CAINFO, m_client->get_capath().data()));
+            }
+
+            if (!m_client->get_proxy().empty())
+            {
+                check_code(curl_easy_setopt(m_curl, CURLOPT_PROXY, m_client->get_proxy().data()));
+            }
 
             const auto result = curl_easy_perform(m_curl);
             check_code(result); // has nothing to do with checks, just resets errno for succeeded ops.
