@@ -31,17 +31,32 @@ namespace azure {  namespace storage_lite {
             return m_credential;
         }
 
-        AZURE_STORAGE_API storage_url get_url(service service) const;
+        storage_url get_url(service service) const
+        {
+            switch (service)
+            {
+            case storage_account::service::blob:
+                return m_blob_url;
+            case storage_account::service::table:
+                return m_table_url;
+            case storage_account::service::queue:
+                return m_queue_url;
+            case storage_account::service::file:
+                return m_file_url;
+            case storage_account::service::adls:
+                return m_adls_url;
+            default:
+                return storage_url();
+            }
+        }
 
     private:
         std::shared_ptr<storage_credential> m_credential;
-        std::string m_blob_domain;
-        std::string m_table_domain;
-        std::string m_queue_domain;
-        std::string m_file_domain;
-        std::string m_adls_domain;
-
-        AZURE_STORAGE_API void append_all(const std::string &part);
+        storage_url m_blob_url;
+        storage_url m_table_url;
+        storage_url m_queue_url;
+        storage_url m_file_url;
+        storage_url m_adls_url;
     };
 
 }}  // azure::storage_lite

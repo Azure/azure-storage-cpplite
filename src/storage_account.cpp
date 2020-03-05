@@ -17,65 +17,48 @@ namespace azure {  namespace storage_lite {
     storage_account::storage_account(const std::string &account_name, std::shared_ptr<storage_credential> credential, bool use_https, const std::string &blob_endpoint)
         : m_credential(credential)
     {
-        if (use_https)
+        std::string scheme = use_https ? "https://" : "http://";
+
+        if (blob_endpoint.empty())
         {
-            append_all("https://");
+            std::string domain = scheme + account_name;
+
+            m_blob_url.set_domain(domain + ".blob" + constants::default_endpoint_suffix);
+            m_table_url.set_domain(domain + ".table" + constants::default_endpoint_suffix);
+            m_queue_url.set_domain(domain + ".queue" + constants::default_endpoint_suffix);
+            m_file_url.set_domain(domain + ".file" + constants::default_endpoint_suffix);
+            m_adls_url.set_domain(domain + ".dfs" + constants::default_endpoint_suffix);
         }
         else
         {
-            append_all("http://");
+            std::string endpoint = blob_endpoint;
+            auto scheme_pos = endpoint.find("://");
+            if (scheme_pos != std::string::npos)
+            {
+                endpoint = endpoint.substr(scheme_pos + 3);
+            }
+
+            auto slash_pos = endpoint.find('/');
+            std::string host = endpoint.substr(0, slash_pos);
+
+            auto path_start = endpoint.find_first_not_of('/', slash_pos);
+            std::string path = path_start == std::string::npos ? "" : endpoint.substr(path_start);
+
+            std::string domain = scheme + host;
+            m_blob_url.set_domain(domain);
+            m_table_url.set_domain(domain);
+            m_queue_url.set_domain(domain);
+            m_file_url.set_domain(domain);
+            m_adls_url.set_domain(domain);
+
+            if (!path.empty()) {
+                m_blob_url.append_path(path);
+                m_table_url.append_path(path);
+                m_queue_url.append_path(path);
+                m_file_url.append_path(path);
+                m_adls_url.append_path(path);
+            }
         }
-
-        if(blob_endpoint.empty())
-        {
-            append_all(account_name);
-
-            m_blob_domain.append(".blob");
-            m_table_domain.append(".table");
-            m_queue_domain.append(".queue");
-            m_file_domain.append(".file");
-            m_adls_domain.append(".dfs");
-
-            append_all(constants::default_endpoint_suffix);
-        }
-        else
-        {
-            append_all(blob_endpoint);
-        }
-    }
-
-    AZURE_STORAGE_API storage_url storage_account::get_url(service service) const
-    {
-        storage_url url;
-        switch (service)
-        {
-        case storage_account::service::blob:
-            url.set_domain(m_blob_domain);
-            break;
-        case storage_account::service::table:
-            url.set_domain(m_table_domain);
-            break;
-        case storage_account::service::queue:
-            url.set_domain(m_queue_domain);
-            break;
-        case storage_account::service::file:
-            url.set_domain(m_file_domain);
-            break;
-        case storage_account::service::adls:
-            url.set_domain(m_adls_domain);
-            break;
-        }
-
-        return url;
-    }
-
-    AZURE_STORAGE_API void storage_account::append_all(const std::string &part)
-    {
-        m_blob_domain.append(part);
-        m_table_domain.append(part);
-        m_queue_domain.append(part);
-        m_file_domain.append(part);
-        m_adls_domain.append(part);
     }
 
 }}
