@@ -70,6 +70,7 @@ namespace azure {  namespace storage_lite {
                 std::shared_ptr<executor_context> context,
                 std::shared_ptr<retry_context> retry)
             {
+                http->reset();
                 http->set_error_stream([](http_base::http_code) { return true; }, storage_iostream::create_storage_stream());
                 request->build_request(*account, *http);
 
