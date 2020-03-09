@@ -98,7 +98,7 @@ namespace azure { namespace storage_lite {
         AZURE_STORAGE_API storage_outcome<chunk_property> get_chunk_to_stream_sync(const std::string &container, const std::string &blob, unsigned long long offset, unsigned long long size, std::ostream &os);
 
         /// <summary>
-        /// Intitiates an asynchronous operation  to download the contents of a blob to a stream.
+        /// Intitiates an asynchronous operation to download the contents of a blob to a stream.
         /// </summary>
         /// <param name="container">The container name.</param>
         /// <param name="blob">The blob name.</param>
@@ -109,7 +109,19 @@ namespace azure { namespace storage_lite {
         AZURE_STORAGE_API std::future<storage_outcome<void>> download_blob_to_stream(const std::string &container, const std::string &blob, unsigned long long offset, unsigned long long size, std::ostream &os);
 
         /// <summary>
-        /// Intitiates an asynchronous operation  to upload the contents of a blob from a stream.
+        /// Intitiates an asynchronous operation to download the contents of a blob to a buffer.
+        /// </summary>
+        /// <param name="container">The container name.</param>
+        /// <param name="blob">The blob name.</param>
+        /// <param name="offset">The offset at which to begin downloading the blob, in bytes.</param>
+        /// <param name="size">The size of the data to download from the blob, in bytes.</param>
+        /// <param name="buffer">The target buffer, must not be less than download size.</param>
+        /// <param name="parallelism">A int value indicates the maximum parallelism can be used in this request.</param>
+        /// <returns>A <see cref="std::future" /> object that represents the current operation.</returns>
+        AZURE_STORAGE_API std::future<storage_outcome<void>> download_blob_to_buffer(const std::string &container, const std::string &blob, unsigned long long offset, unsigned long long size, char* buffer, int parallelism);
+
+        /// <summary>
+        /// Intitiates an asynchronous operation to upload the contents of a blob from a stream.
         /// </summary>
         /// <param name="container">The container name.</param>
         /// <param name="blob">The blob name.</param>
@@ -119,7 +131,7 @@ namespace azure { namespace storage_lite {
         AZURE_STORAGE_API std::future<storage_outcome<void>> upload_block_blob_from_stream(const std::string &container, const std::string &blob, std::istream &is, const std::vector<std::pair<std::string, std::string>> &metadata);
 
         /// <summary>
-        /// Intitiates an asynchronous operation  to upload the contents of a blob from a stream.
+        /// Intitiates an asynchronous operation to upload the contents of a blob from a stream.
         /// </summary>
         /// <param name="container">The container name.</param>
         /// <param name="blob">The blob name.</param>
@@ -129,6 +141,17 @@ namespace azure { namespace storage_lite {
         /// <returns>A <see cref="std::future" /> object that represents the current operation.</returns>
         AZURE_STORAGE_API std::future<storage_outcome<void>> upload_block_blob_from_stream(const std::string &container, const std::string &blob, std::istream &is, const std::vector<std::pair<std::string, std::string>> &metadata, size_t streamlen);
 
+        /// <summary>
+        /// Intitiates an asynchronous operation to upload the contents of a blob from a buffer.
+        /// </summary>
+        /// <param name="container">The container name.</param>
+        /// <param name="blob">The blob name.</param>
+        /// <param name="buffer">The source buffer.</param>
+        /// <param name="metadata">A <see cref="std::vector"> that respresents metadatas.</param>
+        /// <param name="bufferlen">Length of the buffer.</param>
+        /// <returns>A <see cref="std::future" /> object that represents the current operation.</returns>
+        /// <param name="parallelism">A int value indicates the maximum parallelism can be used in this request.</param>
+        AZURE_STORAGE_API std::future<storage_outcome<void>> upload_block_blob_from_buffer(const std::string &container, const std::string &blob, const char* buffer, const std::vector<std::pair<std::string, std::string>> &metadata, size_t bufferlen, int parallelism = 1);
 
         /// <summary>
         /// Intitiates an asynchronous operation  to delete a blob.

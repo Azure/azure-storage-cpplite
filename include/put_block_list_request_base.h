@@ -20,8 +20,7 @@ namespace azure {  namespace storage_lite {
             latest
         };
 
-        class block_item {
-        public:
+        struct block_item {
             std::string id;
             block_type type;
         };

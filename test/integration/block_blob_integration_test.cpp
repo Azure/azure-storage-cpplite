@@ -510,3 +510,105 @@ TEST_CASE("memory stream", "")
         delete[] buffer2;
     }
 }
+
+TEST_CASE("Parallel upload download", "[block blob],[blob_service]")
+{
+    azure::storage_lite::blob_client client = as_test::base::test_blob_client(16);
+    std::string container_name = as_test::create_random_container("", client);
+    std::string blob_name = as_test::get_random_string(20);
+
+    uint64_t max_block_blob_size = azure::storage_lite::constants::max_block_size * azure::storage_lite::constants::max_num_blocks;
+    auto res = client.upload_block_blob_from_buffer(container_name, blob_name, nullptr, {}, max_block_blob_size + 1, 1).get();
+    CHECK(!res.success());
+    CHECK(res.error().code == std::to_string(blob_too_big));
+
+    size_t blob_size = 64 * 1024 * 1024 + 1234;
+    char* buffer = as_test::get_random_buffer(blob_size);
+    std::vector<std::pair<std::string, std::string>> metadata;
+    metadata.emplace_back(std::make_pair("meta_key1", "meta-key2"));
+    res = client.upload_block_blob_from_buffer(container_name, blob_name, buffer, metadata, blob_size, 8).get();
+    CHECK(res.success());
+    auto properties = client.get_blob_properties(container_name, blob_name).get().response();
+    CHECK(blob_size == properties.size);
+    CHECK(metadata == properties.metadata);
+
+    char* download_buffer = new char[blob_size];
+    struct test_case
+    {
+        uint64_t offset;
+        uint64_t size;
+        int parallelism;
+    };
+
+    std::vector<test_case> test_cases
+    {
+        {0, blob_size, 1},
+        {0, blob_size, 2},
+        {0, blob_size, 4},
+        {0, blob_size, 16},
+        {123, blob_size - 123, 8},
+        {33 * 1024 * 1024 + 1234, 8 * 1024 * 1024 + 5678, 8},
+    };
+
+    int i = 0;
+    for (auto t : test_cases)
+    {
+        const char guard_c = '\xdd';
+        std::memset(download_buffer, guard_c, blob_size);
+        t.size = std::min(t.size, blob_size - t.offset);
+        auto res = client.download_blob_to_buffer(container_name, blob_name, t.offset, t.size, download_buffer + t.offset, t.parallelism).get();
+        CHECK(res.success());
+
+        bool sane = true;
+        for (size_t i = 0; i < blob_size && sane; ++i)
+        {
+            if (i >= t.offset && i < t.offset + t.size)
+                sane &= buffer[i] == download_buffer[i];
+            else
+                sane &= guard_c == download_buffer[i];
+
+        }
+        CHECK(sane);
+    }
+
+    delete[] buffer;
+    delete[] download_buffer;
+    client.delete_container(container_name);
+}
+
+TEST_CASE("Parallel upload download benchmark", "[!hide][benchmark]")
+{
+    azure::storage_lite::blob_client client = as_test::base::test_blob_client(50);
+    client.context()->set_retry_policy(std::make_shared<azure::storage_lite::no_retry_policy>());
+    std::string container_name = as_test::create_random_container("", client);
+    std::string blob_name = as_test::get_random_string(20);
+
+    uint64_t blob_size = 4 * 1024 * 1024 * 1024ULL;
+    char* buffer = new char[blob_size];
+    for (char* p = buffer; p < buffer + blob_size; p += 4096)
+    {
+        *p = 0;
+    }
+
+    auto timer_start = std::chrono::steady_clock::now();
+    auto res = client.upload_block_blob_from_buffer(container_name, blob_name, buffer, {}, blob_size, 50).get();
+    CHECK(res.success());
+    auto timer_end = std::chrono::steady_clock::now();
+    double time_us = double(std::chrono::duration_cast<std::chrono::microseconds>(timer_end - timer_start).count());
+    double speed = (blob_size / 1024 / 1024) / (time_us / 1e6);
+    std::cout << "Upload:\n";
+    std::cout << time_us / 1000 << "ms" << std::endl;
+    std::cout << speed / 1024 * 8 << "Gbps" << std::endl;
+
+    timer_start = std::chrono::steady_clock::now();
+    res = client.download_blob_to_buffer(container_name, blob_name, 0, blob_size, buffer, 50).get();
+    timer_end = std::chrono::steady_clock::now();
+    time_us = double(std::chrono::duration_cast<std::chrono::microseconds>(timer_end - timer_start).count());
+    speed = (blob_size / 1024 / 1024) / (time_us / 1e6);
+    std::cout << "Download:\n";
+    std::cout << time_us / 1000 << "ms" << std::endl;
+    std::cout << speed / 1024 * 8 << "Gbps" << std::endl;
+
+    delete[] buffer;
+    client.delete_container(container_name);
+}
