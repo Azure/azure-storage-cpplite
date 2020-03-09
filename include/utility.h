@@ -11,9 +11,6 @@
 #include "storage_request_base.h"
 #include "storage_url.h"
 
-#pragma push_macro("max")
-#undef max
-
 namespace azure {  namespace storage_lite {
 
     enum class date_format
@@ -191,5 +188,3 @@ namespace azure {  namespace storage_lite {
     }
 
 }}   // azure::storage_lite
-
-#pragma pop_macro("max")

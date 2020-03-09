@@ -19,9 +19,6 @@
 
 #include "http_base.h"
 
-#pragma push_macro("min")
-#undef min
-
 namespace azure {  namespace storage_lite {
 
     class CurlEasyClient;
@@ -366,5 +363,3 @@ namespace azure {  namespace storage_lite {
     };
 
 }}   // azure::storage_lite
-
-#pragma pop_macro("min")

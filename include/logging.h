@@ -48,7 +48,7 @@ namespace azure { namespace storage_lite {
             // limit the maximum size of this log string to 8kb, as the buffer needs
             // to be allocated to a continuous memory and is likely to fail
             // when the size is relatively big.
-            size = (std::min)(size, MAX_LOG_LENGTH);
+            size = std::min(size, MAX_LOG_LENGTH);
 
             std::string msg;
             msg.resize(size);
