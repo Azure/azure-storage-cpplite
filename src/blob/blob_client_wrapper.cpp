@@ -14,11 +14,6 @@
 #include "storage_errno.h"
 #include "base64.h"
 
-#pragma push_macro("max")
-#undef max
-#pragma push_macro("min")
-#undef min
-
 namespace azure {  namespace storage_lite {
 
         const unsigned long long DOWNLOAD_CHUNK_SIZE = 16 * 1024 * 1024;
@@ -821,6 +816,3 @@ namespace azure {  namespace storage_lite {
         }
 
 }} // azure::storage_lite
-
-#pragma pop_macro("min")
-#pragma pop_macro("max")

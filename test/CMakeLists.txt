@@ -18,6 +18,9 @@ set(AZURE_STORAGE_TEST_SOURCES
 )
 
 add_executable(azure-storage-test ${AZURE_STORAGE_TEST_SOURCES})
+if(WIN32)
+  target_compile_definitions(azure-storage-test PRIVATE NOMINMAX)
+endif()
 target_link_libraries(azure-storage-test azure-storage-lite Catch2::Catch2)
 if (TARGET azure-storage-adls)
   target_sources(azure-storage-test PRIVATE ${AZURE_STORAGE_ADLS_TEST_SOURCES})

@@ -9,9 +9,6 @@
 #include "http_base.h"
 #include "utility.h"
 
-#pragma push_macro("min")
-#undef min
-
 namespace azure {  namespace storage_lite {
 
     class retry_info final
@@ -108,5 +105,3 @@ namespace azure {  namespace storage_lite {
     };
 
 }}  // azure::storage_lite
-
-#pragma pop_macro("min")
