@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <future>
 #include <sstream>
 
 #ifdef _WIN32
@@ -27,8 +28,11 @@ typedef SSIZE_T ssize_t;
 #include "blob/set_container_metadata_request.h"
 #include "blob/set_blob_metadata_request.h"
 
+#include "constants.h"
+#include "storage_errno.h"
 #include "executor.h"
 #include "utility.h"
+#include "base64.h"
 #include "tinyxml2_parser.h"
 #include "mstream.h"
 
@@ -102,6 +106,84 @@ std::future<storage_outcome<void>> blob_client::download_blob_to_stream(const st
     return async_executor<void>::submit(m_account, request, http, m_context);
 }
 
+std::future<storage_outcome<void>> blob_client::download_blob_to_buffer(const std::string &container, const std::string &blob, unsigned long long offset, unsigned long long size, char* buffer, int parallelism)
+{
+    parallelism = std::min(parallelism, int(concurrency()));
+
+    const uint64_t grain_size = 64 * 1024;
+    uint64_t block_size = size / parallelism;
+    block_size = (block_size + grain_size - 1) / grain_size * grain_size;
+    block_size = std::min(block_size, constants::default_block_size);
+
+    int num_blocks = int((size + block_size - 1) / block_size);
+
+    struct concurrent_task_info
+    {
+        std::string container;
+        std::string blob;
+        char* buffer;
+        uint64_t download_offset;
+        uint64_t download_size;
+        uint64_t block_size;
+        int num_blocks;
+    };
+    struct concurrent_task_context
+    {
+        std::atomic<int> num_workers{ 0 };
+        std::atomic<int> block_index{ 0 };
+        std::atomic<bool> failed{ false };
+        storage_error failed_reason;
+
+        std::promise<storage_outcome<void>> task_promise;
+        std::vector<std::future<void>> task_futures;
+    };
+
+    auto info = std::make_shared<concurrent_task_info>(concurrent_task_info{ container, blob, buffer, offset, size, block_size, num_blocks });
+    auto context = std::make_shared<concurrent_task_context>();
+    context->num_workers = parallelism;
+
+    auto thread_download_func = [this, info, context]()
+    {
+        while (true)
+        {
+            int i = context->block_index.fetch_add(1);
+            if (i >= info->num_blocks || context->failed)
+            {
+                break;
+            }
+            char* block_buffer = info->buffer + info->block_size * i;
+            uint64_t block_size = std::min(info->block_size, info->download_size - info->block_size * i);
+
+            auto http = m_client->get_handle();
+            auto request = std::make_shared<download_blob_request>(info->container, info->blob);
+            request->set_start_byte(info->download_offset + info->block_size * i);
+            request->set_end_byte(request->start_byte() + block_size - 1);
+
+            auto os = std::make_shared<omstream>(block_buffer, block_size);
+            http->set_output_stream(storage_ostream(os));
+
+            auto result = async_executor<void>::submit(m_account, request, http, m_context).get();
+
+            if (!result.success() && !context->failed.exchange(true))
+            {
+                context->failed_reason = result.error();
+            }
+        }
+        if (context->num_workers.fetch_sub(1) == 1)
+        {
+            // I'm the last worker thread
+            context->task_promise.set_value(context->failed ? storage_outcome<void>(context->failed_reason) : storage_outcome<void>());
+        }
+    };
+
+    for (int i = 0; i < parallelism; ++i)
+    {
+        context->task_futures.emplace_back(std::async(std::launch::async, thread_download_func));
+    }
+
+    return context->task_promise.get_future();
+}
+
 std::future<storage_outcome<void>> blob_client::upload_block_blob_from_stream(const std::string &container, const std::string &blob, std::istream &is, const std::vector<std::pair<std::string, std::string>> &metadata)
 {
     auto http = m_client->get_handle();
@@ -140,6 +222,105 @@ std::future<storage_outcome<void>> blob_client::upload_block_blob_from_stream(co
     http->set_input_content_length(streamlen);
 
     return async_executor<void>::submit(m_account, request, http, m_context);
+}
+
+std::future<storage_outcome<void>> blob_client::upload_block_blob_from_buffer(const std::string &container, const std::string &blob, const char* buffer, const std::vector<std::pair<std::string, std::string>> &metadata, size_t bufferlen, int parallelism)
+{
+    if (bufferlen > constants::max_num_blocks * constants::max_block_size)
+    {
+        storage_error error;
+        error.code = std::to_string(blob_too_big);
+        std::promise<storage_outcome<void>> promise;
+        promise.set_value(storage_outcome<void>(error));
+        return promise.get_future();
+    }
+
+    parallelism = std::min(parallelism, int(concurrency()));
+
+    const uint64_t grain_size = 4 * 1024 * 1024;
+    uint64_t block_size = bufferlen / constants::max_num_blocks;
+    block_size = (block_size + grain_size - 1) / grain_size * grain_size;
+    block_size = std::min(block_size, constants::max_block_size);
+    block_size = std::max(block_size, constants::default_block_size);
+
+    int num_blocks = int((bufferlen + block_size - 1) / block_size);
+
+    std::vector<put_block_list_request_base::block_item> block_list;
+    block_list.reserve(num_blocks);
+    std::string uuid = get_uuid();
+    for (int i = 0; i < num_blocks; ++i)
+    {
+        std::string block_id = std::to_string(i);
+        block_id = uuid + std::string(48 - uuid.length() - block_id.length(), '-') + block_id;
+        block_id = to_base64(reinterpret_cast<const unsigned char*>(block_id.data()), block_id.length());
+        block_list.emplace_back(put_block_list_request_base::block_item{ std::move(block_id), put_block_list_request_base::block_type::uncommitted });
+    }
+
+    struct concurrent_task_info
+    {
+        std::string container;
+        std::string blob;
+        const char* buffer;
+        uint64_t blob_size;
+        uint64_t block_size;
+        int num_blocks;
+        std::vector<put_block_list_request_base::block_item> block_list;
+        std::vector<std::pair<std::string, std::string>> metadata;
+    };
+    struct concurrent_task_context
+    {
+        std::atomic<int> num_workers{ 0 };
+        std::atomic<int> block_index{ 0 };
+        std::atomic<bool> failed{ false };
+        storage_error failed_reason;
+
+        std::promise<storage_outcome<void>> task_promise;
+        std::vector<std::future<void>> task_futures;
+    };
+    auto info = std::make_shared<concurrent_task_info>(concurrent_task_info{ container, blob, buffer, bufferlen, block_size, num_blocks, std::move(block_list), metadata });
+    auto context = std::make_shared<concurrent_task_context>();
+    context->num_workers = parallelism;
+
+    auto thread_upload_func = [this, info, context]()
+    {
+        while (true)
+        {
+            int i = context->block_index.fetch_add(1);
+            if (i >= info->num_blocks || context->failed)
+            {
+                break;
+            }
+            const char* block_buffer = info->buffer + info->block_size * i;
+            uint64_t block_size = std::min(info->block_size, info->blob_size - info->block_size * i);
+            auto result = upload_block_from_buffer(info->container, info->blob, info->block_list[i].id, block_buffer, block_size).get();
+
+            if (!result.success() && !context->failed.exchange(true))
+            {
+                context->failed_reason = result.error();
+            }
+        }
+        if (context->num_workers.fetch_sub(1) == 1)
+        {
+            // I'm the last worker thread
+            if (!context->failed)
+            {
+                auto result = put_block_list(info->container, info->blob, info->block_list, info->metadata).get();
+                if (!result.success())
+                {
+                    context->failed.store(true);
+                    context->failed_reason = result.error();
+                }
+            }
+            context->task_promise.set_value(context->failed ? storage_outcome<void>(context->failed_reason) : storage_outcome<void>());
+        }
+    };
+
+    for (int i = 0; i < parallelism; ++i)
+    {
+        context->task_futures.emplace_back(std::async(std::launch::async, thread_upload_func));
+    }
+
+    return context->task_promise.get_future();
 }
 
 std::future<storage_outcome<void>> blob_client::upload_block_from_buffer(const std::string &container, const std::string &blob, const std::string &blockid, const char* buff, size_t bufferlen)
