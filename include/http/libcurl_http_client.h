@@ -131,13 +131,6 @@ namespace azure {  namespace storage_lite {
             check_code(curl_easy_setopt(m_curl, CURLOPT_READDATA, this));
         }
 
-        void set_input_buffer(const char* buff) override
-        {
-            m_input_buffer = buff;
-            check_code(curl_easy_setopt(m_curl, CURLOPT_READFUNCTION, read));
-            check_code(curl_easy_setopt(m_curl, CURLOPT_READDATA, this));
-        }
-
         void set_input_content_length(size_t content_length)
         {
             m_input_content_length = content_length;
@@ -156,11 +149,6 @@ namespace azure {  namespace storage_lite {
         void reset_input_stream() override
         {
             m_input_stream.reset();
-            m_input_read_pos = 0;
-        }
-
-        void reset_input_buffer() override
-        {
             m_input_read_pos = 0;
         }
 
@@ -211,7 +199,6 @@ namespace azure {  namespace storage_lite {
 
         http_method m_method;
         std::string m_url;
-        const char *m_input_buffer = nullptr;
         storage_istream m_input_stream;
         storage_ostream m_output_stream;
         storage_iostream m_error_stream;
@@ -265,12 +252,6 @@ namespace azure {  namespace storage_lite {
                     return CURL_READFUNC_ABORT;
                 }
                 actual_size = static_cast<size_t>(s.gcount());
-                p->m_input_read_pos += actual_size;
-            }
-            else if (p->m_input_buffer != nullptr)
-            {
-                actual_size = std::min(size * nitems, p->m_input_content_length - p->m_input_read_pos);
-                memcpy(buffer, p->m_input_buffer + p->m_input_read_pos, actual_size);
                 p->m_input_read_pos += actual_size;
             }
 

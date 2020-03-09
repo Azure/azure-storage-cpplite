@@ -25,6 +25,7 @@ set(AZURE_STORAGE_LITE_HEADER
   include/hash.h
   include/retry.h
   include/utility.h
+  include/mstream.h
 
   include/tinyxml2.h
   include/xml_parser_base.h

@@ -1,4 +1,6 @@
 #include "blob_integration_base.h"
+#include "storage_errno.h"
+#include "mstream.h"
 
 #include "catch2/catch.hpp"
 
@@ -372,4 +374,139 @@ TEST_CASE("Get block list", "[block blob],[blob_service]")
     }
 
     client.delete_container(container_name);
+}
+
+TEST_CASE("memory streambuf", "")
+{
+    if (sizeof(void*) == 8)
+    {
+        char* buffer = nullptr;
+        uint64_t buffer_size = 16 * 1024 * 1024 * 1024ULL;
+        azure::storage_lite::memory_streambuf buf(buffer, buffer_size);
+        CHECK(buffer_size == buf.in_avail());
+        int64_t size_3g = 3 * 1024 * 1024 * 1024ULL;
+        buf.pubseekpos(size_3g);
+        CHECK(buffer_size - size_3g == buf.in_avail());
+        buf.pubseekoff(-size_3g, std::ios_base::end);
+        CHECK(size_3g == buf.in_avail());
+        buf.pubseekoff(size_3g, std::ios_base::beg);
+        CHECK(buffer_size - size_3g == buf.in_avail());
+        buf.pubseekoff(size_3g, std::ios_base::cur);
+        CHECK(buffer_size - 2 * size_3g == buf.in_avail());
+    }
+
+    size_t size_10m = 10 * 1024 * 1024;
+    char* buffer = as_test::get_random_buffer(size_10m);
+    azure::storage_lite::memory_streambuf buf(buffer, size_10m);
+    CHECK(size_10m == buf.in_avail());
+    uint64_t offset = 0;
+    CHECK(int(buffer[offset + 1]) == buf.snextc());
+    ++offset;
+    CHECK(int(buffer[offset + 1]) == buf.snextc());
+    ++offset;
+    CHECK(int(buffer[offset]) == buf.sbumpc());
+    ++offset;
+    CHECK(int(buffer[offset]) == buf.sbumpc());
+    ++offset;
+    CHECK(int(buffer[offset]) == buf.sgetc());
+    CHECK(int(buffer[offset]) == buf.sgetc());
+
+    buf.sputc('a');
+    offset++;
+    CHECK('a' == buffer[offset - 1]);
+    buf.sputc('b');
+    offset++;
+    CHECK('b' == buffer[offset - 1]);
+
+    size_t size_2m = 2 * 1024 * 1024;
+    char* buffer2 = as_test::get_random_buffer(size_2m);
+    buf.pubseekpos(size_2m);
+    offset = size_2m;
+    CHECK(size_2m == buf.sputn(buffer2, size_2m));
+    offset += size_2m;
+    CHECK(0 == std::memcmp(buffer2, buffer + offset - size_2m, size_2m));
+    CHECK(size_2m == buf.sgetn(buffer2, size_2m));
+    offset += size_2m;
+    CHECK(0 == std::memcmp(buffer2, buffer + offset - size_2m, size_2m));
+
+    int64_t size_512k = 512 * 1024;
+    buf.pubseekoff(-size_512k, std::ios_base::end);
+    CHECK(size_512k == buf.sgetn(buffer2, size_2m));
+    CHECK(0 == buf.in_avail());
+    buf.pubseekoff(-size_512k, std::ios_base::end);
+    CHECK(size_512k == buf.sputn(buffer2, size_2m));
+    CHECK(0 == buf.in_avail());
+
+    delete[] buffer;
+    delete[] buffer2;
+}
+
+TEST_CASE("memory stream", "")
+{
+    size_t buffer_size = 20 * 1024;
+    size_t op_off = 3 * 1024 + 12345;
+    size_t op_size1 = 1 * 1024 + 123;
+    size_t op_size2 = 3 * 1024 + 456;
+
+    {
+        char* buffer = as_test::get_random_buffer(buffer_size);
+        char* buffer2 = as_test::get_random_buffer(buffer_size);
+        azure::storage_lite::imstream im(buffer, buffer_size);
+        im.seekg(op_off);
+        CHECK(op_off == im.tellg());
+        im.read(buffer2, op_size1);
+        CHECK(im.good());
+        CHECK(op_size1 == im.gcount());
+        CHECK(op_off + op_size1 == im.tellg());
+        im.read(buffer2 + op_size1, op_size2);
+        CHECK(im.good());
+        CHECK(op_size2 == im.gcount());
+        CHECK(op_off + op_size1 + op_size2 == im.tellg());
+        CHECK(0 == std::memcmp(buffer + op_off, buffer2, op_size1 + op_size2));
+        im.seekg(0, std::ios_base::end);
+        CHECK(buffer_size == im.tellg());
+        delete[] buffer;
+        delete[] buffer2;
+    }
+
+    {
+        char* buffer = as_test::get_random_buffer(buffer_size);
+        char* buffer2 = as_test::get_random_buffer(buffer_size);
+        azure::storage_lite::omstream om(buffer, buffer_size);
+        om.seekp(op_off);
+        CHECK(op_off == om.tellp());
+        om.write(buffer2, op_size1);
+        CHECK(om.good());
+        CHECK(op_off + op_size1 == om.tellp());
+        om.write(buffer2 + op_size1, op_size2);
+        CHECK(om.good());
+        CHECK(op_off + op_size1 + op_size2 == om.tellp());
+        CHECK(0 == std::memcmp(buffer + op_off, buffer2, op_size1 + op_size2));
+        om.seekp(0, std::ios_base::end);
+        CHECK(buffer_size == om.tellp());
+        delete[] buffer;
+        delete[] buffer2;
+    }
+    {
+        char* buffer = as_test::get_random_buffer(buffer_size);
+        char* buffer2 = as_test::get_random_buffer(buffer_size);
+        azure::storage_lite::mstream iom(buffer, buffer_size);
+        iom.seekg(op_off);
+        CHECK(op_off == iom.tellg());
+        iom.read(buffer2 + op_off, op_size1);
+        CHECK(iom.good());
+        CHECK(op_size1 == iom.gcount());
+        iom.seekp(op_off + op_size1);
+        CHECK(op_off + op_size1 == iom.tellp());
+        iom.write(buffer2 + op_off + op_size1, op_size2);
+        CHECK(iom.good());
+        CHECK(op_off + op_size1 + op_size2 == iom.tellp());
+        CHECK(0 == std::memcmp(buffer + op_off, buffer2 + op_off, op_size1 + op_size2));
+        iom.seekg(0, std::ios_base::end);
+        CHECK(buffer_size == iom.tellg());
+        iom.seekp(0, std::ios_base::end);
+        CHECK(buffer_size == iom.tellp());
+        delete[] buffer;
+        delete[] buffer2;
+    }
 }
