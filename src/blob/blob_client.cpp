@@ -30,6 +30,8 @@ typedef SSIZE_T ssize_t;
 #include "executor.h"
 #include "utility.h"
 #include "tinyxml2_parser.h"
+#include "mstream.h"
+
 #include <curl/curl.h>
 
 namespace azure {  namespace storage_lite {
@@ -147,7 +149,8 @@ std::future<storage_outcome<void>> blob_client::upload_block_from_buffer(const s
     auto request = std::make_shared<put_block_request>(container, blob, blockid);
     request->set_content_length(static_cast<unsigned int>(bufferlen));
 
-    http->set_input_buffer(buff);
+    auto is = std::make_shared<imstream>(buff, bufferlen);
+    http->set_input_stream(storage_istream(is));
     http->set_is_input_length_known();
     http->set_input_content_length(bufferlen);
 
