@@ -107,21 +107,25 @@ jobs:
     maxParallel: 16
     matrix:
       VS2015:
-        vm_image: vs2015-win2012r2
+        vm_image: vs2017-win2016
         build_type: Release
         platform: x64
+        toolset: v140
       VS2017:
         vm_image: vs2017-win2016
         build_type: Release
         platform: x64
+        toolset: v141
       VS2017_WIN32:
         vm_image: vs2017-win2016
         build_type: Debug
         platform: Win32
+        toolset: v141
       VS2019:
         vm_image: windows-2019
         build_type: Debug
         platform: x64
+        toolset: v142
 
   pool:
     vmImage: $(vm_image)
@@ -145,10 +149,10 @@ jobs:
       displayName: Install Dependencies
 
     - powershell: |
-        cmake CMakeLists.txt -B$(Build.BinariesDirectory) -DCMAKE_TOOLCHAIN_FILE=C:\vcpkg-master\scripts\buildsystems\vcpkg.cmake -DBUILD_SAMPLES=ON -DBUILD_TESTS=ON -DBUILD_SHARED_LIBS=ON -A $(platform)
+        cmake CMakeLists.txt -B$(Build.BinariesDirectory) -DCMAKE_TOOLCHAIN_FILE=C:\vcpkg-master\scripts\buildsystems\vcpkg.cmake -DBUILD_SAMPLES=ON -DBUILD_TESTS=ON -DBUILD_SHARED_LIBS=ON -A $(platform) -T $(toolset)
         cmake --build $(Build.BinariesDirectory) --config $(build_type)
         Remove-Item $(Build.BinariesDirectory) -Recurse -Force
-        cmake CMakeLists.txt -B$(Build.BinariesDirectory) -DCMAKE_TOOLCHAIN_FILE=C:\vcpkg-master\scripts\buildsystems\vcpkg.cmake -DBUILD_SAMPLES=ON -DBUILD_TESTS=ON -DBUILD_SHARED_LIBS=ON -DBUILD_ADLS=ON -A $(platform)
+        cmake CMakeLists.txt -B$(Build.BinariesDirectory) -DCMAKE_TOOLCHAIN_FILE=C:\vcpkg-master\scripts\buildsystems\vcpkg.cmake -DBUILD_SAMPLES=ON -DBUILD_TESTS=ON -DBUILD_SHARED_LIBS=ON -DBUILD_ADLS=ON -A $(platform) -T $(toolset)
         cmake --build $(Build.BinariesDirectory) --config $(build_type)
       displayName: Build
 
