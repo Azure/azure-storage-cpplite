@@ -139,7 +139,7 @@ namespace azure { namespace storage_lite {
         /// <param name="metadata">A <see cref="std::vector"> that respresents metadatas.</param>
         /// <param name="streamlen">Length of the stream. Used only when the stream does not support tellg/seekg</param>
         /// <returns>A <see cref="std::future" /> object that represents the current operation.</returns>
-        AZURE_STORAGE_API std::future<storage_outcome<void>> upload_block_blob_from_stream(const std::string &container, const std::string &blob, std::istream &is, const std::vector<std::pair<std::string, std::string>> &metadata, size_t streamlen);
+        AZURE_STORAGE_API std::future<storage_outcome<void>> upload_block_blob_from_stream(const std::string &container, const std::string &blob, std::istream &is, const std::vector<std::pair<std::string, std::string>> &metadata, uint64_t streamlen);
 
         /// <summary>
         /// Intitiates an asynchronous operation to upload the contents of a blob from a buffer.
@@ -151,7 +151,7 @@ namespace azure { namespace storage_lite {
         /// <param name="bufferlen">Length of the buffer.</param>
         /// <returns>A <see cref="std::future" /> object that represents the current operation.</returns>
         /// <param name="parallelism">A int value indicates the maximum parallelism can be used in this request.</param>
-        AZURE_STORAGE_API std::future<storage_outcome<void>> upload_block_blob_from_buffer(const std::string &container, const std::string &blob, const char* buffer, const std::vector<std::pair<std::string, std::string>> &metadata, size_t bufferlen, int parallelism = 1);
+        AZURE_STORAGE_API std::future<storage_outcome<void>> upload_block_blob_from_buffer(const std::string &container, const std::string &blob, const char* buffer, const std::vector<std::pair<std::string, std::string>> &metadata, uint64_t bufferlen, int parallelism = 1);
 
         /// <summary>
         /// Intitiates an asynchronous operation  to delete a blob.
@@ -253,7 +253,7 @@ namespace azure { namespace storage_lite {
         /// <param name="is">The source stream.</param>
         /// <param name="streamlen">Length of the stream. Used only when the stream does not support tellg/seekg</param>
         /// <returns>A <see cref="std::future" /> object that represents the current operation.</returns>
-        AZURE_STORAGE_API std::future<storage_outcome<void>> upload_block_from_stream(const std::string &container, const std::string &blob, const std::string &blockid, std::istream &is, size_t streamlen);
+        AZURE_STORAGE_API std::future<storage_outcome<void>> upload_block_from_stream(const std::string &container, const std::string &blob, const std::string &blockid, std::istream &is, uint64_t streamlen);
 
         /// <summary>
         /// Intitiates an asynchronous operation  to upload a block of a blob from a char* buffer.
@@ -264,7 +264,7 @@ namespace azure { namespace storage_lite {
         /// <param name="buffer">The input buffer.</param>
         /// <param name="streamlen">Length of the buffer.</param>
         /// <returns>A <see cref="std::future" /> object that represents the current operation.</returns>
-        AZURE_STORAGE_API std::future<storage_outcome<void>> upload_block_from_buffer(const std::string &container, const std::string &blob, const std::string &blockid, const char* buffer, size_t bufferlen);
+        AZURE_STORAGE_API std::future<storage_outcome<void>> upload_block_from_buffer(const std::string &container, const std::string &blob, const std::string &blockid, const char* buffer, uint64_t bufferlen);
 
         /// <summary>
         /// Intitiates an asynchronous operation  to create a block blob with existing blocks.
