@@ -33,24 +33,31 @@ namespace azure { namespace storage_lite {
         /// </summary>
         /// <param name="account">An existing <see cref="azure::storage_lite::storage_account" /> object.</param>
         /// <param name="max_concurrency">An int value indicates the maximum concurrency expected during execute requests against the service.</param>
-        blob_client(std::shared_ptr<storage_account> account, int max_concurrency)
-            : m_account(account)
+        /// <param name="ca_path">A string value with absolute path to CA bundle location.</param>
+        blob_client(std::shared_ptr<storage_account> account, int max_concurrency, const std::string& ca_path = "")
+            : blob_client(account,
+                          std::make_shared<executor_context>(std::make_shared<tinyxml2_parser>(), std::make_shared<retry_policy>()),
+                          (ca_path.empty() ? std::make_shared<CurlEasyClient>(max_concurrency)
+                                           : std::make_shared<CurlEasyClient>(max_concurrency, ca_path)))
         {
-            m_context = std::make_shared<executor_context>(std::make_shared<tinyxml2_parser>(), std::make_shared<retry_policy>());
-            m_client = std::make_shared<CurlEasyClient>(max_concurrency);
         }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="azure::storage_lite::blob_client" /> class.
         /// </summary>
         /// <param name="account">An existing <see cref="azure::storage_lite::storage_account" /> object.</param>
+        /// <param name="context">A context of execution defining how to parser and the retry policy <see cref="azure::storage_lite::executor_context" /> class.
         /// <param name="max_concurrency">An int value indicates the maximum concurrency expected during execute requests against the service.</param>
         /// <param name="ca_path">A string value with absolute path to CA bundle location.</param>
-        blob_client(std::shared_ptr<storage_account> account, int max_concurrency, const std::string& ca_path)
-            : m_account(account)
+        blob_client(std::shared_ptr<storage_account> account,
+                    std::shared_ptr<executor_context> context,
+                    int max_concurrency,
+                    const std::string ca_path = "")
+            : blob_client(account,
+                          context,
+                          (ca_path.empty() ? std::make_shared<CurlEasyClient>(max_concurrency)
+                                           : std::make_shared<CurlEasyClient>(max_concurrency, ca_path)))
         {
-            m_context = std::make_shared<executor_context>(std::make_shared<tinyxml2_parser>(), std::make_shared<retry_policy>());
-            m_client = std::make_shared<CurlEasyClient>(max_concurrency, ca_path);
         }
 
         /// <summary>
@@ -321,6 +328,15 @@ namespace azure { namespace storage_lite {
         AZURE_STORAGE_API std::future<storage_outcome<void>> start_copy(const std::string &sourceContainer, const std::string &sourceBlob, const std::string &destContainer, const std::string &destBlob);
 
     private:
+        blob_client(std::shared_ptr<storage_account> account,
+                    std::shared_ptr<executor_context> context,
+                    std::shared_ptr<CurlEasyClient> client)
+            : m_client(client),
+            m_account(account),
+            m_context(context)
+        {
+        }
+
         std::shared_ptr<CurlEasyClient> m_client;
         std::shared_ptr<storage_account> m_account;
         std::shared_ptr<executor_context> m_context;

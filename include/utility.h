@@ -2,6 +2,8 @@
 
 #include <string>
 #include <limits>
+#include <map>
+#include <vector>
 
 #include "storage_EXPORTS.h"
 
@@ -27,6 +29,8 @@ namespace azure {  namespace storage_lite {
     AZURE_STORAGE_API std::string get_ms_range(unsigned long long start_byte, unsigned long long end_byte);
 
     AZURE_STORAGE_API std::string get_http_verb(http_base::http_method method);
+
+    AZURE_STORAGE_API std::vector<std::pair<std::string, std::string>> filter_headers(const std::map<std::string, std::string, case_insensitive_compare>& headers, const std::string& value);
 
     inline void add_optional_query(storage_url &url, const std::string &name, unsigned int value)
     {

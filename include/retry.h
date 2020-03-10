@@ -6,6 +6,7 @@
 
 #include "storage_EXPORTS.h"
 
+#include "constants.h"
 #include "http_base.h"
 #include "utility.h"
 
@@ -78,20 +79,23 @@ namespace azure {  namespace storage_lite {
     class retry_policy final : public retry_policy_base
     {
     public:
+
+        retry_policy(const int maximum_retries = azure::storage_lite::constants::maximum_retries,
+                     const std::chrono::seconds base_timeout = std::chrono::seconds{azure::storage_lite::constants::base_timeout})
+            : m_maximum_retries(maximum_retries),
+            m_base_timeout(base_timeout)
+        {
+        }
+
         retry_info evaluate(const retry_context &context) const override
         {
-            if (context.numbers() == 0)
+            if (context.numbers() >= m_maximum_retries ||
+                !can_retry(context.result()))
             {
-                return retry_info(true, std::chrono::seconds(0));
+                return retry_info(false, std::chrono::seconds(0));
             }
-            else if (context.numbers() < 26 && can_retry(context.result()))
-            {
-                double delay = (pow(1.2, context.numbers()-1)-1);
-                delay = std::min(delay, 60.0); // Maximum backoff delay of 1 minute
-                delay *= (((double)rand())/RAND_MAX)/2 + 0.75;
-                return retry_info(true, std::chrono::seconds((int)delay));
-            }
-            return retry_info(false, std::chrono::seconds(0));
+
+            return retry_info(true, calculate_new_delay(context));
         }
 
     private:
@@ -99,6 +103,16 @@ namespace azure {  namespace storage_lite {
         {
             return retryable(code);
         }
+
+        std::chrono::seconds calculate_new_delay(const retry_context &context) const
+        {
+            // (1 << N) == 2^N
+            return ((context.numbers() == 0) ? std::chrono::seconds(0)
+                                             : (m_base_timeout * (1 << context.numbers())));
+        }
+
+        const int m_maximum_retries;
+        const std::chrono::seconds m_base_timeout;
     };
 
 }}  // azure::storage_lite

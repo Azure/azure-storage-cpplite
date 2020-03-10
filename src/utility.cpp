@@ -123,6 +123,21 @@ namespace azure {  namespace storage_lite {
         return std::string();
     }
 
+    std::vector<std::pair<std::string, std::string>> filter_headers(const std::map<std::string, std::string, case_insensitive_compare>& headers,
+                                                                    const std::string& value)
+    {
+        std::vector<std::pair<std::string, std::string>> filteredHeaders;
+        filteredHeaders.reserve(headers.size());
+        for (const auto& header : headers)
+        {
+            if (header.first.find(value) == 0)
+            {
+                filteredHeaders.emplace_back(header.first.substr(value.size()), header.second);
+            }
+        }
+        return filteredHeaders;
+    }
+
     void add_access_condition_headers(http_base &h, storage_headers &headers, const blob_request_base &r)
     {
         if (!r.if_modified_since().empty())
