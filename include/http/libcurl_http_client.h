@@ -131,7 +131,7 @@ namespace azure {  namespace storage_lite {
             check_code(curl_easy_setopt(m_curl, CURLOPT_READDATA, this));
         }
 
-        void set_input_content_length(size_t content_length)
+        void set_input_content_length(uint64_t content_length)
         {
             m_input_content_length = content_length;
         }
@@ -202,8 +202,8 @@ namespace azure {  namespace storage_lite {
         storage_istream m_input_stream;
         storage_ostream m_output_stream;
         storage_iostream m_error_stream;
-        size_t m_input_content_length = 0;
-        size_t m_input_read_pos = 0;
+        uint64_t m_input_content_length = 0;
+        uint64_t m_input_read_pos = 0;
         bool m_is_input_length_known = false;
         std::function<bool(http_code)> m_switch_error_callback;
 
@@ -236,7 +236,7 @@ namespace azure {  namespace storage_lite {
                 auto &s = p->m_input_stream.istream();
                 if (p->get_is_input_length_known())
                 {
-                    actual_size = std::min(size * nitems, p->m_input_content_length - p->m_input_read_pos);
+                    actual_size = size_t(std::min(uint64_t(size * nitems), p->m_input_content_length - p->m_input_read_pos));
                 }
                 else
                 {
@@ -244,7 +244,7 @@ namespace azure {  namespace storage_lite {
                     s.seekg(0, std::ios_base::end);
                     std::streampos end_pos = s.tellg();
                     s.seekg(cur_pos, std::ios_base::beg);
-                    actual_size = std::min(size * nitems, static_cast<size_t>(end_pos - cur_pos));
+                    actual_size = size_t(std::min(uint64_t(size * nitems), uint64_t(end_pos - cur_pos)));
                 }
                 s.read(buffer, actual_size);
                 if (s.fail())
