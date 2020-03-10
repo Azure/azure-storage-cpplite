@@ -1,3 +1,15 @@
+Changes in v0.3:
+- Parallel blob uploading & downloading
+- Proxy support
+- Configurable retry policy
+- Default retry count is changed from 25 to 3
+- Sample for blob_client
+- Type of size parameter in upload/download APIs is changed from size_t to uint64_t
+- Fix authentication issues when running against Azurite and IoT devices
+- Bug fix: error information isn't populated if libcurl fails
+- Bug fix: downloading empty blob fails
+- Bug fix: duplicate HTTP headers in retry requests
+
 Changes in v0.2:
 - Official support for Windows and macOS
 - Compatibility with Visual Studio 2019
