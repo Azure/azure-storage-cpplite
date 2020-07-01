@@ -198,3 +198,14 @@ install(TARGETS azure-storage-lite
     ARCHIVE DESTINATION lib
     LIBRARY DESTINATION lib
     RUNTIME DESTINATION bin)
+
+set(CPACK_GENERATOR "DEB")
+set(CPACK_PACKAGE_CONTACT "Microsoft Azure <opensource@microsoft.com>")
+set(CPACK_PACKAGE_NAME "azure-storage-cpplite")
+set(CPACK_PACKAGE_VERSION_MAJOR ${AZURE_STORAGE_LITE_VERSION_MAJOR})
+set(CPACK_PACKAGE_VERSION_MINOR ${AZURE_STORAGE_LITE_VERSION_MINOR})
+set(CPACK_PACKAGE_VERSION_PATCH ${AZURE_STORAGE_LITE_VERSION_REVISION})
+set(CPACK_PACKAGE_HOMEPAGE_URL "https://github.com/Azure/azure-storage-cpplite")
+set(CPACK_DEBIAN_PACKAGE_DEPENDS "libssl-dev, libcurl4-openssl-dev, uuid-dev")
+
+include(CPack)
