@@ -79,7 +79,7 @@ namespace azure {  namespace storage_lite {
 
     std::string get_ms_date(date_format format)
     {
-        char buf[30];
+        char buf[64];
         std::time_t t = std::time(nullptr);
         std::tm *pm;
 #ifdef _WIN32
@@ -89,8 +89,17 @@ namespace azure {  namespace storage_lite {
 #else
         pm = std::gmtime(&t);
 #endif
-        size_t s = std::strftime(buf, 30, (format == date_format::iso_8601 ? constants::date_format_iso_8601 : constants::date_format_rfc_1123), pm);
-        return std::string(buf, s);
+        if (format == date_format::iso_8601)
+        {
+            std::strftime(buf, sizeof(buf), constants::date_format_iso_8601, pm);
+        }
+        else
+        {
+            const char* weekdays[] = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
+            const char* months[] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
+            snprintf(buf, sizeof(buf), "%s, %02d %s %04d %02d:%02d:%02d GMT", weekdays[pm->tm_wday], pm->tm_mday, months[pm->tm_mon], 1900 + pm->tm_year, pm->tm_hour, pm->tm_min, pm->tm_sec);
+        }
+        return std::string(buf);
     }
 
     std::string get_ms_range(unsigned long long start_byte, unsigned long long end_byte)
