@@ -176,7 +176,7 @@ elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "
   target_compile_options(azure-storage-lite PRIVATE -Wall -Wextra -Werror -pedantic)
 endif()
 
-if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME AND BUILD_ADLS)
+if(BUILD_ADLS)
   add_subdirectory(adls)
 endif()
 
