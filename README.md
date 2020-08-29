@@ -136,8 +136,8 @@ std::string blob_endpoint = "CUSTOMIZED_BLOB_ENDPOINT";
 int connection_count = 2;
 
 // Setup the client
-azure::storage_lite::shared_key_credential credential(account_name, account_key);
-azure::storage_lite::storage_account(account_name, credential, use_https, blob_endpoint);
+auto credential = std::make_shared<azure::storage_lite::shared_key_credential>(account_name, account_key);
+auto storage_account = std::make_shared<azure::storage_lite::storage_account>(account_name, credential, use_https, blob_endpoint);
 azure::storage_lite::blob_client client(storage_account, connection_count);
 
 // Start using
