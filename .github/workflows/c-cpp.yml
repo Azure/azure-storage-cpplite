@@ -19,7 +19,7 @@ jobs:
     - name: Run vcpkg
       uses: lukka/run-vcpkg@v3
       with:
-        vcpkgArguments: 'curl openssl libuuid'
+        vcpkgArguments: 'curl openssl libuuid --triplet x64-windows'
         vcpkgDirectory: '${{ runner.workspace }}/b/vcpkg'
         vcpkgGitCommitId: '2cb28482bb5f10332b3458502a3370f821b8f69c'
     - name: Run CMake+Ninja
