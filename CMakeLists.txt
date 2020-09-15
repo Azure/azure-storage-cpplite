@@ -147,7 +147,7 @@ if (UNIX)
     list(APPEND EXTRA_LIBRARIES ${GNUTLS_LIBRARIES})
   endif()
 
-  if(NOT APPLE)
+  if(CMAKE_HOST_SYSTEM_NAME STREQUAL Linux)
     find_package(PkgConfig REQUIRED)
     pkg_check_modules(uuid REQUIRED IMPORTED_TARGET uuid)
     list(APPEND EXTRA_LIBRARIES PkgConfig::uuid)
