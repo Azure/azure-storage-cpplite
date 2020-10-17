@@ -111,7 +111,7 @@ namespace azure { namespace storage_adls {
 
     list_filesystems_result adls_client::list_filesystems_segmented(const std::string& prefix, const std::string& continuation_token, const int max_results)
     {
-        auto containers_segment = blob_client_adaptor<azure::storage_lite::list_constainers_segmented_response>(std::bind(&azure::storage_lite::blob_client::list_containers_segmented, m_blob_client, prefix, continuation_token, max_results, false));
+        auto containers_segment = blob_client_adaptor<azure::storage_lite::list_containers_segmented_response>(std::bind(&azure::storage_lite::blob_client::list_containers_segmented, m_blob_client, prefix, continuation_token, max_results, false));
 
         list_filesystems_result result;
         for (const auto& container_item : containers_segment.containers)

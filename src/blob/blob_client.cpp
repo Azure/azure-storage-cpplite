@@ -407,7 +407,7 @@ std::future<storage_outcome<void>> blob_client::set_container_metadata(const std
     return async_executor<void>::submit(m_account, request, http, m_context);
 }
 
-std::future<storage_outcome<list_constainers_segmented_response>> blob_client::list_containers_segmented(const std::string &prefix, const std::string& continuation_token, const int max_result, bool include_metadata)
+std::future<storage_outcome<list_containers_segmented_response>> blob_client::list_containers_segmented(const std::string &prefix, const std::string& continuation_token, const int max_result, bool include_metadata)
 {
     auto http = m_client->get_handle();
 
@@ -415,7 +415,7 @@ std::future<storage_outcome<list_constainers_segmented_response>> blob_client::l
     request->set_maxresults(max_result);
     request->set_marker(continuation_token);
 
-    return async_executor<list_constainers_segmented_response>::submit(m_account, request, http, m_context);
+    return async_executor<list_containers_segmented_response>::submit(m_account, request, http, m_context);
 }
 
 std::future<storage_outcome<list_blobs_segmented_response>> blob_client::list_blobs_segmented(const std::string &container, const std::string &delimiter, const std::string &continuation_token, const std::string &prefix, int max_results)
