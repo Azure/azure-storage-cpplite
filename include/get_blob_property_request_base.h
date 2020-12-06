@@ -38,7 +38,7 @@ namespace azure {  namespace storage_lite {
             m_valid = valid;
         }
 
-        bool valid()
+        bool valid() const
         {
             return m_valid;
         }
