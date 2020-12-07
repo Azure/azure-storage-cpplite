@@ -197,7 +197,7 @@ namespace azure { namespace storage_lite {
         /// <param name="prefix">The container name prefix.</param>
         /// <param name="include_metadata">A bool value, return metadatas if it is true.</param>
         /// <returns>A <see cref="std::future" /> object that represents the current operation.</returns>
-        AZURE_STORAGE_API std::future<storage_outcome<list_constainers_segmented_response>> list_containers_segmented(const std::string &prefix, const std::string& continuation_token, const int max_result = 5, bool include_metadata = false);
+        AZURE_STORAGE_API std::future<storage_outcome<list_containers_segmented_response>> list_containers_segmented(const std::string &prefix, const std::string& continuation_token, const int max_result = 5, bool include_metadata = false);
 
         /// <summary>
         /// Intitiates an asynchronous operation  to list blobs in segments.

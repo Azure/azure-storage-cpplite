@@ -21,7 +21,7 @@ namespace azure {  namespace storage_lite {
         template<typename RESPONSE_TYPE>
         RESPONSE_TYPE parse_response(const std::string &) const { return RESPONSE_TYPE();  }
 
-        virtual list_constainers_segmented_response parse_list_constainers_segmented_response(const std::string &xml) const = 0;
+        virtual list_containers_segmented_response parse_list_containers_segmented_response(const std::string &xml) const = 0;
 
         virtual list_blobs_response parse_list_blobs_response(const std::string &xml) const = 0;
 
@@ -33,9 +33,9 @@ namespace azure {  namespace storage_lite {
     };
 
     template<>
-    inline list_constainers_segmented_response xml_parser_base::parse_response<list_constainers_segmented_response>(const std::string &xml) const
+    inline list_containers_segmented_response xml_parser_base::parse_response<list_containers_segmented_response>(const std::string &xml) const
     {
-        return parse_list_constainers_segmented_response(xml);
+        return parse_list_containers_segmented_response(xml);
     }
 
     template<>
