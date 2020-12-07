@@ -1,0 +1,8 @@
+Breaking Changes in v0.4(Unreleased):
+
+- Fix a typo in struct name list_containers_segmented_response
+
+Breaking Changes in v0.2:
+
+- get_container_property is renamed to get_container_properties, the return type is also changed to std::future
+- get_blob_property is renamed to get_blob_properties, the return type is also changed to std::future
