@@ -8,6 +8,12 @@ option(BUILD_SAMPLES     "Build sample codes"                OFF)
 option(BUILD_SHARED_LIBS "Request build of shared libraries" OFF)
 option(BUILD_ADLS        "Build ADLS Gen2 codes"             OFF)
 
+if (BUILD_SHARED_LIBS)
+  set(LIB_NAME azure-storage-lite)
+else()
+  set(LIB_NAME azure-storage-lite-s)
+endif()
+
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
@@ -128,7 +134,7 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
-add_library(azure-storage-lite ${AZURE_STORAGE_LITE_HEADER} ${AZURE_STORAGE_LITE_SOURCE})
+add_library(${LIB_NAME} ${AZURE_STORAGE_LITE_HEADER} ${AZURE_STORAGE_LITE_SOURCE})
 
 set(CMAKE_THREAD_PREFER_PTHREAD TRUE)
 set(THREADS_PREFER_PTHREAD_FLAG TRUE)
@@ -137,7 +143,7 @@ find_package(CURL REQUIRED)
 if (UNIX)
   option(USE_OPENSSL "Use OpenSSL instead of GnuTLS" ON)
   if(USE_OPENSSL)
-    target_compile_definitions(azure-storage-lite PRIVATE -DUSE_OPENSSL)
+    target_compile_definitions(${LIB_NAME} PRIVATE -DUSE_OPENSSL)
     set(OPENSSL_ROOT_DIR ${OPENSSL_ROOT_DIR} /usr/local/opt/openssl)
     find_package(OpenSSL REQUIRED)
     list(APPEND EXTRA_LIBRARIES OpenSSL::SSL OpenSSL::Crypto)
@@ -154,7 +160,7 @@ if (UNIX)
   endif()
 elseif(WIN32)
   list(APPEND EXTRA_LIBRARIES rpcrt4 bcrypt)
-  target_compile_definitions(azure-storage-lite PRIVATE azure_storage_lite_EXPORTS NOMINMAX)
+  target_compile_definitions(${LIB_NAME} PRIVATE azure_storage_lite_EXPORTS NOMINMAX)
 endif()
 
 if(BUILD_TESTS)
@@ -167,13 +173,13 @@ if(BUILD_TESTS)
   endif()
 endif()
 
-target_include_directories(azure-storage-lite PUBLIC ${PROJECT_SOURCE_DIR}/include ${CURL_INCLUDE_DIRS} PRIVATE ${EXTRA_INCLUDE_DIRS})
-target_link_libraries(azure-storage-lite Threads::Threads ${CURL_LIBRARIES} ${EXTRA_LIBRARIES})
+target_include_directories(${LIB_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/include ${CURL_INCLUDE_DIRS} PRIVATE ${EXTRA_INCLUDE_DIRS})
+target_link_libraries(${LIB_NAME} Threads::Threads ${CURL_LIBRARIES} ${EXTRA_LIBRARIES})
 
 if(MSVC)
-  target_compile_options(azure-storage-lite PRIVATE /W4 /WX /MP)
+  target_compile_options(${LIB_NAME} PRIVATE /W4 /WX /MP)
 elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-  target_compile_options(azure-storage-lite PRIVATE -Wall -Wextra -Werror -pedantic)
+  target_compile_options(${LIB_NAME} PRIVATE -Wall -Wextra -Werror -pedantic)
 endif()
 
 if(BUILD_ADLS)
@@ -194,7 +200,7 @@ set(AZURE_STORAGE_LITE_VERSION_MINOR 3)
 set(AZURE_STORAGE_LITE_VERSION_REVISION 0)
 
 install(DIRECTORY include/ DESTINATION include)
-install(TARGETS azure-storage-lite
+install(TARGETS ${LIB_NAME}
     ARCHIVE DESTINATION lib
     LIBRARY DESTINATION lib
     RUNTIME DESTINATION bin)
