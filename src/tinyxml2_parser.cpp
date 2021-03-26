@@ -36,8 +36,10 @@ storage_error tinyxml2_parser::parse_storage_error(const std::string &xml) const
     if (xdoc.Parse(xml.data(), xml.size()) == tinyxml2::XMLError::XML_SUCCESS)
     {
         auto xerror = xdoc.FirstChildElement("Error");
-        error.code_name = parse_text(xerror, "Code");
-        error.message = parse_text(xerror, "Message");
+        if (xerror) {
+          error.code_name = parse_text(xerror, "Code");
+          error.message = parse_text(xerror, "Message");
+        }
     }
 
     return error;
