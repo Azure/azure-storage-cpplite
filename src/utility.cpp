@@ -8,7 +8,11 @@
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 #else
+#ifdef __QNXNTO__
+#include <uuid.h> // OSSP uuid
+#else
 #include <uuid/uuid.h>
+#endif
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <fcntl.h>
@@ -37,11 +41,19 @@ namespace azure {  namespace storage_lite {
         res = std::string(uuid_cstr);
         RpcStringFreeA(reinterpret_cast<RPC_CSTR*>(&uuid_cstr));
 #else
-        uuid_t uuid;
         char uuid_cstr[37]; // 36 byte uuid plus null.
-        uuid_generate(uuid);
-        uuid_unparse(uuid, uuid_cstr);
-        res = std::string(uuid_cstr);
+		#ifdef __UUID_H__
+			uuid_t *uuid;
+			uuid_create(&uuid);
+			uuid_make(uuid, UUID_MAKE_V1);
+			uuid_export(uuid, UUID_FMT_STR, &uuid_cstr, NULL);
+			uuid_destroy(uuid);
+		#else
+			uuid_t uuid;
+			uuid_generate(uuid);
+			uuid_unparse(uuid, uuid_cstr);
+		#endif
+		res = std::string(uuid_cstr);
 #endif
 
         return res;

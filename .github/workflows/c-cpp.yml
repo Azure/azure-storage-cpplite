@@ -1,0 +1,40 @@
+name: C/C++ CI
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        os: [ubuntu-16.04, ubuntu-18.04, ubuntu-20.04, macos-latest]
+    
+    runs-on: ${{ matrix.os }}
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Run vcpkg
+      uses: lukka/run-vcpkg@v3
+      with:
+        vcpkgArguments: 'curl openssl libuuid'
+        vcpkgDirectory: '${{ runner.workspace }}/b/vcpkg'
+        vcpkgGitCommitId: '2cb28482bb5f10332b3458502a3370f821b8f69c'
+    - name: Run CMake+Ninja
+      uses: lukka/run-cmake@v2
+      with:
+        cmakeGenerator: 'Ninja'  
+        cmakeListsOrSettingsJson: 'CMakeListsTxtAdvanced'
+        cmakeListsTxtPath: '${{ github.workspace }}/CMakeLists.txt'
+        cmakeAppendedArgs: '-DCMAKE_INSTALL_PREFIX=${{ runner.workspace }}/install'
+        buildWithCMakeArgs: '-t install'
+        useVcpkgToolchainFile: true
+        buildDirectory: '${{ runner.workspace }}/build'
+      env:
+        PKG_CONFIG_PATH: ${{ runner.workspace }}/b/vcpkg/installed/x64-linux/lib/pkgconfig
+    - uses: actions/upload-artifact@v2
+      with:
+        name: azure-storage-cpplite
+        path: '${{ runner.workspace }}/install/**/*'
